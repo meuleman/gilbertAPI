@@ -27,7 +27,7 @@ def main():
     with closing(Pool(5)) as pool:
         results = pool.map(func, [1, 10, 100, 1000, 10000])
     pool.join()
-    file = open("train_recall.txt", "w")
+    file = open("DHS_model_e30_d10_train_recall.txt", "w")
     file.write("%s = %s" %("Train Recall@[1, 10, 100, 1000, 10000]", results))
     file.close()
     
