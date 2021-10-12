@@ -20,13 +20,13 @@ from contextlib import closing
 
 def main():
     #read in model and data
-    pickle_in = open('/home/ctrader/Hold/DHS/DHS_model_e15_d16_reg00001.pickle', 'rb')
+    pickle_in = open('/home/ctrader/Hold/DHS/DHS_model_e15_d16_reg0001.pickle', 'rb')
     model = pickle.load(pickle_in)
-    pickle_in = open('/home/ctrader/Hold/DHS/DHS_data_e15_d16_reg00001.pickle', 'rb')
+    pickle_in = open('/home/ctrader/Hold/DHS/DHS_data_e15_d16_reg0001.pickle', 'rb')
     data = pickle.load(pickle_in)
     func = partial(precision_recall, model, data['train'])
-    with closing(Pool(5)) as pool:
-        results = pool.map(func, [1, 10, 100, 1000, 10000])
+    with closing(Pool(8)) as pool:
+        results = pool.map(func, [1, 10, 100, 1000, 10000, 100000, 1000000, 3591898])
     pool.join()
     precision = []
     recall = []
@@ -34,8 +34,8 @@ def main():
         p, r = i
         precision.append(p)
         recall.append(r)
-    file = open("DHS_model_e15_d16_reg00001_train_precision_recall.txt", "w")
-    file.write("%s = %s \n%s = %s" %("Train Precision@[1, 10, 100, 1000, 10000]", precision, "Train Recall@[1, 10, 100, 1000, 10000]", recall))
+    file = open("/precision_recall_results/DHS_model_e15_d16_reg0001_train_precision_recall.txt", "w")
+    file.write("%s = %s \n%s = %s" %("Train Precision@[1, 10, 100, 1000, 10000, 100000, 1000000, 3591898]", precision, "Train Recall@[1, 10, 100, 1000, 10000, 100000, 1000000, 3591898]", recall))
     file.close()
     
 def precision_recall(model, data, k):
