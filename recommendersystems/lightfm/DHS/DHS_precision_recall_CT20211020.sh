@@ -15,7 +15,7 @@ conda activate lightfm
 cd /home/ctrader/AG/AugmentedGenomics/recommendersystems/lightfm/DHS/
 
 echo "Running DHS Test Precision Recall"
-python DHS_precision_recall_CT20211020.py DHS_model_e15_d16_reg0001 DHS_data_e15_d16_reg0001 'test' [1,10,100,1000,10000]
+python DHS_precision_recall_CT20211020.py DHS_model_e15_d16_reg0.0001_lr01_rs3 DHS_data_e15_d16_reg0.0001_lr01_rs3 'test' [1,10,100,1000,10000]
 echo "Running DHS Train Precision Recall"
-python DHS_precision_recall_CT20211020.py DHS_model_e15_d16_reg0001 DHS_data_e15_d16_reg0001 'train' [1,10,100,1000,10000]
+python DHS_precision_recall_CT20211020.py DHS_model_e15_d16_reg0.0001_lr01_rs3 DHS_data_e15_d16_reg0.0001_lr01_rs3 'train' [1,10,100,1000,10000]
 echo "Done running"
