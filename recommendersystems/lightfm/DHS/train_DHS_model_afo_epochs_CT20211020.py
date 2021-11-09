@@ -16,7 +16,7 @@ def train_model(epochs_val):
     data_coo = sp.sparse.coo_matrix(dhs.values)
     
     #80/20 train test split to test precision values between train and test datasets
-    (train, test) = cross_validation.random_train_test_split(data_coo, test_percentage=0.2, random_state=None)
+    (train, test) = cross_validation.random_train_test_split(data_coo, test_percentage=0.2, random_state=np.random.RandomState(3))
     data_80_20 = {'train': train, 'test': test}
     #creating model with L2 regularization set to 0.0001, k=16 components
     model = LightFM(no_components=16, loss='warp', item_alpha=0.0001, user_alpha=0.0001)
@@ -24,10 +24,10 @@ def train_model(epochs_val):
     print('Training model for %s epochs' %(epochs_val))
     model.fit(data_80_20['train'], epochs=epochs_val, num_threads=4)
 
-    model_path = os.path.join('/home/ctrader/Hold/DHS/', 'DHS_model_e'+str(epochs_val)+'_d16_reg0001.pickle')
+    model_path = os.path.join('/home/ctrader/Hold/DHS/', 'DHS_model_e'+str(epochs_val)+'_d16_reg0001_rs3.pickle')
     print('model path =', model_path)
 
-    data_path = os.path.join('/home/ctrader/Hold/DHS/', 'DHS_data_e'+str(epochs_val)+'_d16_reg0001.pickle')
+    data_path = os.path.join('/home/ctrader/Hold/DHS/', 'DHS_data_e'+str(epochs_val)+'_d16_reg0001_rs3.pickle')
     print('data path =', data_path)
 
     pickle_out_model = open(model_path, 'wb')
