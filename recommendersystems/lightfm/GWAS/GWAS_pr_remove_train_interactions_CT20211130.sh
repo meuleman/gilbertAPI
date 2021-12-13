@@ -15,7 +15,5 @@ conda activate lightfm
 cd /home/ctrader/AG/AugmentedGenomics/recommendersystems/lightfm/GWAS/
 
 echo "Running DHS Tune Precision Recall"
-python GWAS_pr_remove_train_interactions_CT20211130.py GWAS_model_e30_d20_reg0.001_lr01_CT20211130 gwas_int_data_for_pr_CT20211130 'tune'
-echo "Running DHS Train Precision Recall"
-python GWAS_pr_remove_train_interactions_CT20211130.py GWAS_model_e30_d20_reg0.001_lr01_CT20211130 gwas_int_data_for_pr_CT20211130 'train'
+python GWAS_pr_remove_train_interactions_CT20211130.py GWAS_model_e30_d20_userreg1e-06_itemreg1e-05_lr01_CT20211203 gwas_int_data_for_pr_CT20211130 'test'
 echo "Done running"
