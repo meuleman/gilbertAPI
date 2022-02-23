@@ -51,12 +51,14 @@ results = sorted(results, key = len)
 pkl_file = open('../output/dhs-jaccard-240s-scores-every-100.pkl','wb')
 pickle.dump(results, pkl_file)
 
+fn = '../output/dhs-jaccard-240s-distr-every-100.npy'
+np.save(fn, distr)
+
 distr_plot = sns.displot(distr, height=5, aspect=3)
 distr_plot.set(title='DHS Jaccard Distance (240S) Distribution')
 plt.savefig('../output/plots/ST_' + today.strftime("%Y-%m-%d") + '_DHS-Jaccard-240-sample-distribution-every-100.png')
 
-fn = '../output/dhs-jaccard-240s-distr-every-100.npy'
-np.save(fn, distr)
+
 
 # with open('../output/DHS_distribution.txt', 'w'):
     
