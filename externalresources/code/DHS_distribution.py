@@ -19,6 +19,8 @@ from functools import partial
 
 today = date.today()
 
+chromatin_state_data = pd.read_pickle('../data/epilogos_state_data_18.pkl')
+
 
 dhs_df = pd.read_pickle('../data/data_240.pkl')
 
