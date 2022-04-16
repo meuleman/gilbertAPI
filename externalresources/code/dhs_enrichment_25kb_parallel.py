@@ -58,8 +58,9 @@ with closing(Pool(10)) as pool:
 pool.join()
 
 enrichment = pd.concat(results, axis=1)
+print(enrichment)
 
-enrichment = np.log2(enrichment)             
+# enrichment = np.log2(enrichment)             
                    
 pkl_file = open('../output/dhs_enrichment_25kb.pkl','wb')
 pickle.dump(results, pkl_file)
