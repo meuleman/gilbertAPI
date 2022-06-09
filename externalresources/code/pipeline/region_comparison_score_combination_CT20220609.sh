@@ -3,9 +3,6 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=10000
-#SBATCH --error=/home/ctrader/region_similarity/slurm_out_error/job.%J.err
-#SBATCH --output=/home/ctrader/region_similarity/slurm_out_error/job.%J.out
-
 #SBATCH --error=/home/ctrader/region_similarity/slurm_out_error/score_comb_job.err
 #SBATCH --output=/home/ctrader/region_similarity/slurm_out_error/score_comb_job.out
 pwd; hostname; date
