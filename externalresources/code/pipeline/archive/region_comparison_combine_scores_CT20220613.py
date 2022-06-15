@@ -47,7 +47,7 @@ def roi_url(roi, top_regions):
     roi_url_name = 'region_comparison_recommended_regions_roi_'+str(roi)+'_scale_250kb_CT' + today.strftime("%Y%m%d") + '.bed'
     bed_path_name = os.path.join('/home/ctrader/public_html/', roi_url_name)
     np.savetxt(bed_path_name, top_regions, delimiter='\t', fmt='%s')
-    link_path = 'https://epilogos.altius.org:3001/?application=viewer&sampleSet=vA&mode=single&genome=hg19&model=18&complexity=KL&group=all&chrLeft=chr1&chrRight=chr1&start=8000&stop=35000&roiURL=https%3A%2F%2Fencode%3Acollabor8%40resources.altius.org%2F~ctrader%2F' + roi_url_name    
+    link_path = 'https://epilogos.altius.org:3001/?application=viewer&sampleSet=vA&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=chr1&chrRight=chr1&start=8000&stop=35000&roiURL=https%3A%2F%2Fencode%3Acollabor8%40resources.altius.org%2F~ctrader%2F' + roi_url_name    
     return link_path, bed_path_name
 
 def main(roi, DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, regions_path):
