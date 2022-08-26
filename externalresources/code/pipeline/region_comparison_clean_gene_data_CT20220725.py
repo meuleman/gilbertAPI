@@ -16,7 +16,7 @@ def main(genes_path, out_path):
                 line[3] = 'nan'
             if '[' in line[4]: #removing bracket info in descriptions
                 line[4] = line[4][:line[4].index('[')]
-	    line[0] = 'chr' + line[0]
+            line[0] = 'chr' + line[0]
             line = '\t'.join(line)
             line += '\n'
             out_data.append(line)
