@@ -3,7 +3,7 @@ import React from "react"
 const Header = () => {
     return (
         <header>
-            <h1>Region Recommendation</h1>
+            <h1>Genomic Narration</h1>
         </header>
     )
 }

@@ -5,7 +5,9 @@ import DisplaySentence from "./DisplaySentence"
 import DisplaySpectrum from "./DisplaySpectrum"
 import DisplayUpsetFull from "./DisplayUpsetFull"
 import DisplayUpsetLimited from "./DisplayUpsetLimited"
+import DisplayBar from "./DisplayBar"
 import Axios from 'axios';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 class RegionRecContainer extends React.Component {
     state = {
@@ -13,7 +15,10 @@ class RegionRecContainer extends React.Component {
         sentence: "",
         spectrum: "",
         upsetFull: "",
-        upsetLimited: ""
+        upsetLimited: "",
+        barNormal: "",
+        barCluster: "",
+        barReduced: ""
     };
     setGenomicLocation = (location) => {
         this.setState({
@@ -30,8 +35,12 @@ class RegionRecContainer extends React.Component {
                 sentence: response.data.sentence,
                 spectrum: response.data.spectrum,
                 upsetFull: response.data.upsetFull,
-                upsetLimited: response.data.upsetLimited
+                upsetLimited: response.data.upsetLimited,
+                barNormal: response.data.barNormal,
+                barCluster: response.data.barCluster,
+                barReduced: response.data.barReduced
             }, () => {
+                //console.log(this.state.barNormal)
                 //console.log(this.state.sentence)
                 //console.log(this.state.upsetLimited)
             })
@@ -42,15 +51,20 @@ class RegionRecContainer extends React.Component {
     render() {
         return (
             <div className="container">
-                <div className="inner">
+                <div className="region">
                     <Header />
                     <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
                     <DisplaySentence sentenceProps={this.state.sentence} />
                 </div>
-                <div className="full-width">
-                    <DisplaySpectrum spectrumProps={this.state.spectrum} />
-                    {/*<DisplayUpsetFull upsetFullProps={this.state.upsetFull} />*/}
-                    <DisplayUpsetLimited upsetLimitedProps={this.state.upsetLimited} />
+                
+                <div className="figures">
+                    <div className="left">
+                        <DisplayBar barProps={this.state.barNormal} />
+                    </div>
+                    <div className="right">
+                        <DisplaySpectrum spectrumProps={this.state.spectrum} />
+                        <DisplayUpsetFull upsetFullProps={this.state.upsetFull} />
+                    </div>
                 </div>
             </div>
         )
