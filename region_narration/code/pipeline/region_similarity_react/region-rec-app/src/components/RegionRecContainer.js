@@ -24,25 +24,62 @@ class RegionRecContainer extends React.Component {
     };
     setGenomicLocation = (location) => {
         this.setState({
-            genomicLocation: location
+            genomicLocation: location,
+            sentence: "",
+            spectrum: "",
+            upsetFull: "",
+            upsetLimited: "",
+            barNormal: "",
+            barCluster: "",
+            barReduced: ""
         });
         Axios({
             method: "GET",
             url: "http://localhost:3001/",
             headers: {
-                reqState: location
+                reqState: location,
+                page: "functional"
             }
         }).then((response) => {
             this.setState({
                 sentence: response.data.sentence,
-                spectrum: response.data.spectrum,
-                upsetFull: response.data.upsetFull,
+                spectrum: response.data.spectrum
+                /*upsetFull: response.data.upsetFull,
                 upsetLimited: response.data.upsetLimited,
+                barNormal: response.data.barNormal,
+                barCluster: response.data.barCluster,
+                barReduced: response.data.barReduced*/
+            }, () => {
+            });
+        });
+        Axios({
+            method: "GET",
+            url: "http://localhost:3001/",
+            headers: {
+                reqState: location,
+                page: "relations"
+            }
+        }).then((response) => {
+            this.setState({
+                upsetFull: response.data.upsetFull,
+                upsetLimited: response.data.upsetLimited
+            }, () => {
+            });
+        });
+        Axios({
+            method: "GET",
+            url: "http://localhost:3001/",
+            headers: {
+                reqState: location,
+                page: "regions"
+            }
+        }).then((response) => {
+            this.setState({
                 barNormal: response.data.barNormal,
                 barCluster: response.data.barCluster,
                 barReduced: response.data.barReduced
             }, () => {
-            })
+            });
         });
     }
     //showSentence = 

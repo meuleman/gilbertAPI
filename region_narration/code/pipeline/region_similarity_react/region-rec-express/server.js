@@ -20,45 +20,47 @@ var barReduced = '';
 app.get("/", (request, response) => {
     const { spawn } = require("child_process");
     
-    const sentencePromise = new Promise((resolve, reject) => {
-        //Sentence generation
-        const pythonSentence = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_sentences_react_CT20220928.sh", request.headers.reqstate]);
-        pythonSentence.stdout.on('data', (data) => {
-            sentence += data.toString()
+    if (request.headers.page == "functional") {
+        const sentencePromise = new Promise((resolve, reject) => {
+            //Sentence generation
+            const pythonSentence = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_sentences_react_CT20220928.sh", request.headers.reqstate]);
+            pythonSentence.stdout.on('data', (data) => {
+                sentence += data.toString()
+            });
+            pythonSentence.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+            });
+            pythonSentence.on("close", () => {
+                resolve();
+            });
         });
-        pythonSentence.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
+
+        const spectrumPromise = new Promise((resolve, reject) => {
+            //Spectrum plot generation
+            const pythonSpectrum = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_spectrum_react_CT20220928.sh", request.headers.reqstate]);
+            pythonSpectrum.stdout.on('data', (data) => {
+                spectrum += data.toString()
+            });
+            pythonSpectrum.stderr.on('data', (data) => {
+                console.error(`spectrum stderr: ${data}`);
+            });
+            pythonSpectrum.on("close", () => {
+                resolve();
+            });
         });
-        pythonSentence.on("close", () => {
-            /*response.status(200).write(
+
+        Promise.all([sentencePromise, spectrumPromise]).then(() => {
+            response.status(200).send(
                 JSON.stringify({
-                    sentence: sentence
-                })
-            )*/
-            resolve();
-        });
-    });
-    
-    const spectrumPromise = new Promise((resolve, reject) => {
-        //Spectrum plot generation
-        const pythonSpectrum = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_spectrum_react_CT20220928.sh", request.headers.reqstate]);
-        pythonSpectrum.stdout.on('data', (data) => {
-            spectrum += data.toString()
-        });
-        pythonSpectrum.stderr.on('data', (data) => {
-            console.error(`spectrum stderr: ${data}`);
-        });
-        pythonSpectrum.on("close", () => {
-            /*response.status(200).write(
-                JSON.stringify({
+                    sentence: sentence,
                     spectrum: spectrum
                 })
-            )*/
-            resolve();
+            )
+            sentence = '';
+            spectrum = '';
         });
-    });
-    
-    const upsetPromise = new Promise((resolve, reject) => {
+
+    } else if (request.headers.page == "relations") {
         //Upset plot generation
         const pythonUpset = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_upset_react_CT20220928.sh", request.headers.reqstate]);
         pythonUpset.stdout.on('data', (data) => {
@@ -71,17 +73,17 @@ app.get("/", (request, response) => {
             var upsetBuffObj =  JSON.parse(Buffer.concat(upsetBuffArr));
             upsetFull += upsetBuffObj.fullUpset;
             upsetLimited += upsetBuffObj.limitedUpset;  
-            /*response.status(200).write(
+            response.status(200).send(
                 JSON.stringify({
                     upsetFull: upsetFull,
                     upsetLimited: upsetLimited
                 })
-            )*/
-            resolve();    
+            )
+            upsetFull = '';
+            upsetLimited = '';
+            upsetBuffArr = [];
         });
-    });
-
-    const barPromise = new Promise((resolve, reject) => {
+    } else if (request.headers.page == "regions") {
         //Bar plot generation
         const pythonBar = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_bar_react_CT20220928.sh", request.headers.reqstate]);
         pythonBar.stdout.on('data', (data) => {
@@ -95,17 +97,66 @@ app.get("/", (request, response) => {
             barNormal += barBuffObj.normalBar;
             barCluster += barBuffObj.clusterBar;
             barReduced += barBuffObj.reducedBar;
-            /*response.status(200).write(
+            response.status(200).send(
                 JSON.stringify({
                     barNormal: barNormal,
                     barCluster: barCluster,
                     barReduced: barReduced
                 })
-            )*/
+            )
+            barNormal = '';
+            barCluster = '';
+            barReduced = '';
+            barBuffArr = [];
+        });
+    };
+
+    
+    
+    
+    
+    /*const upsetPromise = new Promise((resolve, reject) => {
+        //Upset plot generation
+        const pythonUpset = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_upset_react_CT20220928.sh", request.headers.reqstate]);
+        pythonUpset.stdout.on('data', (data) => {
+            upsetBuffArr.push(data)
+        });
+        pythonUpset.stderr.on('data', (data) => {
+            console.error(`Upset stderr: ${data}`);
+        });
+        pythonUpset.on("close", () => {
+            var upsetBuffObj =  JSON.parse(Buffer.concat(upsetBuffArr));
+            upsetFull += upsetBuffObj.fullUpset;
+            upsetLimited += upsetBuffObj.limitedUpset;  
+            resolve();    
+        });
+    });*/
+
+    /*const barPromise = new Promise((resolve, reject) => {
+        //Bar plot generation
+        const pythonBar = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_bar_react_CT20220928.sh", request.headers.reqstate]);
+        pythonBar.stdout.on('data', (data) => {
+            barBuffArr.push(data)
+        });
+        pythonBar.stderr.on('data', (data) => {
+            console.error(`Bar stderr: ${data}`);
+        });
+        pythonBar.on("close", () => {
+            var barBuffObj =  JSON.parse(Buffer.concat(barBuffArr));
+            barNormal += barBuffObj.normalBar;
+            barCluster += barBuffObj.clusterBar;
+            barReduced += barBuffObj.reducedBar;
+            response.status(200).write(
+                JSON.stringify({
+                    barNormal: barNormal,
+                    barCluster: barCluster,
+                    barReduced: barReduced
+                })
+            )
             resolve();
         });
-    });
-    Promise.all([sentencePromise, spectrumPromise, upsetPromise, barPromise]).then(() => {// upsetPromise, barPromise
+    });*/
+    /*Promise.all([sentencePromise, spectrumPromise, upsetPromise, barPromise]).then(() => {// upsetPromise, barPromise
         response.status(200).send(
             JSON.stringify({
                 sentence: sentence,
@@ -127,7 +178,7 @@ app.get("/", (request, response) => {
         barReduced = '';
         barBuffArr = [];
         upsetBuffArr = [];
-    });
+    });*/
 })
 
 app.listen(port, () => {
