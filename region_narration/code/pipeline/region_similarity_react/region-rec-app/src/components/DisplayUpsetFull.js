@@ -3,9 +3,10 @@ import '../App.css'
 
 function DisplayUpsetFull(props) {
     if (props.upsetFullProps !== "") {
-        let blob = new Blob([props.upsetFullProps], {type: 'image/svg+xml'});
+        /*let blob = new Blob([props.upsetFullProps], {type: 'image/svg+xml'});
         let url = URL.createObjectURL(blob);
-        console.log(url)
+        console.log(url)*/
+        let url = props.upsetFullProps;
         return(
             /*<div className="upset">
                 <svg 

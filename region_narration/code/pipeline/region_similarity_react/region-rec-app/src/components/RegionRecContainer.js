@@ -7,7 +7,9 @@ import DisplayUpsetFull from "./DisplayUpsetFull"
 import DisplayUpsetLimited from "./DisplayUpsetLimited"
 import DisplayBar from "./DisplayBar"
 import Axios from 'axios';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import DisplayTabs from "./DisplayTabs"
+
+
 
 class RegionRecContainer extends React.Component {
     state = {
@@ -40,11 +42,7 @@ class RegionRecContainer extends React.Component {
                 barCluster: response.data.barCluster,
                 barReduced: response.data.barReduced
             }, () => {
-                //console.log(this.state.barNormal)
-                //console.log(this.state.sentence)
-                //console.log(this.state.upsetLimited)
             })
-            //console.log(response.data.sentence);
         });
     }
     //showSentence = 
@@ -54,10 +52,10 @@ class RegionRecContainer extends React.Component {
                 <div className="region">
                     <Header />
                     <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
-                    <DisplaySentence sentenceProps={this.state.sentence} />
+                    {/*<DisplaySentence sentenceProps={this.state.sentence} />*/}
                 </div>
                 
-                <div className="figures">
+                {/*<div className="figures">
                     <div className="left">
                         <DisplayBar barProps={this.state.barNormal} />
                     </div>
@@ -65,6 +63,15 @@ class RegionRecContainer extends React.Component {
                         <DisplaySpectrum spectrumProps={this.state.spectrum} />
                         <DisplayUpsetFull upsetFullProps={this.state.upsetFull} />
                     </div>
+                </div>*/}
+                
+                <div className="tab-figures">
+                    <DisplayTabs tabsProps={{
+                        sentence: this.state.sentence, 
+                        upset: this.state.upsetFull,
+                        spectrum: this.state.spectrum,
+                        bar: this.state.barNormal
+                    }} />
                 </div>
             </div>
         )

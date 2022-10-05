@@ -30,6 +30,11 @@ app.get("/", (request, response) => {
             console.error(`stderr: ${data}`);
         });
         pythonSentence.on("close", () => {
+            /*response.status(200).write(
+                JSON.stringify({
+                    sentence: sentence
+                })
+            )*/
             resolve();
         });
     });
@@ -44,6 +49,11 @@ app.get("/", (request, response) => {
             console.error(`spectrum stderr: ${data}`);
         });
         pythonSpectrum.on("close", () => {
+            /*response.status(200).write(
+                JSON.stringify({
+                    spectrum: spectrum
+                })
+            )*/
             resolve();
         });
     });
@@ -60,7 +70,13 @@ app.get("/", (request, response) => {
         pythonUpset.on("close", () => {
             var upsetBuffObj =  JSON.parse(Buffer.concat(upsetBuffArr));
             upsetFull += upsetBuffObj.fullUpset;
-            upsetLimited += upsetBuffObj.limitedUpset;    
+            upsetLimited += upsetBuffObj.limitedUpset;  
+            /*response.status(200).write(
+                JSON.stringify({
+                    upsetFull: upsetFull,
+                    upsetLimited: upsetLimited
+                })
+            )*/
             resolve();    
         });
     });
@@ -79,6 +95,13 @@ app.get("/", (request, response) => {
             barNormal += barBuffObj.normalBar;
             barCluster += barBuffObj.clusterBar;
             barReduced += barBuffObj.reducedBar;
+            /*response.status(200).write(
+                JSON.stringify({
+                    barNormal: barNormal,
+                    barCluster: barCluster,
+                    barReduced: barReduced
+                })
+            )*/
             resolve();
         });
     });
@@ -94,6 +117,7 @@ app.get("/", (request, response) => {
                 barReduced: barReduced
             })
         )
+        //response.status(200).end()
         sentence = '';
         spectrum = '';
         upsetFull = '';

@@ -2,8 +2,9 @@ import React from "react";
 
 function DisplayBar(props) {
     if (props.barProps !== "") {
-        let blob = new Blob([props.barProps], {type: 'image/svg+xml'});
-        let url = URL.createObjectURL(blob);
+        /*let blob = new Blob([props.barProps], {type: 'image/svg+xml'});
+        let url = URL.createObjectURL(blob);*/
+        let url = props.barProps;
         return(
             /*<div className="bar">
                 <svg 

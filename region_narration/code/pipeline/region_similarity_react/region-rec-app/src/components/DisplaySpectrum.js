@@ -3,9 +3,10 @@ import { Canvg } from 'canvg'
 
 function DisplaySpectrum(props) {
     if (props.spectrumProps !== "") {
-        let blob = new Blob([props.spectrumProps], {type: 'image/svg+xml'});
+        /*let blob = new Blob([props.spectrumProps], {type: 'image/svg+xml'});
         let url = URL.createObjectURL(blob);
-        console.log(url)
+        console.log(url)*/
+        let url = props.spectrumProps;
         return(
             /*<div className="spectrum">
                 <svg
