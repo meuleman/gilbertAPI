@@ -8,7 +8,7 @@ import DisplayBar from "./DisplayBar"
 
 class DisplayTabs extends React.Component {
     render() {
-        const sentence = this.props.tabsProps.sentence;
+        //const sentence = this.props.tabsProps.sentence;
         const upset = this.props.tabsProps.upset;
         const spectrum = this.props.tabsProps.spectrum;
         const bar = this.props.tabsProps.bar;
@@ -76,7 +76,7 @@ class DisplayTabs extends React.Component {
                     <Tab>Individual Regions</Tab>
                 </TabList>
                 <TabPanel>
-                    <DisplaySentence sentenceProps={this.props.tabsProps.sentence} />
+                    {/*<DisplaySentence sentenceProps={this.props.tabsProps.sentence} />*/}
                     <DisplaySpectrum spectrumProps={spectrumURL} />
                 </TabPanel>
                 <TabPanel>

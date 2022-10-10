@@ -89,7 +89,7 @@ class RegionRecContainer extends React.Component {
                 <div className="region">
                     <Header />
                     <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
-                    {/*<DisplaySentence sentenceProps={this.state.sentence} />*/}
+                    <DisplaySentence sentenceProps={this.state.sentence} />
                 </div>
                 
                 {/*<div className="figures">
@@ -104,7 +104,7 @@ class RegionRecContainer extends React.Component {
                 
                 <div className="tab-figures">
                     <DisplayTabs tabsProps={{
-                        sentence: this.state.sentence, 
+                        //sentence: this.state.sentence, 
                         upset: this.state.upsetFull,
                         spectrum: this.state.spectrum,
                         bar: this.state.barNormal

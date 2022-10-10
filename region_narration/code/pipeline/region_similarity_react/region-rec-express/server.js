@@ -4,6 +4,7 @@ const port = 3001
 const cors = require("cors");
 const { compileFunction } = require("vm");
 const { resolve } = require("path");
+const cluster = require('cluster');
 //import { Buffer } from 'node:buffer';
 app.use(cors());
 
@@ -23,7 +24,7 @@ app.get("/", (request, response) => {
     if (request.headers.page == "functional") {
         const sentencePromise = new Promise((resolve, reject) => {
             //Sentence generation
-            const pythonSentence = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_sentences_react_CT20220928.sh", request.headers.reqstate]);
+            const pythonSentence = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_sentences_react_CT20221010.sh", request.headers.reqstate]);
             pythonSentence.stdout.on('data', (data) => {
                 sentence += data.toString()
             });
@@ -49,7 +50,7 @@ app.get("/", (request, response) => {
             });
         });
 
-        Promise.all([sentencePromise, spectrumPromise]).then(() => {
+        Promise.all([sentencePromise, spectrumPromise]).then(() => { //spectrumPromise
             response.status(200).send(
                 JSON.stringify({
                     sentence: sentence,
