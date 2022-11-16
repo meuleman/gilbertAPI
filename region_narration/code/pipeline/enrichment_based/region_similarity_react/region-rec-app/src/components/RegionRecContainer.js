@@ -105,7 +105,7 @@ class RegionRecContainer extends React.Component {
                 <div className="tab-figures">
                     <DisplayTabs tabsProps={{
                         //sentence: this.state.sentence, 
-                        upset: this.state.upsetFull,
+                        upset: this.state.upsetLimited,
                         spectrum: this.state.spectrum,
                         bar: this.state.barNormal
                     }} />
