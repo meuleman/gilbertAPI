@@ -17,11 +17,32 @@ var barBuffArr = [];
 var barNormal = '';
 var barCluster = '';
 var barReduced = '';
+//var findRegionsBuffArr = [];
+var findRegionValsObject = '';
 
 app.get("/", (request, response) => {
     const { spawn } = require("child_process");
-    
-    if (request.headers.page == "functional") {
+    if (request.headers.purpose == "getRegions") {
+        //get region information
+        const pythonFindRegions = spawn('bash', ["/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221117.sh", request.headers.reqstate, "chromatin"]);
+        pythonFindRegions.stdout.on('data', (data) => {
+            findRegionValsObject = JSON.parse(data)
+        });
+        pythonFindRegions.stderr.on('data', (data) => {
+            console.error(`Bar stderr: ${data}`);
+        });
+        pythonFindRegions.on("close", () => {
+            //findRegionValsObject +=  JSON.parse(Buffer.concat(findRegionsBuffArr));
+            //console.log(findRegionValsObject.slice(1))
+            response.status(200).send(
+                JSON.stringify({
+                    findRegionValsObject: findRegionValsObject
+                })
+            );
+            findRegionValsObject = '';
+            findRegionsBuffArr = [];
+        });
+    } else if (request.headers.purpose == "functional") {
         const sentencePromise = new Promise((resolve, reject) => {
             //Sentence generation
             const pythonSentence = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_sentences_react_CT20221010.sh", request.headers.reqstate]);
@@ -61,7 +82,7 @@ app.get("/", (request, response) => {
             spectrum = '';
         });
 
-    } else if (request.headers.page == "relations") {
+    } else if (request.headers.purpose == "relations") {
         //Upset plot generation
         const pythonUpset = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_upset_react_CT20220928.sh", request.headers.reqstate]);
         pythonUpset.stdout.on('data', (data) => {
@@ -84,7 +105,7 @@ app.get("/", (request, response) => {
             upsetLimited = '';
             upsetBuffArr = [];
         });
-    } else if (request.headers.page == "regions") {
+    } else if (request.headers.purpose == "regions") {
         //Bar plot generation
         const pythonBar = spawn('bash', ["/Users/ctrader/Documents/region_similarity_pipeline/pipeline_analysis_scripts/region_comparison_pipeline_analysis_bar_react_CT20220928.sh", request.headers.reqstate]);
         pythonBar.stdout.on('data', (data) => {
