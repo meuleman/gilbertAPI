@@ -5,9 +5,11 @@ import DisplaySentence from "./DisplaySentence"
 import DisplaySpectrum from "./DisplaySpectrum"
 import DisplayUpsetFull from "./DisplayUpsetFull"
 import DisplayUpsetLimited from "./DisplayUpsetLimited"
+import BarD3 from "./BarD3"
 import DisplayBar from "./DisplayBar"
 import Axios from 'axios';
 import DisplayTabs from "./DisplayTabs"
+import rd3 from 'react-d3-library';
 
 
 
@@ -20,7 +22,8 @@ class RegionRecContainer extends React.Component {
         upsetLimited: "",
         barNormal: "",
         barCluster: "",
-        barReduced: ""
+        barReduced: "",
+        regionalVals: ""
     };
     setGenomicLocation = (location) => {
         this.setState({
@@ -31,68 +34,88 @@ class RegionRecContainer extends React.Component {
             upsetLimited: "",
             barNormal: "",
             barCluster: "",
-            barReduced: ""
+            barReduced: "",
+            regionalVals: ""
         });
         Axios({
             method: "GET",
             url: "http://localhost:3001/",
             headers: {
                 reqState: location,
-                page: "functional"
+                purpose: "getRegions"
             }
         }).then((response) => {
             this.setState({
-                sentence: response.data.sentence,
-                spectrum: response.data.spectrum
-                /*upsetFull: response.data.upsetFull,
-                upsetLimited: response.data.upsetLimited,
-                barNormal: response.data.barNormal,
-                barCluster: response.data.barCluster,
-                barReduced: response.data.barReduced*/
+                regionalVals: response.data.findRegionValsObject
             }, () => {
             });
         });
-        Axios({
-            method: "GET",
-            url: "http://localhost:3001/",
-            headers: {
-                reqState: location,
-                page: "relations"
-            }
-        }).then((response) => {
-            this.setState({
-                upsetFull: response.data.upsetFull,
-                upsetLimited: response.data.upsetLimited
-            }, () => {
-            });
-        });
-        Axios({
-            method: "GET",
-            url: "http://localhost:3001/",
-            headers: {
-                reqState: location,
-                page: "regions"
-            }
-        }).then((response) => {
-            this.setState({
-                barNormal: response.data.barNormal,
-                barCluster: response.data.barCluster,
-                barReduced: response.data.barReduced
-            }, () => {
-            });
-        });
+        // Axios({
+        //     method: "GET",
+        //     url: "http://localhost:3001/",
+        //     headers: {
+        //         reqState: location,
+        //         purpose: "functional"
+        //     }
+        // }).then((response) => {
+        //     this.setState({
+        //         sentence: response.data.sentence,
+        //         spectrum: response.data.spectrum
+        //         /*upsetFull: response.data.upsetFull,
+        //         upsetLimited: response.data.upsetLimited,
+        //         barNormal: response.data.barNormal,
+        //         barCluster: response.data.barCluster,
+        //         barReduced: response.data.barReduced*/
+        //     }, () => {
+        //     });
+        // });
+        // Axios({
+        //     method: "GET",
+        //     url: "http://localhost:3001/",
+        //     headers: {
+        //         reqState: location,
+        //         purpose: "relations"
+        //     }
+        // }).then((response) => {
+        //     this.setState({
+        //         upsetFull: response.data.upsetFull,
+        //         upsetLimited: response.data.upsetLimited
+        //     }, () => {
+        //     });
+        // });
+        // Axios({
+        //     method: "GET",
+        //     url: "http://localhost:3001/",
+        //     headers: {
+        //         reqState: location,
+        //         purpose: "regions"
+        //     }
+        // }).then((response) => {
+        //     this.setState({
+        //         barNormal: response.data.barNormal,
+        //         barCluster: response.data.barCluster,
+        //         barReduced: response.data.barReduced
+        //     }, () => {
+        //     });
+        // });
     }
-    //showSentence = 
+    
+
+
+
+
+
     render() {
         return (
             <div className="container">
+                
                 <div className="region">
                     <Header />
                     <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
                     <DisplaySentence sentenceProps={this.state.sentence} />
                 </div>
                 
-                {/*<div className="figures">
+                {/*<div className="figures"> //DONT USE from here
                     <div className="left">
                         <DisplayBar barProps={this.state.barNormal} />
                     </div>
@@ -100,7 +123,7 @@ class RegionRecContainer extends React.Component {
                         <DisplaySpectrum spectrumProps={this.state.spectrum} />
                         <DisplayUpsetFull upsetFullProps={this.state.upsetFull} />
                     </div>
-                </div>*/}
+                </div> //DONT USE to here */} 
                 
                 <div className="tab-figures">
                     <DisplayTabs tabsProps={{
@@ -110,7 +133,10 @@ class RegionRecContainer extends React.Component {
                         bar: this.state.barNormal
                     }} />
                 </div>
+                <BarD3 barProps={{regionalVals: this.state.regionalVals}} />
             </div>
+
+            
         )
     }
 }
