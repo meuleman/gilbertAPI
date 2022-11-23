@@ -73,20 +73,20 @@ class DisplayTabs extends React.Component {
         return(
             <Tabs>
                 <TabList>
+                    <Tab>Individual Regions</Tab>
                     <Tab>Functional</Tab>
                     <Tab>Relations Between Regions</Tab>
-                    <Tab>Individual Regions</Tab>
                 </TabList>
+                <TabPanel>
+                    {/*<DisplayBar barProps={barURL} />*/}
+                    <BarD3 barProps={{regionalVals: this.props.tabsProps.regionalVals}} />
+                </TabPanel>
                 <TabPanel>
                     {/*<DisplaySentence sentenceProps={this.props.tabsProps.sentence} />*/}
                     <DisplaySpectrum spectrumProps={spectrumURL} />
                 </TabPanel>
                 <TabPanel>
                     <DisplayUpsetFull upsetFullProps={upsetURL} />
-                </TabPanel>
-                <TabPanel>
-                    {/*<DisplayBar barProps={barURL} />*/}
-                    <BarD3 barProps={{regionalVals: this.props.tabsProps.regionalVals}} />
                 </TabPanel>
             </Tabs>
         )

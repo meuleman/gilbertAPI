@@ -5,9 +5,6 @@ import * as d3 from "d3"
 class BarD3 extends React.Component {
 
     render() {
-        // var returnDiv = document.createElement('div');
-        // returnDiv.setAttribute("id", "barChart");
-
         var data = this.props.barProps.regionalVals;
         console.log(data)
         
@@ -19,16 +16,9 @@ class BarD3 extends React.Component {
             
             
             d3.select("svg").remove()
-            console.log(document.getElementById("barChart"))
-            if (document.getElementById("barChart")!=undefined) {
-
-                if (document.getElementById("barChart").getElementsByTagName('*').length != 0) {
-                    document.getElementById("barChart").removeChild(document.getElementById("barChart").lastElementChild);
-                }
-            } else {
-                var returnDiv = document.createElement('div');
-                returnDiv.setAttribute("id", "barChart");
-                console.log(returnDiv)
+            
+            if (document.getElementById("barChart").getElementsByTagName('*').length != 0) {
+                document.getElementById("barChart").removeChild(document.getElementById("barChart").lastElementChild);
             }
             //
             // d3.select("div").remove()
@@ -103,8 +93,6 @@ class BarD3 extends React.Component {
                 .style("position", "absolute")
                 .style("display", "inline")
                 .style("z-index", 1)
-                .style("top", 100)
-                .style("left", 100)
                 
 
             var mouseover = function(d, i) {
@@ -151,7 +139,7 @@ class BarD3 extends React.Component {
                     .on("mousemove", mousemove)
                     .on("mouseleave", mouseleave)
 
-
+            console.log("test")
             console.log(document.getElementById("barChart"))
 
         }

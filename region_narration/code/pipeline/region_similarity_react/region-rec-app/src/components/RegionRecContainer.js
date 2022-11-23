@@ -9,7 +9,7 @@ import BarD3 from "./BarD3"
 import DisplayBar from "./DisplayBar"
 import Axios from 'axios';
 import DisplayTabs from "./DisplayTabs"
-import rd3 from 'react-d3-library';
+// import rd3 from 'react-d3-library';
 import sampleData from '../devmode_top_similar_regions_results_CT20221123.json';
 
 
