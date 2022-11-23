@@ -5,25 +5,43 @@ import * as d3 from "d3"
 class BarD3 extends React.Component {
 
     render() {
+        // var returnDiv = document.createElement('div');
+        // returnDiv.setAttribute("id", "barChart");
+
         var data = this.props.barProps.regionalVals;
-
-        var margin = {top: 0, right: 50, left: 50, bottom: 10},
-              height = 500,
-              width = 400;
-        
-        
-        var barContainer = d3.select("#barChart");
-
-        var barsvg = barContainer
-                    .append("svg")
-                        .attr("width", width)
-                        .attr("height", height)
-                    .append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+        console.log(data)
         
         if (data.length != 0) {
-            console.log("test")
+            var margin = {top: 0, right: 50, left: 50, bottom: 10},
+                height = 1000,
+                width = 800;
+            
+            
+            
+            d3.select("svg").remove()
+            console.log(document.getElementById("barChart"))
+            if (document.getElementById("barChart")!=undefined) {
+
+                if (document.getElementById("barChart").getElementsByTagName('*').length != 0) {
+                    document.getElementById("barChart").removeChild(document.getElementById("barChart").lastElementChild);
+                }
+            } else {
+                var returnDiv = document.createElement('div');
+                returnDiv.setAttribute("id", "barChart");
+                console.log(returnDiv)
+            }
+            //
+            // d3.select("div").remove()
+            var barContainer = d3.select("#barChart");
+            
+
+            var barsvg = barContainer
+                        .append("svg")
+                            .attr("width", width)
+                            .attr("height", height)
+                        .append("g")
+                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
             var metrics = Object.keys(data[0]).slice(0, 3)
             //var regions = d3.map(data, function(d){return(d.region)}).keys()
             var regionSums = data.map(x => {
@@ -62,7 +80,7 @@ class BarD3 extends React.Component {
                 .range([0, height - margin.top - margin.bottom])
                 .padding(0.1);
             barsvg.append("g")
-                .style("font", "4px times")
+                .style("font", "8px times")
                 // .attr("transform", "translate(0," + width + ")")
                 .call(d3.axisLeft(y));
 
@@ -72,35 +90,40 @@ class BarD3 extends React.Component {
 
             var stackedData = d3.stack().keys(metrics)(scaledData)
 
-            // var tooltip = barContainer
-            //     .append("div")
-            //     .attr("class", "tooltip")
-            //     .style("opacity", 0)
-            //     .style("background-color", "white")
-            //     .style("border", "solid")
-            //     .style("border-width", "2px")
-            //     .style("border-radius", "5px")
-            //     .style("padding", "5px");
-
-
             
-            // var mouseover = function(d, i) {
-            //     var metricName = d3.select(this.parentNode).datum().key;
-            //     var regionNum = i.data.region;
-            //     tooltip
-            //         .html("Region: " + regionNum + "Metric: " + metricName)
-            //         .style("opacity", 1);
-            // }
+            var tooltip = barContainer
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "1px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+                .style("position", "absolute")
+                .style("display", "inline")
+                .style("z-index", 1)
+                .style("top", 100)
+                .style("left", 100)
+                
 
-            // var mousemove = function(e) {
-            //     tooltip
-            //         .style("left", (e.pageX-10) + "px")
-            //         .style("top", (e.pageY+10) + "px");
-            // }
-            // var mouseleave = function(d) {
-            //     tooltip
-            //         .style("opacity", 0)
-            // }
+            var mouseover = function(d, i) {
+                var metricName = d3.select(this.parentNode).datum().key;
+                var regionNum = i.data.region;
+                tooltip
+                    .html("Region: " + regionNum + "<br>Metric: " + metricName)
+                    .style("opacity", 1);
+            }
+
+            var mousemove = function(e) {
+                tooltip.style("left", (e.pageX+20) + "px");
+                tooltip.style("top", (e.pageY) + "px");
+                // console.log(tooltip.style.top, tooltip.style.left)
+            }
+            var mouseleave = function(d) {
+                tooltip
+                    .style("opacity", 0)
+            }
 
             barsvg.append("g")
                 .selectAll("g")
@@ -124,34 +147,25 @@ class BarD3 extends React.Component {
                             return x(d[1]) - x(d[0]);
                         })
                         .attr("height", y.bandwidth)
-                    // .on("mouseover", mouseover)
-                    // .on("mousemove", mousemove)
-                    // .on("mouseleave", mouseleave)
+                    .on("mouseover", mouseover)
+                    .on("mousemove", mousemove)
+                    .on("mouseleave", mouseleave)
+
+
+            console.log(document.getElementById("barChart"))
+
         }
-
-        
-
-        
-
-        
-        
-        
-
-
-        // d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stacked.csv").then( function(data) {
-
-        //     // List of subgroups = header of the csv files = soil condition here
-        //     var subgroups = data.columns.slice(1)
-        //     // console.log(subgroups)
-        //     var groups = d3.map(data, function(d){return(d.group)}).keys()
-        //     console.log(data)
-
-        // })
         
         return (
-            <div id='barChart'>
-                
+            
+            <div id="barChart">
+
+                {/*<div>
+                    {document.getElementById('barChart')}
+                </div>*/}
             </div>
+            
+            
         )
     }
 };

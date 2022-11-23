@@ -228,6 +228,9 @@ def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, coex_hdf5_path, cooccu
 
     json_return = json.dumps(chromatin_return)
     sys.stdout.write(json_return)
+    #f = open('/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/devmode_top_similar_regions_results_CT20221123.json', 'w')
+    #f.write(json_return)
+    #f.close()
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14])

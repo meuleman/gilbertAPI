@@ -5,6 +5,7 @@ import DisplaySentence from "./DisplaySentence"
 import DisplaySpectrum from "./DisplaySpectrum"
 import DisplayUpsetFull from "./DisplayUpsetFull"
 import DisplayBar from "./DisplayBar"
+import BarD3 from "./BarD3"
 
 class DisplayTabs extends React.Component {
     render() {
@@ -12,6 +13,7 @@ class DisplayTabs extends React.Component {
         const upset = this.props.tabsProps.upset;
         const spectrum = this.props.tabsProps.spectrum;
         const bar = this.props.tabsProps.bar;
+        // console.log(this.props.tabsProps.regionalVals)
         
         /*let upsetFigure;
         if (upset !== "") {
@@ -61,11 +63,11 @@ class DisplayTabs extends React.Component {
             spectrumURL = URL.createObjectURL(spectrumBlob);
         } 
 
-        let barURL = "";
-        if (bar !== "") {
-            let barBlob = new Blob([bar], {type: 'image/svg+xml'});
-            barURL = URL.createObjectURL(barBlob);
-        } 
+        // let barURL = "";
+        // if (bar !== "") {
+        //     let barBlob = new Blob([bar], {type: 'image/svg+xml'});
+        //     barURL = URL.createObjectURL(barBlob);
+        // } 
 
         
         return(
@@ -83,7 +85,8 @@ class DisplayTabs extends React.Component {
                     <DisplayUpsetFull upsetFullProps={upsetURL} />
                 </TabPanel>
                 <TabPanel>
-                    <DisplayBar barProps={barURL} />
+                    {/*<DisplayBar barProps={barURL} />*/}
+                    <BarD3 barProps={{regionalVals: this.props.tabsProps.regionalVals}} />
                 </TabPanel>
             </Tabs>
         )

@@ -17,7 +17,7 @@ var barBuffArr = [];
 var barNormal = '';
 var barCluster = '';
 var barReduced = '';
-//var findRegionsBuffArr = [];
+var findRegionsBuffArr = [];
 var findRegionValsObject = '';
 
 app.get("/", (request, response) => {
@@ -26,14 +26,16 @@ app.get("/", (request, response) => {
         //get region information
         const pythonFindRegions = spawn('bash', ["/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221117.sh", request.headers.reqstate, "chromatin"]);
         pythonFindRegions.stdout.on('data', (data) => {
-            findRegionValsObject = JSON.parse(data)
+            // findRegionValsObject = JSON.parse(data)
+            findRegionsBuffArr.push(data)
         });
         pythonFindRegions.stderr.on('data', (data) => {
             console.error(`Bar stderr: ${data}`);
         });
         pythonFindRegions.on("close", () => {
-            //findRegionValsObject +=  JSON.parse(Buffer.concat(findRegionsBuffArr));
-            //console.log(findRegionValsObject.slice(1))
+            findRegionValsObject =  JSON.parse(Buffer.concat(findRegionsBuffArr));
+            // console.log(findRegionValsObject)
+            // console.log(findRegionValsObject)
             response.status(200).send(
                 JSON.stringify({
                     findRegionValsObject: findRegionValsObject
