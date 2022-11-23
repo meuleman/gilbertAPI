@@ -40,7 +40,7 @@ class RegionRecContainer extends React.Component {
             regionalVals: ""
         });
         if (this.devMode) {
-            console.log(sampleData)
+            // console.log(sampleData)
             this.setState({
                 regionalVals: sampleData
             }, () => {

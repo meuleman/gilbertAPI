@@ -6,7 +6,7 @@ class BarD3 extends React.Component {
 
     render() {
         var data = this.props.barProps.regionalVals;
-        console.log(data)
+        // console.log(data)
         
         if (data.length != 0) {
             var margin = {top: 0, right: 50, left: 50, bottom: 10},
@@ -139,8 +139,6 @@ class BarD3 extends React.Component {
                     .on("mousemove", mousemove)
                     .on("mouseleave", mouseleave)
 
-            console.log("test")
-            console.log(document.getElementById("barChart"))
 
         }
         
