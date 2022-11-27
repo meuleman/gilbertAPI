@@ -1,5 +1,4 @@
 import React from "react";
-import { Canvg } from 'canvg'
 
 function DisplaySpectrum(props) {
     if (props.spectrumProps !== "") {
@@ -25,6 +24,7 @@ function DisplaySpectrum(props) {
                     //viewBox="0 0 1200 1600" 
                     width="100%"
                     height="auto"
+                    alt=""
                 />
             </div>
         )

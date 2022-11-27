@@ -8,7 +8,7 @@ class BarD3 extends React.Component {
         var data = this.props.barProps.regionalVals;
         // console.log(data)
         
-        if (data.length != 0) {
+        if (data.length !== 0) {
             var margin = {top: 0, right: 50, left: 50, bottom: 10},
                 height = 1000,
                 width = 800;
@@ -17,7 +17,7 @@ class BarD3 extends React.Component {
             
             d3.select("svg").remove()
             
-            if (document.getElementById("barChart").getElementsByTagName('*').length != 0) {
+            if (document.getElementById("barChart").getElementsByTagName('*').length !== 0) {
                 document.getElementById("barChart").removeChild(document.getElementById("barChart").lastElementChild);
             }
             //

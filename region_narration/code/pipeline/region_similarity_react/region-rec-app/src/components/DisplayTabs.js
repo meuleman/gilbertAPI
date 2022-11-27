@@ -1,10 +1,10 @@
 import React from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import DisplaySentence from "./DisplaySentence"
+//import DisplaySentence from "./DisplaySentence"
 import DisplaySpectrum from "./DisplaySpectrum"
 import DisplayUpsetFull from "./DisplayUpsetFull"
-import DisplayBar from "./DisplayBar"
+//import DisplayBar from "./DisplayBar"
 import BarD3 from "./BarD3"
 
 class DisplayTabs extends React.Component {
@@ -12,7 +12,7 @@ class DisplayTabs extends React.Component {
         //const sentence = this.props.tabsProps.sentence;
         const upset = this.props.tabsProps.upset;
         const spectrum = this.props.tabsProps.spectrum;
-        const bar = this.props.tabsProps.bar;
+        //const bar = this.props.tabsProps.bar;
         // console.log(this.props.tabsProps.regionalVals)
         
         /*let upsetFigure;

@@ -28,6 +28,7 @@ function DisplayBar(props) {
                     //viewBox="0 0 1200 1600" 
                     width="100%"
                     height="auto"
+                    alt=""
                 />
             </div>
         )
