@@ -1,7 +1,6 @@
 import React from "react";
 import * as d3 from "d3"
 
-
 class BarD3 extends React.Component {
 
     render() {
@@ -12,8 +11,6 @@ class BarD3 extends React.Component {
             var margin = {top: 0, right: 50, left: 50, bottom: 10},
                 height = 1000,
                 width = 800;
-            
-            
             
             d3.select("svg").remove()
             
