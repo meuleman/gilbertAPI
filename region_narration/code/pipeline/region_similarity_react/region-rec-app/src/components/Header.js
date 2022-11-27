@@ -1,11 +1,11 @@
-import React from "react"
+import React from 'react'
 
 const Header = () => {
-    return (
-        <header>
-            <h1>Genomic Narration</h1>
-        </header>
-    )
+  return (
+    <header>
+      <h1>Genomic Narration</h1>
+    </header>
+  )
 }
 
 export default Header

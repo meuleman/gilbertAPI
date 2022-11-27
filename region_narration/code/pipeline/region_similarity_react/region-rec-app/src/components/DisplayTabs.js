@@ -1,25 +1,25 @@
-import React from 'react';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-//import DisplaySentence from "./DisplaySentence"
-import DisplaySpectrum from "./DisplaySpectrum"
-import DisplayUpsetFull from "./DisplayUpsetFull"
-//import DisplayBar from "./DisplayBar"
-import BarD3 from "./BarD3"
+import React from 'react'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
+import 'react-tabs/style/react-tabs.css'
+// import DisplaySentence from "./DisplaySentence"
+import DisplaySpectrum from './DisplaySpectrum'
+import DisplayUpsetFull from './DisplayUpsetFull'
+// import DisplayBar from "./DisplayBar"
+import BarD3 from './BarD3'
 
 class DisplayTabs extends React.Component {
-    render() {
-        //const sentence = this.props.tabsProps.sentence;
-        const upset = this.props.tabsProps.upset;
-        const spectrum = this.props.tabsProps.spectrum;
-        //const bar = this.props.tabsProps.bar;
-        // console.log(this.props.tabsProps.regionalVals)
-        
-        /*let upsetFigure;
+  render () {
+    // const sentence = this.props.tabsProps.sentence;
+    const upset = this.props.tabsProps.upset
+    const spectrum = this.props.tabsProps.spectrum
+    // const bar = this.props.tabsProps.bar;
+    // console.log(this.props.tabsProps.regionalVals)
+
+    /* let upsetFigure;
         if (upset !== "") {
             let upsetBlob = new Blob([upset], {type: 'image/svg+xml'});
             let upsetURL = URL.createObjectURL(upsetBlob);
-            upsetFigure = 
+            upsetFigure =
             <div className="upset">
                 <img src={upsetURL} width="100%" height="auto" />
             </div>;
@@ -31,7 +31,7 @@ class DisplayTabs extends React.Component {
         if (spectrum !== "") {
             let spectrumBlob = new Blob([spectrum], {type: 'image/svg+xml'});
             let spectrumURL = URL.createObjectURL(spectrumBlob);
-            spectrumFigure = 
+            spectrumFigure =
             <div className="spectrum">
                 <img src={spectrumURL} width="100%" height="auto" />
             </div>;
@@ -43,54 +43,53 @@ class DisplayTabs extends React.Component {
         if (bar !== "") {
             let barBlob = new Blob([bar], {type: 'image/svg+xml'});
             let barURL = URL.createObjectURL(barBlob);
-            barFigure = 
+            barFigure =
             <div className="bar">
                 <img src={barURL} width="100%" height="auto" />
             </div>;
         } else {
             barFigure = <div></div>;
-        }*/
-        
-        let upsetURL = "";
-        if (spectrum !== "") {
-            let upsetBlob = new Blob([upset], {type: 'image/svg+xml'});
-            upsetURL = URL.createObjectURL(upsetBlob);
-        } 
+        } */
 
-        let spectrumURL = "";
-        if (spectrum !== "") {
-            let spectrumBlob = new Blob([spectrum], {type: 'image/svg+xml'});
-            spectrumURL = URL.createObjectURL(spectrumBlob);
-        } 
-
-        // let barURL = "";
-        // if (bar !== "") {
-        //     let barBlob = new Blob([bar], {type: 'image/svg+xml'});
-        //     barURL = URL.createObjectURL(barBlob);
-        // } 
-
-        
-        return(
-            <Tabs>
-                <TabList>
-                    <Tab>Individual Regions</Tab>
-                    <Tab>Functional</Tab>
-                    <Tab>Relations Between Regions</Tab>
-                </TabList>
-                <TabPanel>
-                    {/*<DisplayBar barProps={barURL} />*/}
-                    <BarD3 barProps={{regionalVals: this.props.tabsProps.regionalVals}} />
-                </TabPanel>
-                <TabPanel>
-                    {/*<DisplaySentence sentenceProps={this.props.tabsProps.sentence} />*/}
-                    <DisplaySpectrum spectrumProps={spectrumURL} />
-                </TabPanel>
-                <TabPanel>
-                    <DisplayUpsetFull upsetFullProps={upsetURL} />
-                </TabPanel>
-            </Tabs>
-        )
+    let upsetURL = ''
+    if (spectrum !== '') {
+      const upsetBlob = new Blob([upset], { type: 'image/svg+xml' })
+      upsetURL = URL.createObjectURL(upsetBlob)
     }
+
+    let spectrumURL = ''
+    if (spectrum !== '') {
+      const spectrumBlob = new Blob([spectrum], { type: 'image/svg+xml' })
+      spectrumURL = URL.createObjectURL(spectrumBlob)
+    }
+
+    // let barURL = "";
+    // if (bar !== "") {
+    //     let barBlob = new Blob([bar], {type: 'image/svg+xml'});
+    //     barURL = URL.createObjectURL(barBlob);
+    // }
+
+    return (
+      <Tabs>
+        <TabList>
+          <Tab>Individual Regions</Tab>
+          <Tab>Functional</Tab>
+          <Tab>Relations Between Regions</Tab>
+        </TabList>
+        <TabPanel>
+          {/* <DisplayBar barProps={barURL} /> */}
+          <BarD3 barProps={{ regionalVals: this.props.tabsProps.regionalVals }} />
+        </TabPanel>
+        <TabPanel>
+          {/* <DisplaySentence sentenceProps={this.props.tabsProps.sentence} /> */}
+          <DisplaySpectrum spectrumProps={spectrumURL} />
+        </TabPanel>
+        <TabPanel>
+          <DisplayUpsetFull upsetFullProps={upsetURL} />
+        </TabPanel>
+      </Tabs>
+    )
+  }
 }
 
 export default DisplayTabs
