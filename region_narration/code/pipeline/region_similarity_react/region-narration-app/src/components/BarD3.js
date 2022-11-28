@@ -44,7 +44,8 @@ class BarD3 extends React.Component {
       const scaledData = data.map((x, r) => {
         const regionScaled = {}
         metrics.map((m) => {
-          return regionScaled[m] = x[m] / regionSums[r] * regionScores[r]
+          const s = regionScaled[m] = x[m] / regionSums[r] * regionScores[r]
+          return s
         })
         regionScaled.region = r
         return regionScaled
