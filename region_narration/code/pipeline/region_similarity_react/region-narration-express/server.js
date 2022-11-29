@@ -24,7 +24,7 @@ app.get('/', (request, response) => {
   const { spawn } = require('child_process')
   if (request.headers.purpose === 'getRegions') {
     // get region information
-    const pythonFindRegions = spawn('bash', ['/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221117.sh', request.headers.reqstate, 'chromatin'])
+    const pythonFindRegions = spawn('bash', ['/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221128.sh', request.headers.reqstate, 'chromatin'])
     pythonFindRegions.stdout.on('data', (data) => {
       // findRegionValsObject = JSON.parse(data)
       findRegionsBuffArr.push(data)
