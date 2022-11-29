@@ -33,10 +33,14 @@ HOMOLOGY_HDF5_FILE=./regions_25kb_CT20221031.homologySTRINGsimilarity.hdf5
 NEIGH_HDF5_FILE=./regions_25kb_CT20221031.neighborhood_human_transferred_maxSTRINGsimilarity.hdf5
 TEXTMIN_HDF5_FILE=./regions_25kb_CT20221031.textmining_human_transferred_maxSTRINGsimilarity.hdf5
 
+DHS_MAPPED_FILE=./regions_25kb_CT20221104.DHSmapped.bed
+TF_MAPPED_FILE=./regions_25kb_CT20221104.TFmapped.bed
+EPILOGOS_MAPPED_FILE=./regions_25kb_CT20221104.epilogosmapped.bed
+STRING_RANKS_HDF5_FILE=./regions_25kb_CT20221115.top_gene.combined_scores_above_400.counts_by_metric.hdf5
 ##########################
 
 #find similar regions
 #echo "Bar"
 time python /Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221128.py $DHS_HDF5_FILE \
 $TF_HDF5_FILE $EPILOGOS_HDF5_FILE $COEX_HDF5_FILE $COOCCUR_HDF5_FILE $DATABASE_HDF5_FILE $EXPER_HDF5_FILE $FUSION_HDF5_FILE $HOMOLOGY_HDF5_FILE $NEIGH_HDF5_FILE $TEXTMIN_HDF5_FILE \
-$SCALE_GZ_FILENAME $REGIONS_PATH $GENOMIC_LOCATION $SEARCH_METHOD
+$DHS_MAPPED_FILE $TF_MAPPED_FILE $EPILOGOS_MAPPED_FILE $STRING_RANKS_HDF5_FILE $SCALE_GZ_FILENAME $REGIONS_PATH $GENOMIC_LOCATION $SEARCH_METHOD

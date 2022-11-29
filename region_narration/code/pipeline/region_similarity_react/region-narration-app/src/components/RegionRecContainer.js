@@ -9,7 +9,7 @@ import DisplaySentence from './DisplaySentence'
 // import DisplayBar from "./DisplayBar"
 import Axios from 'axios'
 import DisplayTabs from './DisplayTabs'
-import sampleData from '../devmode_top_similar_regions_results_CT20221123.json'
+import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 
 class RegionRecContainer extends React.Component {
   devMode = false
@@ -52,8 +52,11 @@ class RegionRecContainer extends React.Component {
           purpose: 'getRegions'
         }
       }).then((response) => {
+        const data = response.data.findRegionValsObject
+        const queryRegion = data[0]
         this.setState({
-          regionalVals: response.data.findRegionValsObject
+          regionalVals: data,
+          sentence: queryRegion.sentence
         }, () => {
         })
       })

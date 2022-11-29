@@ -5,6 +5,7 @@ import sys
 import h5py
 import tabix
 import json
+from region_comparison_sentences_CT20221129 import make_sentences
 
 def combine_scores_multiple(DHS_scaled_vals, DHS_similar_regions, TF_scaled_vals, TF_similar_regions, epi_scaled_vals,
                             epi_similar_regions, coex_scaled_vals, coex_similar_regions, cooccur_scaled_vals, cooccur_similar_regions,
@@ -138,7 +139,7 @@ def load_rank_path(hdf5_path, roi):
     return rank_arr, max_ranks
 
 def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, coex_hdf5_path, cooccur_hdf5_path, database_hdf5_path, exper_hdf5_path, fusion_hdf5_path, homology_hdf5_path, neigh_hdf5_path,
-         textmin_hdf5_path, gz_file_path, regions_path, genomic_location, search_method):
+         textmin_hdf5_path, DHS_mapped_path, TF_mapped_path, epilogos_mapped_path, STRING_ranks_hdf5_path, gz_file_path, regions_path, genomic_location, search_method):
 
     #load roi
     gz_tb = tabix.open(gz_file_path)
@@ -203,18 +204,21 @@ def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, coex_hdf5_path, cooccu
     elif search_method=='string':
         top_region_inds = region_return_multiple(string_arr, roi)
 
-    #values for top 100 regions
-    cols = top_region_inds[:, 1:]
-    rows = np.array([np.arange(len(top_region_inds[:, 1:]))]*len(top_region_inds[:, 1:][0])).T
+
+    #values for top 100 regions (including query region)
+    cols = top_region_inds
+    rows = np.array([np.arange(len(top_region_inds))]*len(top_region_inds[0])).T
 
     chromatin_arr_top_100 = np.array((DHS_arr, TF_arr, epi_arr))[:, rows, cols]
-    chromatin_metric_order = ['DHS', 'TF motifs', 'epilogos']
+    chromatin_metric_order = ['DHS', 'TF', 'epilogos']
 
     string_arr_top_100 = np.array((coex_arr, cooccur_arr, database_arr, exper_arr, fusion_arr, homology_arr,
                                    neigh_arr, textmin_arr))[:, rows, cols]
     string_metric_order = ['Co-expression', 'Co-occurence', 'Co-annotation',
                            'Interactions in vitro', 'Fusion in Other Species', 'Common Ancestry',
                            'being Nearby', 'Co-citation']
+    string_colors = np.array(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00',
+                              '#cab2d6', '#6a3d9a', '#ffff99'])
 
     #genomic coordinates for each region
     f = open(regions_path, 'r')
@@ -223,24 +227,34 @@ def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, coex_hdf5_path, cooccu
         line = line.strip().split('\t')
         regions.append(line[0] + ':' + line[1] + '-' + line[2])
     f.close()
-    top_region_coords = np.array(regions)[top_region_inds[:, 1:]]
+
+    top_region_coords = np.array(regions)[top_region_inds]
+
+    sort_order = np.argsort(top_region_inds[0])
+    #sentences for all regions
+    sentences = make_sentences(DHS_hdf5_path, DHS_mapped_path, TF_hdf5_path, TF_mapped_path, epilogos_hdf5_path, epilogos_mapped_path, STRING_ranks_hdf5_path, roi=top_region_inds[0][sort_order])
+    sentences = sentences[np.argsort(sort_order)]
 
     #for the first roi, return results as json array
     #each element is an object of scores for each metric
     chromatin_return = []
-    for region in range(100):
+    for rank in range(101):
         region_dict = {}
-        for metric, name in zip(range(len(chromatin_arr_top_100[:, 0])), chromatin_metric_order):
-            region_dict[name] = chromatin_arr_top_100[metric, 0, region]
-        region_dict['region'] = region
-        region_dict['coordinates'] = top_region_coords[0, region]
+        for metric, name in zip(range(len(chromatin_metric_order)), chromatin_metric_order):
+            region_dict[name] = chromatin_arr_top_100[metric, 0, rank]
+        region_dict['rank'] = rank
+        region_dict['coordinates'] = top_region_coords[0, rank]
+        region_dict['region_ind'] = int(top_region_inds[0, rank])
+        region_dict['sentence'] = sentences[rank]
         chromatin_return.append(region_dict)
 
     json_return = json.dumps(chromatin_return)
     sys.stdout.write(json_return)
-    #f = open('/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/devmode_top_similar_regions_results_CT20221123.json', 'w')
+
+    #save output for dev mode
+    #f = open('/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/region_similarity_react/region-narration-app/src/devmode_top_similar_regions_results_CT20221129.json', 'w')
     #f.write(json_return)
     #f.close()
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], sys.argv[16], sys.argv[17], sys.argv[18], sys.argv[19])

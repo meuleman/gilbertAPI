@@ -3,10 +3,12 @@ import * as d3 from 'd3'
 
 class BarD3 extends React.Component {
   render () {
-    const data = this.props.barProps.regionalVals
+    const dataAll = this.props.barProps.regionalVals
     // console.log(data)
 
-    if (data.length !== 0) {
+    if (dataAll.length !== 0) {
+      const data = dataAll.slice(1)
+
       const margin = { top: 0, right: 50, left: 50, bottom: 10 }
       const height = 1000
       const width = 800
@@ -29,7 +31,7 @@ class BarD3 extends React.Component {
 
       const metrics = Object.keys(data[0]).slice(0, 3)
       // console.log(metrics)
-      // var regions = d3.map(data, function(d){return(d.region)}).keys()
+      // var regions = d3.map(data, function(d){return(d.rank)}).keys()
       const regionSums = data.map(x => {
         return Object.values(x).slice(0, 3).reduce(
           (regionTotal, metricVal) => regionTotal + metricVal, 0
@@ -48,13 +50,14 @@ class BarD3 extends React.Component {
           const s = regionScaled[m] = x[m] / regionSums[r] * regionScores[r]
           return s
         })
-        regionScaled.region = r
+        // console.log(r)
+        regionScaled.rank = (r + 1)
         return regionScaled
       })
 
       // X axis
       const x = d3.scaleLinear()
-        .domain([0, Math.max(...regionSums)])
+        .domain([0, 1])
         .range([0, width - margin.left - margin.right])
       barsvg.append('g')
         .style('font', '8px times')
@@ -63,7 +66,7 @@ class BarD3 extends React.Component {
 
       // Y axis
       const y = d3.scaleBand()
-        .domain(data.map(d => d.region))
+        .domain(data.map(d => d.rank))
         .range([0, height - margin.top - margin.bottom])
         .padding(0.1)
       barsvg.append('g')
@@ -90,24 +93,41 @@ class BarD3 extends React.Component {
         .style('display', 'inline')
         .style('z-index', 1)
 
+      var clicked = false;
+
       const mouseover = function (d, i) {
-        const metricStacked = d3.select(this.parentNode).datum()
-        const metricName = metricStacked.key
-        const regionNum = i.data.region
-        const coords = data[regionNum].coordinates
-        tooltip
-          .html('Coordinates: ' + coords + '<br>Region Rank: ' + regionNum + '<br>Metric: ' + metricName)
-          .style('opacity', 1)
+        if (!(clicked)) {
+          const metricStacked = d3.select(this.parentNode).datum()
+          const metricName = metricStacked.key
+          const rankNum = i.data.rank
+          const coords = data[(rankNum - 1)].coordinates
+          const regionSentence = data[(rankNum - 1)].sentence
+          tooltip
+            .html('Coordinates: ' + coords + '<br>Region Rank: ' + rankNum + '<br>Metric: ' + metricName + '<br>Summary: ' + regionSentence)
+            .style('opacity', 1)
+        }
       }
 
       const mousemove = function (e) {
-        tooltip.style('left', (e.pageX + 20) + 'px')
-        tooltip.style('top', (e.pageY) + 'px')
-        // console.log(tooltip.style.top, tooltip.style.left)
+        if (!(clicked)) {
+          tooltip.style('left', (e.pageX + 20) + 'px');
+          tooltip.style('top', (e.pageY) + 'px');
+        };
       }
+
       const mouseleave = function (d) {
-        tooltip
-          .style('opacity', 0)
+        if (!(clicked)) {
+          tooltip
+            .style('opacity', 0);
+        }
+      }
+
+      const mouseclick = function (d) {
+        if (clicked){
+          clicked = false;
+        } else {
+          clicked = true;
+        };
       }
 
       barsvg.append('g')
@@ -124,8 +144,8 @@ class BarD3 extends React.Component {
           return x(d[0])
         })
         .attr('y', function (d) {
-          // console.log(y(d.data.region))
-          return y(d.data.region)
+          // console.log((d.data.rank))
+          return y(d.data.rank)
         })
         .attr('width', function (d) {
           // console.log(x(d[1]) - x(d[0]))
@@ -135,6 +155,7 @@ class BarD3 extends React.Component {
         .on('mouseover', mouseover)
         .on('mousemove', mousemove)
         .on('mouseleave', mouseleave)
+        .on('click', mouseclick)
     }
 
     return (
