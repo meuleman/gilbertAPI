@@ -28,6 +28,7 @@ class BarD3 extends React.Component {
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
       const metrics = Object.keys(data[0]).slice(0, 3)
+      // console.log(metrics)
       // var regions = d3.map(data, function(d){return(d.region)}).keys()
       const regionSums = data.map(x => {
         return Object.values(x).slice(0, 3).reduce(
@@ -90,10 +91,12 @@ class BarD3 extends React.Component {
         .style('z-index', 1)
 
       const mouseover = function (d, i) {
-        const metricName = d3.select(this.parentNode).datum().key
+        const metricStacked = d3.select(this.parentNode).datum()
+        const metricName = metricStacked.key
         const regionNum = i.data.region
+        const coords = data[regionNum].coordinates
         tooltip
-          .html('Region: ' + regionNum + '<br>Metric: ' + metricName)
+          .html('Coordinates: ' + coords + '<br>Region Rank: ' + regionNum + '<br>Metric: ' + metricName)
           .style('opacity', 1)
       }
 
