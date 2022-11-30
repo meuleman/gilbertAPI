@@ -10,9 +10,11 @@ import DisplaySentence from './DisplaySentence'
 import Axios from 'axios'
 import DisplayTabs from './DisplayTabs'
 import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
+import devModeObj from '../devmode.json'
 
 class RegionRecContainer extends React.Component {
-  devMode = false
+  // devMode = false
+  devMode = devModeObj.devMode
   state = {
     genomicLocation: '',
     sentence: '',
