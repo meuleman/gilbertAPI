@@ -2,19 +2,15 @@ import React from 'react'
 import Header from './Header'
 import InputRegion from './InputRegion'
 import DisplaySentence from './DisplaySentence'
-// import DisplaySpectrum from "./DisplaySpectrum"
-// import DisplayUpsetFull from "./DisplayUpsetFull"
-// import DisplayUpsetLimited from "./DisplayUpsetLimited"
-// import BarD3 from "./BarD3"
-// import DisplayBar from "./DisplayBar"
 import Axios from 'axios'
 import DisplayTabs from './DisplayTabs'
 import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 import devModeObj from '../devmode.json'
 
 class RegionRecContainer extends React.Component {
-  // devMode = false
+  
   devMode = devModeObj.devMode
+  devMode = false
   state = {
     genomicLocation: '',
     sentence: '',
@@ -41,8 +37,11 @@ class RegionRecContainer extends React.Component {
     })
     if (this.devMode) {
       // console.log(sampleData)
+      const data = sampleData
+      const queryRegion = data[0]
       this.setState({
-        regionalVals: sampleData
+        regionalVals: data,
+        sentence: queryRegion.sentence
       }, () => {
       })
     } else {

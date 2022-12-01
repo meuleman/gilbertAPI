@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 
 function DisplayBar (props) {
   if (props.barProps !== '') {

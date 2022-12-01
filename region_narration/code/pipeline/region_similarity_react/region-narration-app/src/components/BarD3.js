@@ -1,27 +1,22 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import * as d3 from 'd3'
 
-class BarD3 extends React.Component {
-  render () {
-    const dataAll = this.props.barProps.regionalVals
-    // console.log(data)
-
-    if (dataAll.length !== 0) {
+function BarD3 (props) {
+  useEffect(() => {
+    if (props.barProps.regionalVals !== '') {
+      const dataAll = props.barProps.regionalVals
       const data = dataAll.slice(1)
 
       const margin = { top: 0, right: 50, left: 50, bottom: 10 }
       const height = 1000
       const width = 800
 
-      d3.select('svg').remove()
-
       if (document.getElementById('barChart').getElementsByTagName('*').length !== 0) {
+        d3.select('svg').remove()
         document.getElementById('barChart').removeChild(document.getElementById('barChart').lastElementChild)
       }
-      //
-      // d3.select("div").remove()
+      
       const barContainer = d3.select('#barChart')
-
       const barsvg = barContainer
         .append('svg')
         .attr('width', width)
@@ -30,14 +25,13 @@ class BarD3 extends React.Component {
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
       const metrics = Object.keys(data[0]).slice(0, 3)
-      // console.log(metrics)
       // var regions = d3.map(data, function(d){return(d.rank)}).keys()
       const regionSums = data.map(x => {
         return Object.values(x).slice(0, 3).reduce(
           (regionTotal, metricVal) => regionTotal + metricVal, 0
         )
       })
-
+  
       const regionScores = data.map(x => {
         return 1 - Object.values(x).slice(0, 3).reduce(
           (scoreIterator, metricVal) => scoreIterator * (1 - metricVal), 1
@@ -59,6 +53,7 @@ class BarD3 extends React.Component {
       const x = d3.scaleLinear()
         .domain([0, 1])
         .range([0, width - margin.left - margin.right])
+
       barsvg.append('g')
         .style('font', '8px times')
         .attr('transform', `translate(0, ${height})`)
@@ -80,6 +75,7 @@ class BarD3 extends React.Component {
 
       const stackedData = d3.stack().keys(metrics)(scaledData)
 
+      //tool tip and functions
       const tooltip = barContainer
         .append('div')
         .style('opacity', 0)
@@ -93,8 +89,8 @@ class BarD3 extends React.Component {
         .style('display', 'inline')
         .style('z-index', 1)
 
-      var clicked = false;
-
+      let clicked = false
+  
       const mouseover = function (d, i) {
         if (!(clicked)) {
           const metricStacked = d3.select(this.parentNode).datum()
@@ -110,23 +106,23 @@ class BarD3 extends React.Component {
 
       const mousemove = function (e) {
         if (!(clicked)) {
-          tooltip.style('left', (e.pageX + 20) + 'px');
-          tooltip.style('top', (e.pageY) + 'px');
+          tooltip.style('left', (e.pageX + 20) + 'px')
+          tooltip.style('top', (e.pageY) + 'px')
         };
       }
 
       const mouseleave = function (d) {
         if (!(clicked)) {
           tooltip
-            .style('opacity', 0);
+            .style('opacity', 0)
         }
       }
 
       const mouseclick = function (d) {
-        if (clicked){
-          clicked = false;
+        if (clicked) {
+          clicked = false
         } else {
-          clicked = true;
+          clicked = true
         };
       }
 
@@ -157,18 +153,11 @@ class BarD3 extends React.Component {
         .on('mouseleave', mouseleave)
         .on('click', mouseclick)
     }
-
-    return (
-
-      <div id='barChart'>
-
-        {/* <div>
-                    {document.getElementById('barChart')}
-                </div> */}
-      </div>
-
-    )
-  }
+  })
+  return (
+    <div id='barChart'>
+    </div>
+  )
 };
 
 export default BarD3
