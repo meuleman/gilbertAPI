@@ -15,7 +15,7 @@ function BarD3 (props) {
         d3.select('svg').remove()
         document.getElementById('barChart').removeChild(document.getElementById('barChart').lastElementChild)
       }
-      
+
       const barContainer = d3.select('#barChart')
       const barsvg = barContainer
         .append('svg')
@@ -31,7 +31,7 @@ function BarD3 (props) {
           (regionTotal, metricVal) => regionTotal + metricVal, 0
         )
       })
-  
+
       const regionScores = data.map(x => {
         return 1 - Object.values(x).slice(0, 3).reduce(
           (scoreIterator, metricVal) => scoreIterator * (1 - metricVal), 1
@@ -75,7 +75,7 @@ function BarD3 (props) {
 
       const stackedData = d3.stack().keys(metrics)(scaledData)
 
-      //tool tip and functions
+      // tool tip and functions
       const tooltip = barContainer
         .append('div')
         .style('opacity', 0)
@@ -90,7 +90,7 @@ function BarD3 (props) {
         .style('z-index', 1)
 
       let clicked = false
-  
+
       const mouseover = function (d, i) {
         if (!(clicked)) {
           const metricStacked = d3.select(this.parentNode).datum()
@@ -98,8 +98,9 @@ function BarD3 (props) {
           const rankNum = i.data.rank
           const coords = data[(rankNum - 1)].coordinates
           const regionSentence = data[(rankNum - 1)].sentence
+          const regionScore = regionScores[(rankNum - 1)]
           tooltip
-            .html('Coordinates: ' + coords + '<br>Region Rank: ' + rankNum + '<br>Metric: ' + metricName + '<br>Summary: ' + regionSentence)
+            .html('Coordinates: ' + coords + '<br>Region Rank: ' + rankNum + '<br>Fusion Score: ' + regionScore + '<br>Metric: ' + metricName + '<br>Summary: ' + regionSentence)
             .style('opacity', 1)
         }
       }
@@ -155,8 +156,7 @@ function BarD3 (props) {
     }
   })
   return (
-    <div id='barChart'>
-    </div>
+    <div id='barChart' />
   )
 };
 

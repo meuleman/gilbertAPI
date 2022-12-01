@@ -8,9 +8,7 @@ import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 import devModeObj from '../devmode.json'
 
 class RegionRecContainer extends React.Component {
-  
   devMode = devModeObj.devMode
-  devMode = false
   state = {
     genomicLocation: '',
     sentence: '',
