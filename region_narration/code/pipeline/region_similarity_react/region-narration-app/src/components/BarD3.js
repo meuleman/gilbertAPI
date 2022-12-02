@@ -102,12 +102,13 @@ function BarD3 (props) {
           const regionEnd = coords.split(':')[1].split('-')[1]
           const regionSentence = data[(rankNum - 1)].sentence
           const regionScore = regionScores[(rankNum - 1)]
+
           const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
           const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
           tooltip
             .html('Coordinates: ' + coords + '<br>Region Rank: ' + rankNum + '<br>Fusion Score: ' + regionScore + '<br>Metric: ' +
-              metricName + '<br>Summary: ' + regionSentence + '<br><a href=' + indexPath + '>' + 'Index Browser' + '</a>' + 
-              '<br><a href=' + epilogosPath + '>' + 'Epilogos Browser' + '</a>')
+              metricName + '<br>Summary: ' + regionSentence + '<br><a href=' + indexPath + '>Index Browser</a>' +
+              '<br><a href=' + epilogosPath + '>Epilogos Browser</a>')
             .style('opacity', 1)
         }
       }
