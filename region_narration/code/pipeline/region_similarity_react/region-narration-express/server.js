@@ -28,7 +28,6 @@ app.get('/', (request, response) => {
     // const pythonFindRegions = spawn('bash', ['/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221128.sh', request.headers.reqstate, 'chromatin'])
     // const pythonFindRegions = spawn('bash', ['/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_top_similar_regions_CT20221215.sh', request.headers.reqstate, 'chromatin'])
     pythonFindRegions.stdout.on('data', (data) => {
-      // findRegionValsObject = JSON.parse(data)
       findRegionsBuffArr.push(data)
     })
     pythonFindRegions.stderr.on('data', (data) => {
@@ -36,8 +35,6 @@ app.get('/', (request, response) => {
     })
     pythonFindRegions.on('close', () => {
       findRegionValsObject = JSON.parse(Buffer.concat(findRegionsBuffArr))
-      // console.log(findRegionValsObject)
-      // console.log(findRegionValsObject)
       response.status(200).send(
         JSON.stringify({
           findRegionValsObject
