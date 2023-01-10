@@ -1,7 +1,7 @@
 #!/bin/bash
 
 eval "$(conda shell.bash hook)"
-conda activate region_rec_env
+conda activate min_env
 
 cd /Users/ctrader/Documents/local_data/region_similarity/data
 
