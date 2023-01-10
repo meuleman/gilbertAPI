@@ -5,7 +5,11 @@ function BarD3 (props) {
   useEffect(() => {
     if (props.barProps.regionalVals !== '') {
       const dataAll = props.barProps.regionalVals
+      // console.log(dataAll)
+      // const priors = dataAll.slice(0, 1)[0]
+      // console.log(priors)
       const data = dataAll.slice(1)
+      console.log(dataAll)
 
       const margin = { top: 0, right: 50, left: 50, bottom: 10 }
       const height = 1000
@@ -33,10 +37,16 @@ function BarD3 (props) {
       })
 
       const regionScores = data.map(x => {
+        // console.log(Object.values(x).slice(0, 3))
         return 1 - Object.values(x).slice(0, 3).reduce(
           (scoreIterator, metricVal) => scoreIterator * (1 - metricVal), 1
         )
       })
+      // console.log(regionScores)
+      // const regionScores = data.map(x => {
+      //   return x.fusion_score
+      // })
+      // console.log(regionScores)
 
       const scaledData = data.map((x, r) => {
         const regionScaled = {}
@@ -100,15 +110,28 @@ function BarD3 (props) {
           const regionChr = coords.split(':')[0]
           const regionStart = coords.split(':')[1].split('-')[0]
           const regionEnd = coords.split(':')[1].split('-')[1]
-          const regionSentence = data[(rankNum - 1)].sentence
+          const queryCoords = dataAll[0].coordinates
+          const queryChr = queryCoords.split(':')[0]
+          const queryStart = queryCoords.split(':')[1].split('-')[0]
+          const queryEnd = queryCoords.split(':')[1].split('-')[1]
+          const DHSScore = data[(rankNum - 1)].DHS
+          const TFScore = data[(rankNum - 1)].TF
+          const epilogosScore = data[(rankNum - 1)].epilogos
+          //const regionSentence = data[(rankNum - 1)].sentence
           const regionScore = regionScores[(rankNum - 1)]
 
           const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
           const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
+          const queryIndexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + queryChr + '&chrRight=' + queryChr + '&start=' + queryStart + '&stop=' + queryEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
+          const queryEpilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + queryChr + '&chrRight=' + queryChr + '&start=' + queryStart + '&stop=' + queryEnd + '&gatt=cv'
           tooltip
             .html('Coordinates: ' + coords + '<br>Region Rank: ' + rankNum + '<br>Fusion Score: ' + regionScore + '<br>Metric: ' +
-              metricName + '<br>Summary: ' + regionSentence + '<br><a href=' + indexPath + '>Index Browser</a>' +
-              '<br><a href=' + epilogosPath + '>Epilogos Browser</a>')
+              //metricName + '<br>Summary: ' + regionSentence + '<br><a href=' + indexPath + '>Index Browser</a>' +
+              metricName + '<br>DHS score: ' + DHSScore + '<br>TF Score: ' + TFScore + '<br>Epilogos Score: ' + epilogosScore +
+              '<br><a href=' + indexPath + '>Index Browser</a>' +
+              '<br><a href=' + epilogosPath + '>Epilogos Browser</a>' +
+              '<br><a href=' + queryIndexPath + '>Query: Index Browser</a>' +
+              '<br><a href=' + queryEpilogosPath + '>Query: Epilogos Browser</a>')
             .style('opacity', 1)
         }
       }
@@ -135,6 +158,7 @@ function BarD3 (props) {
         };
       }
 
+
       barsvg.append('g')
         .selectAll('g')
         .data(stackedData)
@@ -142,10 +166,12 @@ function BarD3 (props) {
         .attr('fill', function (d) { return color(d.key) })
         .selectAll('rect')
         .data(function (d) {
+          // console.log(d)
           return d
         })
         .enter().append('rect')
         .attr('x', function (d) {
+          // console.log(d)
           return x(d[0])
         })
         .attr('y', function (d) {

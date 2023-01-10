@@ -8,7 +8,8 @@ import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 import devModeObj from '../devmode.json'
 
 class RegionRecContainer extends React.Component {
-  devMode = devModeObj.devMode
+  // devMode = devModeObj.devMode
+  devMode = false;
   state = {
     genomicLocation: '',
     sentence: '',
@@ -68,7 +69,7 @@ class RegionRecContainer extends React.Component {
       //     }
       // }).then((response) => {
       //     this.setState({
-      //         sentence: response.data.sentence,
+      //         // sentence: response.data.sentence,
       //         spectrum: response.data.spectrum
       //         /*upsetFull: response.data.upsetFull,
       //         upsetLimited: response.data.upsetLimited,
