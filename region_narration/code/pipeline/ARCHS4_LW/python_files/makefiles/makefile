@@ -11,5 +11,9 @@ extract_biosample:
 liana2:
 	sbatch ./liana2.sh
 
+<<<<<<< HEAD
+q
+>>>>>>> 26ee9a21e444cc40401cb12cc714a585e89bf0cc
+=======
 q
 >>>>>>> 26ee9a21e444cc40401cb12cc714a585e89bf0cc
