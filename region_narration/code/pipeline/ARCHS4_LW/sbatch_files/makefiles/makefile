@@ -6,3 +6,5 @@ biosample_selections:
 
 liana2:
 	sbatch ./liana2.sh
+
+q
