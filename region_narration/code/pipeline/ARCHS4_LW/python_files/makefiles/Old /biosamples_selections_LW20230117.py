@@ -1,3 +1,9 @@
+"""
+- dictionary has samples enter multiple categories
+- count-category's-sample-size-dict also includes the overlap
+"""
+
+
 from itertools import islice
 from collections import Counter
 import numpy as np
