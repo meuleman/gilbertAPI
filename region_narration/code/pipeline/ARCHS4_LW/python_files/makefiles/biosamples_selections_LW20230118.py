@@ -108,7 +108,7 @@ allSelected_uniqueSampleIdx_list = []
 for category in category_sampleIdx_dict:
     allSelected_uniqueSampleIdx_list += category_sampleIdx_dict[category]
 
-root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/results"
+root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files/results"
 with open("/category_uniqueSampleIdx_dict.json", "w") as f:
     json.dump(category_sampleIdx_dict, f)
 
