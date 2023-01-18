@@ -106,7 +106,7 @@ category_sampleSizes_dict = {key: len(category_sampleIdx_dict[key]) for key in c
 # Flatten the list values into a single list of integers
 allSelected_uniqueSampleIndices_list = list(set([val for vals in category_sampleIdx_dict.values() for val in vals]))
 
-root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files"
+root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files"
 with open("/results/category_sampleIdx_dict.json", "w") as f:
     json.dump(category_sampleIdx_dict, f)
 

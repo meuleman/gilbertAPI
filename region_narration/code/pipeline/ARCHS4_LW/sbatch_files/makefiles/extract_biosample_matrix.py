@@ -11,7 +11,7 @@ with h5py.File(infile, 'r') as hdf5_file:
     expression = data['expression'][:]
 
 # Open the JSON file
-root = "/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files"
+root = "/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files"
 with open('/results/allSelected_uniqueSampleIndices_list.json') as json_file:
     # Load the JSON data from the file
     sampleIdxs_list = json.load(json_file)
