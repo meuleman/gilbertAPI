@@ -103,17 +103,15 @@ for category in category_list:
 # Get the total sample size collected for each keyword
 category_sampleSizes_dict = {key: len(category_sampleIdx_dict[key]) for key in category_sampleIdx_dict}
 
-# Combine all selected samples into one list
-allSelected_uniqueSampleIdx_list = []
-for category in category_sampleIdx_dict:
-    allSelected_uniqueSampleIdx_list += category_sampleIdx_dict[category]
+# Flatten the list values into a single list of integers
+allSelected_uniqueSampleIndices_list = list(set([val for vals in category_sampleIdx_dict.values() for val in vals]))
 
-root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files/results"
-with open("/category_uniqueSampleIdx_dict.json", "w") as f:
+root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files"
+with open("/results/category_sampleIdx_dict.json", "w") as f:
     json.dump(category_sampleIdx_dict, f)
 
-with open("/category_uniqueSampleSizes_dict.json", "w") as f:
+with open("/results/category_sampleSizes_dict.json", "w") as f:
     json.dump(category_sampleSizes_dict, f)
 
-with open("/allSelected_uniqueSampleIdx_list_LW.json", "w") as f:
-    json.dump(allSelected_uniqueSampleIdx_list, f)
+with open("/results/allSelected_uniqueSampleIndices_list.json", "w") as f:
+    json.dump(allSelected_uniqueSampleIndices_list, f)
