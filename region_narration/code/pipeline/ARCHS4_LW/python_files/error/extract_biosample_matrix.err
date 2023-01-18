@@ -1,0 +1,2 @@
+/var/spool/slurmd/job61522583/slurm_script: line 12: 30388 Killed                  python /home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files/makefiles/extract_biosample_matrix.py
+slurmstepd: error: Detected 1 oom-kill event(s) in step 61522583.batch cgroup.
