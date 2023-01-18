@@ -101,11 +101,11 @@ category_sampleSizes_dict = {key: len(category_sampleIdx_dict[key]) for key in c
 allSelected_uniqueSampleIndices_list = list(set([val for vals in category_sampleIdx_dict.values() for val in vals]))
 
 root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/python_files"
-with open("/results/category_sampleIdx_dict.json", "w") as f:
+with open("/results/category_sampleIdx_dict.json", "w+") as f:
     json.dump(category_sampleIdx_dict, f)
 
-with open("/results/category_sampleSizes_dict.json", "w") as f:
+with open("/results/category_sampleSizes_dict.json", "w+") as f:
     json.dump(category_sampleSizes_dict, f)
 
-with open("/results/allSelected_uniqueSampleIndices_list.json", "w") as f:
+with open("/results/allSelected_uniqueSampleIndices_list.json", "w+") as f:
     json.dump(allSelected_uniqueSampleIndices_list, f)

@@ -4,5 +4,5 @@ all:
 biosample_selections:
 	sbatch ./biosample_selections.sh
 
-liana2:
-	sbatch ./liana2.sh
+extract_biosample:
+	sbatch ./extract_biosample_matrix.sh
