@@ -7,9 +7,12 @@
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=481280
 
+module load anaconda
+conda activate example_env
+
 # Run Python File
 echo "Biosample Selection"
 
-python /home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/biosamples_selections_LW20230117.py $NEW_MAPPED_FILE $EXPECTED $NUM_STATES $BASE_HDF5_FILE
+python /home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/makefiles/biosamples_selections_LW20230118.py $NEW_MAPPED_FILE $EXPECTED $NUM_STATES $BASE_HDF5_FILE
 
 echo "Done"
