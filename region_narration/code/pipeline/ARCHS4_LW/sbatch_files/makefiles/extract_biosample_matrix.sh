@@ -7,6 +7,9 @@
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=481280
 
+module load anaconda
+conda activate example_env
+
 # Run Python File
 echo "Extracting Biosample Filtered Matrix"
 
