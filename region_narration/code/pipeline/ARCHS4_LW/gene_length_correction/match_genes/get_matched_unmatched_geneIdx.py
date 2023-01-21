@@ -29,6 +29,13 @@ for idx, gene_name in enumerate(geneNames_list):
         unmatched_gene_idxs.append(idx)
         #print(gene_name)
 
+# for idx, gene_name in enumerate(gene_name_list):
+#     if gene_name.upper() in geneNames_list: # Here we are referring to the second column of the numpy array
+#         matched_gene_idxs.append(idx)
+#     else:
+#         unmatched_gene_idxs.append(idx)
+#         #print(gene_name)
+
 
 print()
 print("Complete")
@@ -37,3 +44,11 @@ print("Matched:", len(matched_gene_idxs))
 print("Unmatched:", len(unmatched_gene_idxs))
 #
 # print(matched_gene_idxs[0], matched_gene_idxs[-1])
+
+pickle_out = open("archs4_matched_geneIdx_LW20230120.pkl", 'wb')
+pickle.dump(matched_gene_idxs, pickle_out)
+pickle_out.close()
+
+pickle_out = open("archs4_unmatched_geneIdx_LW20230120.pkl", 'wb')
+pickle.dump(unmatched_gene_idxs, pickle_out)
+pickle_out.close()
