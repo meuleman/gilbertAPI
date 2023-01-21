@@ -15,6 +15,7 @@ data = pd.read_csv('archs4_geneSymbols_to_IDs.csv', header=None)
 data = data.to_numpy()
 
 sv_data = []
+unsaved_ = []
 unsaved = 0
 diff = 0
 for gene in data:
@@ -33,6 +34,7 @@ for gene in data:
 
     else:
         #print(gene_id, "/t", gene_name)
+        unsaved_.append(gene_name)
         unsaved += 1
 
 print()
