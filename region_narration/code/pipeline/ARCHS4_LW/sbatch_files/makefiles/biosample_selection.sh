@@ -7,6 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=481280
 
+#source /net/module/sw/anaconda/etc/profile.d/conda.sh
 module load anaconda
 conda activate example_env
 

@@ -109,11 +109,11 @@ for category in category_sampleIdx_dict:
     allSelected_uniqueSampleIdx_list += category_sampleIdx_dict[category]
 
 root = "~/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/results"
-with open("/category_uniqueSampleIdx_dict_LW20230118.json", "w") as f:
+with open("/category_uniqueSampleIdx_dict_LW20230121.json", "w") as f:
     json.dump(category_sampleIdx_dict, f)
 
-with open("/category_uniqueSampleSizes_dict_LW20230118.json", "w") as f:
+with open("/category_uniqueSampleSizes_dict_LW20230121.json", "w") as f:
     json.dump(category_sampleSizes_dict, f)
 
-with open("/allSelected_uniqueSampleIdx_list_LW20230118.json", "w") as f:
+with open("/allSelected_uniqueSampleIdx_list_LW20230121.json", "w") as f:
     json.dump(allSelected_uniqueSampleIdx_list, f)
