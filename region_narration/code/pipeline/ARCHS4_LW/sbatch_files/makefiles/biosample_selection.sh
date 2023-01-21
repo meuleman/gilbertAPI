@@ -7,8 +7,11 @@
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=481280
 
-#source /net/module/sw/anaconda/etc/profile.d/conda.sh
-module load anaconda
+source /net/module/sw/anaconda/etc/profile.d/conda.sh
+module load bedops
+
+eval "$(conda shell.bash hook)"
+#module load anaconda
 conda activate example_env
 
 # Run Python File
