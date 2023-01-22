@@ -23,7 +23,7 @@ with open("/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS
     gene_idxs = [int(row[-1]) for row in reader]
 
 
-with open(root + 'allSelected_uniqueSampleIndices_list.json') as json_file:
+with open(root + 'allSelected_uniqueSampleIdx_list_LW20230121.json') as json_file:
     # Load the JSON data from the file
     sampleIdxs_list = json.load(json_file)
 
