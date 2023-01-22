@@ -30,13 +30,15 @@ with open("/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS
 
 
 # Read ARCHS4 Matrix
-h5py_file = h5py.File(infile, 'r')
+with h5py.File(infile, 'r') as h5py_file:
+    data = h5py_file['data']
+    expression = data['expression'][:]
 
 # biosample_metadata = h5py_file[:, sampleIdxs_list]
 #biosample_metadata = h5py_file['biosample_metadata_path'][cols]
 
-gene_extractedMatrix = h5py_file[gene_idxs, :]
-gene_metadata = h5py_file['gene_metadata_path'][gene_idxs]
+gene_extractedMatrix = expression[gene_idxs, :]
+gene_metadata = expression['gene_metadata_path'][gene_names]
 h5py_file.close()
 
 # Output 
