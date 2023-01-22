@@ -11,10 +11,10 @@ import h5py
 infile = "/home/ajoshi/archs4/data/archs4_gene_human_v2.1.h5"
 
 # Open the JSON file
-root = "/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/results/"
-with open(root + 'allSelected_uniqueSampleIndices_list.json') as json_file:
-    # Load the JSON data from the file
-    sampleIdxs_list = json.load(json_file)
+# root = "/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/results/"
+# with open(root + 'allSelected_uniqueSampleIndices_list.json') as json_file:
+#     # Load the JSON data from the file
+#     sampleIdxs_list = json.load(json_file)
 
 # Read ARCHS4 Matrix
 h5py_file = h5py.File(infile, 'r')
