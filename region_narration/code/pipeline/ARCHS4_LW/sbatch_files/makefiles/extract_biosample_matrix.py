@@ -23,27 +23,30 @@ with open("/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS
     gene_idxs = [int(row[-1]) for row in reader]
 
 
-# with open(root + 'allSelected_uniqueSampleIndices_list.json') as json_file:
-#     # Load the JSON data from the file
-#     sampleIdxs_list = json.load(json_file)
+with open(root + 'allSelected_uniqueSampleIndices_list.json') as json_file:
+    # Load the JSON data from the file
+    sampleIdxs_list = json.load(json_file)
 
-
+pickle_in = open("/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/Analysis/afterReadFilteration_CategorySampleSizes/archs4_sampleNames_list.pkl", 'rb')
+gene_names_list = pickle.load(pickle_in)
+list3 = [gene_names_list[i] for i in sampleIdxs_list]
 
 # Read ARCHS4 Matrix
 with h5py.File(infile, 'r') as h5py_file:
     data = h5py_file['data']
     expression = data['expression'][:]
 
-# biosample_metadata = h5py_file[:, sampleIdxs_list]
-#biosample_metadata = h5py_file['biosample_metadata_path'][cols]
+biosample_metadata = h5py_file[:, sampleIdxs_list]
 
-gene_extractedMatrix = expression[gene_idxs, :]
+biosample_metadata = h5py_file['biosample_metadata_path'][list3]
+
+extractedMatrix = expression[gene_idxs, sampleIdxs_list]
 gene_metadata = expression['gene_metadata_path'][gene_names]
 h5py_file.close()
 
 # Output 
 out_f = h5py.File(root + "gene_extractedMatrix.hdf5", 'w')
-out_f.create_dataset('matrix', data=gene_extractedMatrix)
+out_f.create_dataset('matrix', data=extractedMatrix)
 
 # out_f.create_dataset('biosample_metadata_extractedMatrix', data=biosample_metadata)
 # out_f.create_dataset('gene_metadata_extractedMatrix', data=gene_metadata)
