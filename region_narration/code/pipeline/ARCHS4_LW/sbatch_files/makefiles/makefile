@@ -4,5 +4,11 @@ all:
 biosample_selections:
 	sbatch ./biosample_selections.sh
 
-extract_biosample:
-	sbatch ./extract_biosample_matrix.sh
+extract_matrix:
+	sbatch ./extract_matrix.sh
+    
+gene_correction:
+    sbatch ./gene_length_correction.sh
+    
+quantile_normalization:
+    sbatch ./quantile_normalization.sh
