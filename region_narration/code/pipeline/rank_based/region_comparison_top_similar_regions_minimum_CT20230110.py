@@ -116,7 +116,7 @@ def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path,
     # load roi
     gz_tb = tabix.open(gz_file_path)
     roi = np.array(list(gz_tb.querys(genomic_location)))[:, 3].astype(int)
- 
+
     # Load rank and ind arrays
     # DHS counts
     (DHS_scaled_vals, DHS_similar_regions,

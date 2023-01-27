@@ -48,7 +48,7 @@ def rank_regions(arr):
 def scale_by_sigmoid(sigmoid_ranks, sim_m):
     # max sigmoid value across all components for all regions
     sigmoid_ranks_max = np.max(sigmoid_ranks, axis=1)
-    # average max sigmoid value between regions a and b 
+    # average max sigmoid value between regions a and b
     # and scale similarity score for region pairing ab
     sim_m_sigmoid_scaled = ((sim_m * (sigmoid_ranks_max / 2)) +
                             (sim_m * (sigmoid_ranks_max / 2)).T)

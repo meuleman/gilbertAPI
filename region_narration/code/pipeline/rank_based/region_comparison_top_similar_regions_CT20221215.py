@@ -5,7 +5,7 @@ import sys
 import h5py
 import tabix
 import json
-from region_comparison_sentences_CT20221129 import make_sentences
+# from region_comparison_sentences_CT20221129 import make_sentences
 
 
 def combine_scores_multiple(DHS_scaled_vals, DHS_similar_regions,
@@ -68,8 +68,10 @@ def combine_scores_multiple(DHS_scaled_vals, DHS_similar_regions,
                       (1 - neigh_arr) * (1 - textmin_arr))
 
     # scoring all metrics
-    #chromatin_arr = 1 - ((1 - epi_arr) * (1 - DHS_arr) * (1 - TF_arr))  # no prior
-    chromatin_arr = 1 - ((1 - priors[0] * DHS_arr) * (1 - priors[1] * TF_arr) * (1 - priors[2] * epi_arr))  # prior
+    # chromatin_arr = 1 - ((1 - epi_arr) * (1 - DHS_arr) *
+    #                      (1 - TF_arr))  # no prior
+    chromatin_arr = 1 - ((1 - priors[0] * DHS_arr) * (1 - priors[1] * TF_arr) *
+                         (1 - priors[2] * epi_arr))  # prior
 
     # labeling most contributing metrics for each region
     contributing_chromatin_metrics_arr = np.argmax(np.array((DHS_arr, TF_arr,
@@ -248,7 +250,9 @@ def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, coex_hdf5_path,
     priors = f.readlines()[roi[0]]
     f.close()
     priors = np.float_(priors.strip().split('\t'))
-    priors_dict = {"DHSprior": np.float_(priors[0]), "TFprior": np.float_(priors[1]), "Epilogosprior": np.float_(priors[2])}
+    priors_dict = {"DHSprior": np.float_(priors[0]),
+                   "TFprior": np.float_(priors[1]),
+                   "Epilogosprior": np.float_(priors[2])}
 
     # Combine scores
     (chromatin_arr, string_arr,
@@ -365,7 +369,8 @@ def main(DHS_hdf5_path, TF_hdf5_path, epilogos_hdf5_path, coex_hdf5_path,
                 p = priors[1]
             elif name == 'epilogos':
                 p = priors[2]
-            region_dict[name] = chromatin_arr_top_100[metric, 0, rank] * p  # remove p to remove prior
+            # remove p to remove prior
+            region_dict[name] = chromatin_arr_top_100[metric, 0, rank] * p
         region_dict['rank'] = rank
         region_dict['coordinates'] = top_region_coords[0, rank]
         region_dict['region_ind'] = int(top_region_inds[0, rank])
