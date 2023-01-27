@@ -9,6 +9,9 @@ extract_matrix:
     
 gene_correction:
     sbatch ./gene_length_correction.sh
+
+extract_matrix_5M_threshold:
+    sbatch ./extract_matrix_5M_threshold.sh
     
 quantile_normalization:
     sbatch ./quantile_normalization.sh
