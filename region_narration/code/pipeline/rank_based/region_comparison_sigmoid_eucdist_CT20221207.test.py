@@ -48,7 +48,7 @@ def rank_regions(arr):
 def scale_by_sigmoid(sigmoid_ranks, sim_m):
     # max sigmoid value across all components for all regions
     sigmoid_ranks_max = np.max(sigmoid_ranks, axis=1)
-    # average max sigmoid value between regions a and b 
+    # average max sigmoid value between regions a and b
     # and scale similarity score for region pairing ab
     sim_m_sigmoid_scaled = ((sim_m * (sigmoid_ranks_max / 2)) +
                             (sim_m * (sigmoid_ranks_max / 2)).T)
@@ -70,7 +70,7 @@ def main(val_path, num_cpus, out_path):
     ranked_regions = rank_regions(val_arr)
 
     # max rankings
-    max_ranks = np.max(ranked_regions, axis=0)
+    # max_ranks = np.max(ranked_regions, axis=0)
 
     print('Sigmoid...', flush=True)
     # sigmoid of rank for all regions
@@ -95,27 +95,28 @@ def main(val_path, num_cpus, out_path):
     sim_m[regions_0_val] = 0
     sim_m[:, regions_0_val] = 0
 
-    #print('Sigmoid scaling...', flush=True)
-    ## scaling similarity scores by sigmoid values
-    #sim_m_sigmoid_scaled = scale_by_sigmoid(sigmoid_ranks, sim_m)
-    #del sim_m
+    # print('Sigmoid scaling...', flush=True)
+    # scaling similarity scores by sigmoid values
+    # sim_m_sigmoid_scaled = scale_by_sigmoid(sigmoid_ranks, sim_m)
+    # del sim_m
 
-    #print('Top regions...', flush=True)
-    ## find top 1000 regions and values
-    #top_regions_all, top_vals_all = find_top_regions(sim_m_sigmoid_scaled)
+    # print('Top regions...', flush=True)
+    # find top 1000 regions and values
+    # top_regions_all, top_vals_all = find_top_regions(sim_m_sigmoid_scaled)
 
-    #print('Saving...', flush=True)
-    ## save top 100 of sigmoid euclidean similarities, similar regions, and
-    ## percentiles for each region
-    #out_f = h5py.File(out_path, 'w')
-    #out_f.create_dataset('top_1000_sigmoid_scaled_vals', data=top_vals_all)
-    #out_f.create_dataset('top_1000_similar_regions', data=top_regions_all)
-    #out_f.create_dataset('sigmoid_ranks', data=sigmoid_ranks)
-    #out_f.create_dataset('ranked_regions', data=ranked_regions)
-    #out_f.create_dataset('max_ranks', data=max_ranks)
-    #out_f.close()
+    # print('Saving...', flush=True)
+    # save top 100 of sigmoid euclidean similarities, similar regions, and
+    # percentiles for each region
+    # out_f = h5py.File(out_path, 'w')
+    # out_f.create_dataset('top_1000_sigmoid_scaled_vals', data=top_vals_all)
+    # out_f.create_dataset('top_1000_similar_regions', data=top_regions_all)
+    # out_f.create_dataset('sigmoid_ranks', data=sigmoid_ranks)
+    # out_f.create_dataset('ranked_regions', data=ranked_regions)
+    # out_f.create_dataset('max_ranks', data=max_ranks)
+    # out_f.close()
 
     print('bypass done', flush=True)
+
 
 if __name__ == "__main__":
     main(sys.argv[1], int(sys.argv[2]), sys.argv[3])

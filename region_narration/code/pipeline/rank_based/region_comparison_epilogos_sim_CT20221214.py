@@ -50,7 +50,8 @@ def main(base_path, out_path):
     # scale mean scores between 0 and 1
     mean_sig_arr = sigmoid_func_pre(mean_arr)
     # convolution with mean
-    mean_conv_mean = np.matmul(mean_sig_arr, mean_sig_arr.T) / len(mean_sig_arr[0])
+    mean_conv_mean = np.matmul(mean_sig_arr,
+                               mean_sig_arr.T) / len(mean_sig_arr[0])
     # find top 1000 regions
     top_regions, top_vals = find_top_regions(mean_conv_mean)
     del mean_conv_mean
@@ -62,7 +63,8 @@ def main(base_path, out_path):
     # save top 100 of sigmoid euclidean similarities, similar regions, and
     # percentiles for each region
     out_f = h5py.File(out_path, 'w')
-    out_f.create_dataset('top_similarity_vals_sqrt_sigmoid', data=top_sqrtsig_vals)
+    out_f.create_dataset('top_similarity_vals_sqrt_sigmoid',
+                         data=top_sqrtsig_vals)
     out_f.create_dataset('top_similarity_vals_sqrt', data=top_sqrt_vals)
     out_f.create_dataset('top_similarity_vals', data=top_vals)
     out_f.create_dataset('top_regions', data=top_regions)

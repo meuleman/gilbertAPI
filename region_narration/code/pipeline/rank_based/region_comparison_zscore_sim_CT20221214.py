@@ -36,7 +36,7 @@ def main(base_path, out_path):
     z_hdf5.close()
 
     # percentiles from z scores
-    per_arr = np.where(z_arr==0, 0, stats.norm.cdf(z_arr))
+    per_arr = np.where(z_arr == 0, 0, stats.norm.cdf(z_arr))
     # convolution with mean
     per_conv_mean = np.matmul(per_arr, per_arr.T) / len(per_arr[0])
     # find top 1000 regions
@@ -46,12 +46,12 @@ def main(base_path, out_path):
     top_sqrt_vals = np.sqrt(top_vals)
     top_sqrtsig_vals = sigmoid_func_post(top_sqrt_vals)
 
-
     print('Saving...', flush=True)
     # save top 100 of sigmoid euclidean similarities, similar regions, and
     # percentiles for each region
     out_f = h5py.File(out_path, 'w')
-    out_f.create_dataset('top_similarity_vals_sqrt_sigmoid', data=top_sqrtsig_vals)
+    out_f.create_dataset('top_similarity_vals_sqrt_sigmoid',
+                         data=top_sqrtsig_vals)
     out_f.create_dataset('top_similarity_vals_sqrt', data=top_sqrt_vals)
     out_f.create_dataset('top_similarity_vals', data=top_vals)
     out_f.create_dataset('top_regions', data=top_regions)
