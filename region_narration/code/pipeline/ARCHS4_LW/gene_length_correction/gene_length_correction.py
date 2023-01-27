@@ -24,7 +24,7 @@ gene_length_list = [float(x) for x in gene_length_list]
 print("Finished reading gene length information.")
 
 # Open the h5py file
-with h5py.File('/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/makefiles/extracted_matrix.h5', 'r+') as hf:
+with h5py.File('/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/makefiles/192k_biosamples_57k_genes_extractedMatrix_LW20230125.h5', 'r+') as hf:
     # Get the matrix from the file
     matrix = hf['matrix']
     matrix = np.array(matrix)
