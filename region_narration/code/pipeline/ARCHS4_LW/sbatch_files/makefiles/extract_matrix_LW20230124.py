@@ -34,6 +34,7 @@ with open("/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS
 pickle_in = open("/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/Analysis/afterReadFilteration_CategorySampleSizes/archs4_sampleNames_list.pkl", 'rb')
 sample_names_list = pickle.load(pickle_in)
 selected_sample_names = [sample_names_list[i] for i in sampleIdxs_list]
+pickle_in.close()
 
 # Read ARCHS4 Matrix
 with h5py.File(infile, 'r') as h5py_file:
@@ -43,7 +44,7 @@ with h5py.File(infile, 'r') as h5py_file:
 # Extract the rows and columns specified by the indexes
 extracted_matrix = matrix[gene_idxs, :][:, sampleIdxs_list]
 
-# Create a new HDF5 file
+# Create a new H5 file
 with h5py.File('extracted_matrix.h5', 'w') as f:
     
     # Create a dataset for the matrix
@@ -54,4 +55,3 @@ with h5py.File('extracted_matrix.h5', 'w') as f:
     # Create a dataset for the gene names
     dset3 = f.create_dataset('gene_names', (len(gene_names),), dtype=h5py.special_dtype(vlen=str))
     dset3[:] = gene_names
-
