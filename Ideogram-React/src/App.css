@@ -7,14 +7,14 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 
-    ui-sans-serif, 
-    system-ui, 
-    -system-ui, 
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -system-ui,
     -apple-system,
     BlinkMacSystemFont,
-    Roboto, Helvetica, Arial, 
-    sans-serif, 
+    Roboto, Helvetica, Arial,
+    sans-serif,
     "Apple Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -29,18 +29,19 @@ body {
   display: flex;
   flex-flow: column;
   height: 100%;
-  margin: 0px;
-  margin-top: 0px;
+  margin: 0;
+  margin-top: 0;
   padding: 20px;
-  padding-top: 0px;
+  padding-top: 0;
   color: black;
-  background-color: rgb(242, 242, 242);
+  background-color: #f2f2f2;
 }
 
-.box .row {}
+/*.box .row {}*/
 
 .box .row.header {
   flex: 0 1 auto;
+  
   /* The above is shorthand for:
   flex-grow: 0,
   flex-shrink: 1,
@@ -72,7 +73,7 @@ body {
   font-style: italic;
 }
 
-.geneLabelParent {}
+/*.geneLabelParent {}*/
 
 .geneLabel {
   font-weight: bolder;
