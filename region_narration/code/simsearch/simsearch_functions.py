@@ -3,6 +3,7 @@ from datetime import date
 import h5py
 import os
 
+
 def roiURL(roi, top_regions, link_type='dual'):
     today = date.today()
     roiurl_name = ('region_narration_simsearch_regions_roi_' + str(roi) +
@@ -59,7 +60,7 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors):
 
     # most similar regions
     top_regions = np.argsort(-roi_sim_all)[:101]
-    top_regions = np.append(roi, top_regions[top_regions!=roi][:100])
+    top_regions = np.append(roi, top_regions[top_regions != roi][:100])
 
     return (top_regions, roi_sim_all[top_regions], roi_conv_all[top_regions],
             factor_order, metric_order, colors)

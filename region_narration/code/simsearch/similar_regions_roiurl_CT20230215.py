@@ -3,6 +3,7 @@ import sys
 import tabix
 from simsearch_functions import simsearch, roiURL
 
+
 def main(DHS_per_f, epi_per_f, gz_file_path,
          regions_path, genomic_location, target_factors):
 
