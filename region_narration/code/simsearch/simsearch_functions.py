@@ -63,4 +63,4 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors):
     top_regions = np.append(roi, top_regions[top_regions != roi][:100])
 
     return (top_regions, roi_sim_all[top_regions], roi_conv_all[top_regions],
-            factor_order, metric_order, colors)
+            percents[top_regions], factor_order, metric_order, colors)
