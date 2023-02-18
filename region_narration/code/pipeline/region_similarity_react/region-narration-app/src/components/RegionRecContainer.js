@@ -6,6 +6,8 @@ import Axios from 'axios'
 import DisplayTabs from './DisplayTabs'
 import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 import devModeObj from '../devmode.json'
+import SelectFactors from './SelectFactors'
+import factors from '../factors.json'
 
 class RegionRecContainer extends React.Component {
   // devMode = devModeObj.devMode
@@ -19,7 +21,17 @@ class RegionRecContainer extends React.Component {
     barNormal: '',
     barCluster: '',
     barReduced: '',
-    regionalVals: ''
+    regionalVals: '',
+    selectedFactors: [...Array(factors.length).keys()],
+    possibleFactors: [...Array(factors.length).keys()]
+  }
+
+  setSelectedFactors = (factorInds) => {
+    this.setState({
+      selectedFactors: factorInds
+    }, () => {
+      console.log(this.state.selectedFactors)
+    })
   }
 
   setGenomicLocation = (location) => {
@@ -49,65 +61,19 @@ class RegionRecContainer extends React.Component {
         url: 'http://localhost:3001/',
         headers: {
           reqState: location,
-          purpose: 'getRegions'
+          purpose: 'getRegions',
+          factors: JSON.stringify(this.state.selectedFactors)
         }
       }).then((response) => {
         const data = response.data.findRegionValsObject
-        const queryRegion = data[0]
+        // const queryRegion = data[0]
         this.setState({
           regionalVals: data,
-          sentence: queryRegion.sentence
+          // sentence: queryRegion.sentence
         }, () => {
+          console.log(this.state.regionalVals)
         })
       })
-      // Axios({
-      //     method: "GET",
-      //     url: "http://localhost:3001/",
-      //     headers: {
-      //         reqState: location,
-      //         purpose: "functional"
-      //     }
-      // }).then((response) => {
-      //     this.setState({
-      //         // sentence: response.data.sentence,
-      //         spectrum: response.data.spectrum
-      //         /*upsetFull: response.data.upsetFull,
-      //         upsetLimited: response.data.upsetLimited,
-      //         barNormal: response.data.barNormal,
-      //         barCluster: response.data.barCluster,
-      //         barReduced: response.data.barReduced*/
-      //     }, () => {
-      //     });
-      // });
-      // Axios({
-      //     method: "GET",
-      //     url: "http://localhost:3001/",
-      //     headers: {
-      //         reqState: location,
-      //         purpose: "relations"
-      //     }
-      // }).then((response) => {
-      //     this.setState({
-      //         upsetFull: response.data.upsetFull,
-      //         upsetLimited: response.data.upsetLimited
-      //     }, () => {
-      //     });
-      // });
-      // Axios({
-      //     method: "GET",
-      //     url: "http://localhost:3001/",
-      //     headers: {
-      //         reqState: location,
-      //         purpose: "regions"
-      //     }
-      // }).then((response) => {
-      //     this.setState({
-      //         barNormal: response.data.barNormal,
-      //         barCluster: response.data.barCluster,
-      //         barReduced: response.data.barReduced
-      //     }, () => {
-      //     });
-      // });
     }
   }
 
@@ -119,19 +85,10 @@ class RegionRecContainer extends React.Component {
           <Header />
           <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
           <DisplaySentence sentenceProps={this.state.sentence} />
+          <SelectFactors factorProps={[this.state.possibleFactors, this.setSelectedFactors]}/>
         </div>
 
-        {/* <div className="figures"> //DONT USE from here
-                    <div className="left">
-                        <DisplayBar barProps={this.state.barNormal} />
-                    </div>
-                    <div className="right">
-                        <DisplaySpectrum spectrumProps={this.state.spectrum} />
-                        <DisplayUpsetFull upsetFullProps={this.state.upsetFull} />
-                    </div>
-                </div> //DONT USE to here */}
-
-        <div className='tab-figures'>
+        {/*<div className='tab-figures'>
           <DisplayTabs tabsProps={{
             // sentence: this.state.sentence,
             upset: this.state.upsetLimited,
@@ -139,9 +96,8 @@ class RegionRecContainer extends React.Component {
             bar: this.state.barNormal,
             regionalVals: this.state.regionalVals
           }}
-          />
-        </div>
-        {/* <BarD3 barProps={{regionalVals: this.state.regionalVals}} /> */}
+        />
+        </div>*/}
       </div>
 
     )
