@@ -9,7 +9,7 @@ body {
   line-height: 1.4;
   color: #444;
   background: #fff;
-  height: 1000vh;
+  height: 100vh;
 }
 
 .container {
@@ -170,4 +170,8 @@ border: none;
   width: 100%; 
   left: 0; 
   top: 0;
+}
+
+.checkbox-label {
+  padding-left: 10px;
 }
