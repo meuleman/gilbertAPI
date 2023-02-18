@@ -14,7 +14,8 @@ def main(DHS_per_f, epi_per_f, gz_file_path,
 
     # find most similar region inds
     (top_regions, roi_sim, roi_conv,
-     factor_order, metric_order, colors) = simsearch(
+     roi_per, factor_order, metric_order,
+     colors) = simsearch(
          DHS_per_f, epi_per_f, roi, target_factors
      )
 
@@ -38,6 +39,7 @@ def main(DHS_per_f, epi_per_f, gz_file_path,
             'region_ind': int(top_regions[rank]),
             'score': float(roi_sim[rank]),
             'factor_conv': list(roi_conv[rank]),
+            'percentiles': list(roi_per[rank]),
             'factors': list(factor_order),
             'metrics': list(metric_order),
             'factor_colors': list(colors)
