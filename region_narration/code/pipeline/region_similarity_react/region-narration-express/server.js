@@ -26,7 +26,7 @@ app.get('/', (request, response) => {
     // get region information
     const pythonFindRegions = spawn(
       'bash', [
-        '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_CT20230216.sh', 
+        '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_CT20230221.sh', 
         request.headers.reqstate, 
         request.headers.factors
       ])
