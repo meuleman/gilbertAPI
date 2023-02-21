@@ -9,6 +9,7 @@ cd /home/ctrader/region_similarity/data/rank_based/
 ##########################
 
 GENOMIC_LOCATION=$1
+TARGET_FACTORS=$2
 
 ##########################
 #data
@@ -21,7 +22,7 @@ EPILOGOS_HDF5_FILE=./regions_25kb_CT20230214.epilogos.statesum_rank_percentile.h
 
 
 
-TARGET_FACTORS=[3,30]
+#TARGET_FACTORS=[3,30]
 
 
 #find similar regions
