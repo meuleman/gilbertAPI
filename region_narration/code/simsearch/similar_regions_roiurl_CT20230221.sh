@@ -1,7 +1,7 @@
 #!/bin/bash
 
 eval "$(conda shell.bash hook)"
-conda activate lightfm
+conda activate simsearch_env
 
 #data dir
 cd /home/ctrader/region_similarity/data/rank_based/

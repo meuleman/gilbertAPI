@@ -1,7 +1,7 @@
 #!/bin/bash
 
 eval "$(conda shell.bash hook)"
-conda activate min_env
+conda activate simsearch_env
 
 #data dir
 DATADIR=/Users/ctrader/Documents/local_data/region_similarity/data/rank_based/
