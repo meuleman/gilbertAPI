@@ -26,6 +26,6 @@ EPILOGOS_HDF5_FILE=./regions_25kb_CT20230214.epilogos.statesum_rank_percentile.h
 
 
 #find similar regions
-time python /home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_roiurl_CT20230215.py $DHS_HDF5_FILE \
-$EPILOGOS_HDF5_FILE $SCALE_GZ_FILENAME $REGIONS_PATH $GENOMIC_LOCATION $TARGET_FACTORS
+#time python /home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_roiurl_CT20230215.py $DHS_HDF5_FILE \
+#$EPILOGOS_HDF5_FILE $SCALE_GZ_FILENAME $REGIONS_PATH $GENOMIC_LOCATION $TARGET_FACTORS
 
