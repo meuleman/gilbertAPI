@@ -66,10 +66,10 @@ class RegionRecContainer extends React.Component {
         }
       }).then((response) => {
         const data = response.data.findRegionValsObject
-        // const queryRegion = data[0]
+        const queryRegion = data[0]
         this.setState({
           regionalVals: data,
-          // sentence: queryRegion.sentence
+          sentence: queryRegion.sentence
         }, () => {
           console.log(this.state.regionalVals)
         })
@@ -84,8 +84,9 @@ class RegionRecContainer extends React.Component {
         <div className='region'>
           <Header />
           <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
-          <DisplaySentence sentenceProps={this.state.sentence} />
           <SelectFactors factorProps={[this.state.possibleFactors, this.setSelectedFactors]}/>
+          <DisplaySentence sentenceProps={this.state.sentence} />
+          
         </div>
 
         {/*<div className='tab-figures'>
