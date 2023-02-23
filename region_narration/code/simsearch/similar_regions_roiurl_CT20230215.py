@@ -13,7 +13,8 @@ def main(DHS_per_f, epi_per_f, gz_file_path,
 
     # find most similar region inds
     (top_regions, roi_sim, roi_conv,
-     factor_order, metric_order, colors) = simsearch(
+     roi_per, factor_order, metric_order,
+     colors) = simsearch(
          DHS_per_f, epi_per_f, roi, target_factors
      )
 
