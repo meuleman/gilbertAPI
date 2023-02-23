@@ -19,7 +19,7 @@ function SelectFactors (props) {
     // }
 
     const factors_ext = factors.concat([{name: <b>All DHS Factors</b>, ind: 34}, {name: <b>All Chromatin State Factors</b>, ind: 35}]);
-
+    
     const [included, setIncluded] = useState(
         new Array(factors_ext.length).fill(true)
     );
@@ -77,52 +77,55 @@ function SelectFactors (props) {
     };
 
     return (
-        <div>
-            <div>
-                <button onClick={() => handleOpen(0)}>DHS Factors for Simsearch</button>
+        <div className='factor-select-grid'>
+            <div className='dropdown'>
+                <button className='dropdown-button' onClick={() => handleOpen(0)}>DHS Factors for Simsearch</button>
                 {open[0] ? (
-                    factors_ext.slice(0, 16).concat(factors_ext[34]).map(({name, ind}, index) => {
-                        return(
-                            <div key={ind}>
-                                <input 
-                                type="checkbox" 
-                                id={ind} 
-                                name={name} 
-                                value={name}
-                                checked={included[ind]}
-                                onChange={() => handleChange(ind)}
-                                /> 
-                                <label className='checkbox-label'>
-                                    {name}
-                                </label>
-                            </div>
-                        )
-                    })
+                    <div className='dropdown-option-container'>
+                        {factors_ext.slice(0, 16).concat(factors_ext[34]).map(({name, ind}, index) => {
+                            return(
+                                <div className='dropdown-check' key={ind}>
+                                    <input 
+                                    type='checkbox' 
+                                    id={ind} 
+                                    name={name} 
+                                    value={name}
+                                    checked={included[ind]}
+                                    onChange={() => handleChange(ind)}
+                                    /> 
+                                    <label className='dropdown-label'>
+                                        {name}
+                                    </label>
+                                </div>
+                            )
+                        })}
+                    </div>
                 ) : null}
-                <br></br>
-                <button onClick={() => handleOpen(1)}>Chromatin State Factors for Simsearch</button>
+            </div>
+            <div className='dropdown'>
+                <button className='dropdown-button' onClick={() => handleOpen(1)}>Chromatin State Factors for Simsearch</button>
                 {open[1] ? (
-                    factors_ext.slice(16, 34).concat(factors_ext[35]).map(({name, ind}, index) => {
+                    <div className='dropdown-option-container'>
+                    {factors_ext.slice(16, 34).concat(factors_ext[35]).map(({name, ind}, index) => {
                         return(
-                            <div key={ind}>
+                            <div className='dropdown-check' key={ind}>
                                 <input 
-                                type="checkbox" 
+                                type='checkbox'
                                 id={ind} 
                                 name={name} 
                                 value={name}
                                 checked={included[ind]}
                                 onChange={() => handleChange(ind)}
                                 /> 
-                                <label className='checkbox-label'>
+                                <label className='dropdown-label'>
                                     {name}
                                 </label>
                             </div>
                         )
-                    })
+                    })}
+                    </div>
 
-                ) : null
-                }
-                <div></div>
+                ) : null}
                 
             </div>
         </div>
