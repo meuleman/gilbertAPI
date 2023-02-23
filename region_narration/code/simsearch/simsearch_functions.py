@@ -45,11 +45,11 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors):
     # join data from each metric
     percents = np.hstack((DHS_per, epi_per))
 
-    factor_order = np.append(DHS_factors, epi_factors)[target_factors]
+    factor_order = np.append(DHS_factors, epi_factors)
     metric_order = np.append(np.array(['DHSs'] * len(DHS_factors)),
                              np.array(['chromatin states'] *
-                                      len(epi_factors)))[target_factors]
-    colors = np.append(DHS_color, epi_color)[target_factors]
+                                      len(epi_factors)))
+    colors = np.append(DHS_color, epi_color)
 
     # convolution
     roi_percents = percents[roi, target_factors]
@@ -64,3 +64,71 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors):
 
     return (top_regions, roi_sim_all[top_regions], roi_conv_all[top_regions],
             percents[top_regions], factor_order, metric_order, colors)
+
+
+def narrate_sim(top_regions, roi_per, factor_order, metric_order,
+                target_factors, conversion_dict, metriccolors, thresh=0.9):
+
+    query = top_regions[0]
+    # convolution scores for all factors
+    factor_scores = roi_per[0] * roi_per  # > sqrt of thresh for query region
+
+    sentences = []
+    for region, factor_score in zip(top_regions, factor_scores):
+        # factors that rank high between both the query region and similar
+        # region
+        key_factors = np.where(factor_score > thresh)[0]
+        if len(key_factors) > 0:
+            if region == query:
+                sentence = '<div>The query region ranks highly for '
+            else:
+                sentence = ('<div>This region is highly similar to the ' +
+                            'query region in terms of ')
+            # factors/metric to highlight
+            key_factor_names = factor_order[key_factors]
+            key_metric_names = metric_order[key_factors]
+            m_sections = []
+            # one metric at a time (unordered)
+            for m in np.unique(key_metric_names):
+                m_inds = np.where(key_metric_names == m)[0]
+                # factors for current metric
+                m_factors = key_factor_names[m_inds]
+                # to bold target factors
+                target_factor_inds = np.where(
+                    np.isin(m_factors,
+                            factor_order[target_factors])
+                )[0]
+                # convert to readable names
+                m_factors = list(map(conversion_dict.get, m_factors))
+                # bold target factors
+                for t in target_factor_inds:
+                    m_factors[t] = (metriccolors['BOLD'] + m_factors[t] +
+                                    metriccolors['UNBOLD'])
+                # metric color
+                factors_joined = metriccolors[m]
+                # join factors
+                if len(m_factors) > 2:
+                    factors_joined += ', '.join(m_factors[:-1])
+                    factors_joined += ', and ' + m_factors[-1]
+                elif len(m_factors) == 2:
+                    factors_joined += ' and '.join(m_factors)
+                else:
+                    factors_joined += m_factors[0]
+
+                factors_joined += ' ' + m + metriccolors['STANDARD']
+                m_sections.append(factors_joined)
+            # join metrics
+            if len(m_sections) > 2:
+                metrics_joined = ', '.join(m_sections[:-1])
+                metrics_joined += ', and ' + m_sections[-1]
+            if len(m_sections) == 2:
+                metrics_joined = ' and '.join(m_sections)
+            else:
+                metrics_joined = m_sections[0]
+
+            sentence += metrics_joined + '.</div>'
+
+        else:
+            sentence = '<div></div>'
+        sentences.append(sentence)
+    return sentences
