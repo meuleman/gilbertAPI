@@ -3,7 +3,7 @@ import factors from '../factors.json'
 
 function SelectFactors (props) {
     
-    var possibleFactorInds = props.factorProps[0]
+    var possibleFactorInds = props.factorProps.possibleFactors
 
     // const [allDHS, setAllDHS] = useState(true)
     // const [allEpi, setAllEpi] = useState(true)
@@ -58,7 +58,7 @@ function SelectFactors (props) {
 
         var selectedFactorInds = possibleFactorInds.filter((factorInd, i) => updatedIncluded[i])
 
-        props.factorProps[1](selectedFactorInds)
+        props.factorProps.setSelectedFactors(selectedFactorInds)
     }; 
 
     const [open, setOpen] = useState(
