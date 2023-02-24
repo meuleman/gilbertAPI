@@ -8,6 +8,8 @@ import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 import devModeObj from '../devmode.json'
 import SelectFactors from './SelectFactors'
 import factors from '../factors.json'
+import FactorHeatmap from './FactorHeatmap'
+import QueryRegion from './QueryRegion'
 
 class RegionRecContainer extends React.Component {
   // devMode = devModeObj.devMode
@@ -84,9 +86,16 @@ class RegionRecContainer extends React.Component {
         <div className='region'>
           <Header />
           <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
-          <SelectFactors factorProps={[this.state.possibleFactors, this.setSelectedFactors]}/>
+          <QueryRegion queryProps={this.state.genomicLocation} />
+          <SelectFactors factorProps={{
+            possibleFactors: this.state.possibleFactors, 
+            setSelectedFactors: this.setSelectedFactors
+          }}/>
           <DisplaySentence sentenceProps={this.state.sentence} />
-          
+          <FactorHeatmap heatmapProps={{
+            data: this.state.regionalVals, 
+            search: this.setGenomicLocation
+          }} />
         </div>
 
         {/*<div className='tab-figures'>
