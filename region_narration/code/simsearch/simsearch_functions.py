@@ -37,7 +37,8 @@ def load_per(per_f):
     return percentile, factors, color
 
 
-def simsearch(DHS_per_f, epi_per_f, roi, target_factors, auto_factor_selection, thresh=0.9):
+def simsearch(DHS_per_f, epi_per_f, roi, target_factors,
+              auto_factor_selection, thresh=0.9):
     # load region percentiles
     DHS_per, DHS_factors, DHS_color = load_per(DHS_per_f)
     epi_per, epi_factors, epi_color = load_per(epi_per_f)
@@ -54,9 +55,14 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors, auto_factor_selection, 
     # automatic target factor determination
     query_factor_order = np.argsort(-percents[roi])
     if auto_factor_selection == 'true':
-        target_factors = query_factor_order[np.where(-np.sort(-percents[roi]) > (np.sqrt(thresh)))[0]]  # sqrt(thresh) to match sentence factors
+        # sqrt(thresh) to match sentence factors
+        target_factors = query_factor_order[np.where(
+            -np.sort(-percents[roi]) > np.sqrt(thresh)
+        )[0]]
     else:
-        target_factors = np.int_(target_factors.strip('[').strip(']').split(','))
+        target_factors = np.int_(
+            target_factors.strip('[').strip(']').split(',')
+        )
 
     # convolution
     roi_percents = percents[roi, target_factors]
@@ -70,8 +76,8 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors, auto_factor_selection, 
     top_regions = np.append(roi, top_regions[top_regions != roi][:100])
 
     return (top_regions, roi_sim_all[top_regions], roi_conv_all[top_regions],
-            percents[top_regions], factor_order, metric_order, colors, target_factors,
-            query_factor_order)
+            percents[top_regions], factor_order, metric_order, colors,
+            target_factors, query_factor_order)
 
 
 def narrate_sim(top_regions, roi_per, factor_order, metric_order,

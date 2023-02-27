@@ -81,8 +81,6 @@ def main(DHS_per_f, epi_per_f, gz_file_path,
                             target_factors, conversion_dict,
                             metriccolors)
 
-
-
     # for the roi, return results as json array
     # each element is an object of scores for each metric
     return_arr = []

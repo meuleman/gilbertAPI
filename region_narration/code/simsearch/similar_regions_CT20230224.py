@@ -11,7 +11,9 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     if str.isalpha(str(genomic_location)[0]):
         # load roi
         gz_tb = tabix.open(gz_file_path)
-        roi = np.array(list(gz_tb.querys(genomic_location)))[:, 3].astype(int)[0]
+        roi = np.array(
+            list(gz_tb.querys(genomic_location))
+        )[:, 3].astype(int)[0]
     else:
         roi = int(genomic_location)
 
@@ -84,8 +86,6 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
                             factor_order, metric_order,
                             target_factors, conversion_dict,
                             metriccolors)
-
-
 
     # for the roi, return results as json array
     # each element is an object of scores for each metric
