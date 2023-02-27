@@ -5,6 +5,7 @@ import { scaleLinear } from 'd3'
 function FactorHeatmap (props) {
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
+
             const data = props.heatmapProps.data
             
             const factorColors = data[0].factor_colors
@@ -17,6 +18,7 @@ function FactorHeatmap (props) {
                 const coords = region.coordinates
                 const sentence = region.sentence
                 const score = region.score
+                const regionInd = region.region_ind
                 return (
                     percentiles.map((p, index) => {
                         return ({
@@ -25,7 +27,8 @@ function FactorHeatmap (props) {
                             rank: rank,
                             coords: coords,
                             sentence: sentence,
-                            score: score
+                            score: score,
+                            regionInd: regionInd
                         })
                     })
                 )
@@ -114,6 +117,7 @@ function FactorHeatmap (props) {
                     const rank = cellData.rank
                     const percentile = Math.round(cellData.percentile * 10000) / 10000
                     const coords = cellData.coords
+                    const regionInd = cellData.regionInd
                     const regionChr = coords.split(':')[0]
                     const regionStart = coords.split(':')[1].split('-')[0]
                     const regionEnd = coords.split(':')[1].split('-')[1]
@@ -123,7 +127,21 @@ function FactorHeatmap (props) {
                     const queryEnd = queryCoords.split(':')[1].split('-')[1]
                     const sentence = cellData.sentence
                     const score = Math.round(cellData.score * 10000) / 10000
-                    var searchFromSim = () => props.heatmapProps.search(coords)
+                    // var searchFromSim = () => {
+                    //     const autoPromise = new Promise((resolve) => {
+                    //         const autoFactorSelection = props.heatmapProps.setAutoFactorSelection(true)
+                    //         console.log(autoFactorSelection)
+                    //         if (autoFactorSelection) {
+                    //             console.log("resolved")
+                    //             resolve()
+                    //         }
+                    //     })
+                    //     Promise.all([autoPromise]).then(() => {
+                    //         props.heatmapProps.search(regionInd)
+                    //     })
+                        
+                    // }
+                    var searchFromSim = () => props.heatmapProps.search(regionInd)
         
                     const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
                     const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
