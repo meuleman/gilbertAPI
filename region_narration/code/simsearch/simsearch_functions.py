@@ -2,12 +2,16 @@ import numpy as np
 from datetime import date
 import h5py
 import os
+import scipy.stats as stats
 
 
-def roiURL(roi, top_regions, link_type='dual'):
+def roiURL(roi, top_regions, detail_level, target_factors_str,
+           link_type='dual'):
     today = date.today()
     roiurl_name = ('region_narration_simsearch_regions_roi_' + str(roi) +
-                   '_scale_25kb_CT' + today.strftime("%Y%m%d") + '.bed')
+                   '_detail_level_' + str(detail_level) + '_factors_' +
+                   target_factors_str + '_scale_25kb_CT' +
+                   today.strftime("%Y%m%d") + '.bed')
     bed_path_name = os.path.join('/home/ctrader/public_html/', roiurl_name)
     np.savetxt(bed_path_name, top_regions, delimiter='\t', fmt='%s')
     link_path1 = ('https://epilogos.altius.org:1234/?application=viewer&' +
@@ -37,32 +41,43 @@ def load_per(per_f):
     return percentile, factors, color
 
 
-def simsearch(DHS_per_f, epi_per_f, roi, target_factors,
-              auto_factor_selection, thresh=0.9):
+def top_region_sig(percents, top_regions):
+    # mean and std of factor percentiles in all regions
+    all_mean = np.mean(percents, axis=0)
+    all_std = np.std(percents, axis=0)
+
+    # mean of factor percentiles in most similar regions
+    top_region_mean = np.mean(percents[top_regions[1:]], axis=0)
+
+    # Z score
+    Z = (top_region_mean - all_mean) / (all_std / np.sqrt(len(top_regions[1:])))
+
+    # p-value (one sided)
+    pval = stats.norm.sf(Z)
+
+    return pval, Z
+
+def simsearch(DHS_per_f, epi_per_f, roi, included_factors,
+              detail_level):
     # load region percentiles
     DHS_per, DHS_factors, DHS_color = load_per(DHS_per_f)
     epi_per, epi_factors, epi_color = load_per(epi_per_f)
 
     # join data from each metric
     percents = np.hstack((DHS_per, epi_per))
-
     factor_order = np.append(DHS_factors, epi_factors)
     metric_order = np.append(np.array(['DHSs'] * len(DHS_factors)),
                              np.array(['chromatin states'] *
                                       len(epi_factors)))
     colors = np.append(DHS_color, epi_color)
 
-    # automatic target factor determination
+    # factors the query region rank highest in
     query_factor_order = np.argsort(-percents[roi])
-    if auto_factor_selection == 'true':
-        # sqrt(thresh) to match sentence factors
-        target_factors = query_factor_order[np.where(
-            -np.sort(-percents[roi]) > np.sqrt(thresh)
-        )[0]]
-    else:
-        target_factors = np.int_(
-            target_factors.strip('[').strip(']').split(',')
-        )
+
+    # factors to search over based on detail level
+    target_factors = query_factor_order[
+        np.isin(query_factor_order, included_factors)
+    ][:detail_level]
 
     # convolution
     roi_percents = percents[roi, target_factors]
@@ -75,73 +90,55 @@ def simsearch(DHS_per_f, epi_per_f, roi, target_factors,
     top_regions = np.argsort(-roi_sim_all)[:101]
     top_regions = np.append(roi, top_regions[top_regions != roi][:100])
 
+    # factor percentile significance
+    pval, Z = top_region_sig(percents, top_regions)
+
     return (top_regions, roi_sim_all[top_regions], roi_conv_all[top_regions],
             percents[top_regions], factor_order, metric_order, colors,
-            target_factors, query_factor_order)
+            query_factor_order, target_factors, pval, Z)
 
 
-def narrate_sim(top_regions, roi_per, factor_order, metric_order,
-                target_factors, conversion_dict, metriccolors, thresh=0.9):
-
+def narrate_detail_level(top_regions, roi_per, factor_order, metric_order, included_factors, detail_level, conversion_dict, metriccolors, thresh=0.9):
     query = top_regions[0]
-    # convolution scores for all factors
+    hits = top_regions[1:]
     factor_scores = roi_per[0] * roi_per  # > sqrt of thresh for query region
 
     sentences = []
     for region, factor_score in zip(top_regions, factor_scores):
-        # factors that rank high between both the query region and similar
-        # region
-        key_factors = np.where(factor_score > thresh)[0]
+        factor_score_sort = np.argsort(-factor_score)
+        key_factors = factor_score_sort[
+            ((factor_score[factor_score_sort] > thresh) &
+             (np.isin(factor_score_sort, included_factors)))
+        ][:detail_level]
+
         if len(key_factors) > 0:
             if region == query:
-                sentence = '<div>The query region ranks highly for '
+                sentence = '<div>This region is characterized by '
             else:
-                sentence = ('<div>This region is highly similar to the ' +
-                            'query region in terms of ')
-            # factors/metric to highlight
+                sentence = '<div>This region is highly similar to the query region in terms of '
             key_factor_names = factor_order[key_factors]
+            key_factor_names = key_factor_names.astype(object)
+            for i in range(len(key_factor_names)):
+                 key_factor_names[i] = conversion_dict[key_factor_names[i]]
             key_metric_names = metric_order[key_factors]
-            m_sections = []
-            # one metric at a time (unordered)
-            for m in np.unique(key_metric_names):
-                m_inds = np.where(key_metric_names == m)[0]
-                # factors for current metric
-                m_factors = key_factor_names[m_inds]
-                # to bold target factors
-                target_factor_inds = np.where(
-                    np.isin(m_factors,
-                            factor_order[target_factors])
-                )[0]
-                # convert to readable names
-                m_factors = list(map(conversion_dict.get, m_factors))
-                # bold target factors
-                for t in target_factor_inds:
-                    m_factors[t] = (metriccolors['BOLD'] + m_factors[t] +
-                                    metriccolors['UNBOLD'])
-                # metric color
-                factors_joined = metriccolors[m]
-                # join factors
-                if len(m_factors) > 2:
-                    factors_joined += ', '.join(m_factors[:-1])
-                    factors_joined += ', and ' + m_factors[-1]
-                elif len(m_factors) == 2:
-                    factors_joined += ' and '.join(m_factors)
-                else:
-                    factors_joined += m_factors[0]
 
-                factors_joined += ' ' + m + metriccolors['STANDARD']
-                m_sections.append(factors_joined)
-            # join metrics
-            if len(m_sections) > 2:
-                metrics_joined = ', '.join(m_sections[:-1])
-                metrics_joined += ', and ' + m_sections[-1]
-            if len(m_sections) == 2:
-                metrics_joined = ' and '.join(m_sections)
+            string_factors = []
+            for factor, metric in zip(key_factor_names, key_metric_names):
+                if metric == 'chromatin states':
+                    string_factor = metriccolors['chromatin states']
+                elif metric == 'DHSs':
+                    string_factor = metriccolors['DHSs']
+                string_factor += factor + ' ' + metric + metriccolors['STANDARD']
+                string_factors.append(string_factor)
+
+            if len(string_factors) > 2:
+                sentence += ', '.join(string_factors[:-1])
+                sentence += ', and ' + string_factors[-1]
+            elif len(string_factors) == 2:
+                sentence += ' and '.join(string_factors)
             else:
-                metrics_joined = m_sections[0]
-
-            sentence += metrics_joined + '.</div>'
-
+                sentence += string_factors[0]
+            sentence += '.</div>'
         else:
             sentence = '<div></div>'
         sentences.append(sentence)

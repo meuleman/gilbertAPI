@@ -10,6 +10,8 @@ import SelectFactors from './SelectFactors'
 import factors from '../factors.json'
 import FactorHeatmap from './FactorHeatmap'
 import QueryRegion from './QueryRegion'
+import SimSearchHeader from './SimSearchHeader'
+import SelectDetailLevel from './SelectDetailLevel'
 
 class RegionRecContainer extends React.Component {
   // devMode = devModeObj.devMode
@@ -27,8 +29,21 @@ class RegionRecContainer extends React.Component {
     selectedFactors: [...Array(factors.length).keys()],
     possibleFactors: [...Array(factors.length).keys()],
     autoFactorSelection: true,
-    included: new Array((factors.length) + 1).fill(true)
+    included: new Array((factors.length) + 1).fill(true),
+
+    detailLevel: 1
   }
+
+  setDetailLevel = (value) => {
+    this.setState({
+      detailLevel: value
+    }, () => {
+      console.log(this.state.detailLevel)
+      if (this.state.regionalVals) {
+        this.setGenomicLocation(this.state.regionalVals[0].region_ind)
+      }
+    })
+  } 
 
   setSelectedFactors = (factorInds) => {
     this.setState({
@@ -97,7 +112,7 @@ class RegionRecContainer extends React.Component {
       }, () => {
       })
     } else {
-      // console.log(this.state.autoFactorSelection)
+      console.log(this.state.detailLevel)
       Axios({
         method: 'GET',
         url: 'http://localhost:3001/',
@@ -105,7 +120,7 @@ class RegionRecContainer extends React.Component {
           reqState: location,
           purpose: 'getRegions',
           factors: JSON.stringify(this.state.selectedFactors),
-          autoFactorSelection: String(this.state.autoFactorSelection)
+          detailLevel: this.state.detailLevel
         }
       }).then((response) => {
         const data = response.data.findRegionValsObject
@@ -114,21 +129,20 @@ class RegionRecContainer extends React.Component {
           genomicLocation: queryRegion.coordinates, // so we get the actual queried location
           regionalVals: data,
           sentence: queryRegion.sentence,
-          selectedFactors: queryRegion.target_factors,
+          // selectedFactors: queryRegion.target_factors,
         }, () => {
           console.log(this.state.regionalVals)
-          var newIncluded = new Array(factors.length + 1).fill(false)
-          newIncluded = newIncluded.map((value, index) => 
-          { if (this.state.selectedFactors.includes(index)) {
-              return !value
-          } else {
-              return value;
-          }})
-          if (newIncluded.slice(0, 34).reduce((pSum, val) => pSum + val, 0) === 34) {
-              newIncluded[34] = true
-          }
-          this.setIncluded(newIncluded)
-          // return <SelectFactors preselectProps={{}}/>
+          // var newIncluded = new Array(factors.length + 1).fill(false)
+          // newIncluded = newIncluded.map((value, index) => 
+          // { if (this.state.selectedFactors.includes(index)) {
+          //     return !value
+          // } else {
+          //     return value;
+          // }})
+          // if (newIncluded.slice(0, 34).reduce((pSum, val) => pSum + val, 0) === 34) {
+          //     newIncluded[34] = true
+          // }
+          // this.setIncluded(newIncluded)
         })
       })
     }
@@ -142,6 +156,10 @@ class RegionRecContainer extends React.Component {
           <Header />
           <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
           <QueryRegion queryProps={this.state.genomicLocation} />
+          <SelectDetailLevel detailProps={{
+            setDetailLevel: this.setDetailLevel, 
+            detailLevel: this.state.detailLevel
+          }}/>
           <SelectFactors factorProps={{
             possibleFactors: this.state.possibleFactors, 
             setSelectedFactors: this.setSelectedFactors,
@@ -152,11 +170,13 @@ class RegionRecContainer extends React.Component {
             included: this.state.included
           }}/>
           <DisplaySentence sentenceProps={this.state.sentence} />
+          {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
           <FactorHeatmap heatmapProps={{
             data: this.state.regionalVals, 
             search: this.setGenomicLocation,
             setAutoFactorSelection: this.setAutoFactorSelection,
-            autoFactorSelection: this.state.autoFactorSelection
+            autoFactorSelection: this.state.autoFactorSelection,
+            detailLevel: this.state.detailLevel
           }} />
         </div>
 

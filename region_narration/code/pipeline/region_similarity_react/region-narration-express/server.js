@@ -24,13 +24,13 @@ app.get('/', (request, response) => {
   const { spawn } = require('child_process')
   if (request.headers.purpose === 'getRegions') {
     // get region information
-    // console.log(request.headers.autofactorselection)
+    // console.log(request.headers.factors)
     const pythonFindRegions = spawn(
       'bash', [
-        '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_CT20230224.sh', 
+        '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_CT20230302.sh', 
         request.headers.reqstate, 
         request.headers.factors,
-        request.headers.autofactorselection
+        request.headers.detaillevel
       ])
     pythonFindRegions.stdout.on('data', (data) => {
       findRegionsBuffArr.push(data)

@@ -63,7 +63,7 @@ function SelectFactors (props) {
     
 
     const handleChange = (position) => {
-        props.factorProps.setAutoFactorSelection(false)
+        // props.factorProps.setAutoFactorSelection(false)
         var updatedIncluded = new Array(factors_ext.length)
 
         // if (position === 34) {
