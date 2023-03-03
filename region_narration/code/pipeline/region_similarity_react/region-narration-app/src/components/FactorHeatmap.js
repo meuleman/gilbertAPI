@@ -10,7 +10,8 @@ function FactorHeatmap (props) {
             const height = 700
             const width = 800
             const sigHeight = 60
-            const barMax = 50
+            const zMax = 50
+            const zMin = -10
             const queryHeight = 60
             const colorHeight = 5
             const gap = 50
@@ -51,10 +52,10 @@ function FactorHeatmap (props) {
 
             const factorSig = queryData.top_region_factor_Z_score
             const factorSigData = factorSig.map((value, index) => {
-                if (value < 0) {
-                    var barValue = 0
-                } else if (value > barMax) {
-                    var barValue = barMax
+                if (value < zMin) {
+                    var barValue = zMin
+                } else if (value > zMax) {
+                    var barValue = zMax
                 } else {
                     var barValue = value
                 }
@@ -109,12 +110,12 @@ function FactorHeatmap (props) {
                 .call(d3.axisLeft(topColorY).tickValues([]).tickSize(0))
 
             const queryY = d3.scaleLinear()
-                .domain([1, 0])
+                .domain([50, -50])
                 .range([colorHeight, queryHeight])
                 // .padding(0.1)
             heatmapsvg.append('g')
                 .style('font', '6px times')
-                .call(d3.axisLeft(queryY).tickValues([0, 0.5, 1]))
+                .call(d3.axisLeft(queryY).tickValues([50, 0, -50]))
 
             
 
@@ -138,12 +139,12 @@ function FactorHeatmap (props) {
             
 
             const sigY = d3.scaleLinear()
-                .domain([barMax, 0])
+                .domain([zMax, zMin])
                 .range([height - margin.top - margin.bottom - sigHeight, height - margin.top - margin.bottom])
                 // .padding(0.1)
             heatmapsvg.append('g')
                 .style('font', '6px times')
-                .call(d3.axisLeft(sigY).tickValues([0, 10, 20, 30, 40, 50]))
+                .call(d3.axisLeft(sigY).tickValues([-10, 0, 10, 20, 30, 40, 50]))
             
             
 
@@ -182,14 +183,18 @@ function FactorHeatmap (props) {
                 .domain(colLabels)
 
             const heatmapColor = d3.scaleLinear()
-                .range(["cyan", "white", "yellow"])
-                .domain([0, 0.5, 1])
+                .range(["#FFC20A", "#0C7BDC"])
+                .domain([1, 0])
+
+            // const heatmapColor = d3.scaleSequential()
+            //     .interpolator(d3.interpolateWarm)
+            //     .domain([0,1])
 
             
 
-            const opacity = d3.scaleLinear()
-                .range([0, 1])
-                .domain([0.5, 1])
+            // const opacity = d3.scaleLinear()
+            //     .range([0, 1])
+            //     .domain([0.5, 1])
 
             // const sigOpacity = d3.scaleLinear()
             //     .range([0, 1])
@@ -225,7 +230,8 @@ function FactorHeatmap (props) {
                 if (!(clicked)) {
                     const factor = cellData.factor
                     const rank = cellData.rank
-                    const percentile = Math.round(cellData.percentile * 10000) / 10000
+                    // const percentile = Math.round(cellData.percentile * 10000) / 10000
+                    const percentile = Math.round((cellData.percentile * 100 - 50) * 10) / 10
                     const coords = cellData.coords
                     const regionInd = cellData.regionInd
                     const regionChr = coords.split(':')[0]
@@ -245,7 +251,7 @@ function FactorHeatmap (props) {
                     const queryEpilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + queryChr + '&chrRight=' + queryChr + '&start=' + queryStart + '&stop=' + queryEnd + '&gatt=cv'
                     tooltip
                         .html("Coordinates: " + coords + "<br>Region Rank: " + rank + "<br>Similarity Score: " + score +
-                        "<br>Factor: " + factor + "<br>Factor Percentile: " + percentile + "<br>" + sentence +
+                        "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
                         "<br><a href=" + indexPath + ">Index Browser</a>" +
                         "<br><a href=" + epilogosPath + ">Epilogos Browser</a>" +
                         "<br><a href=" + queryIndexPath + ">Query: Index Browser</a>" +
@@ -267,6 +273,29 @@ function FactorHeatmap (props) {
                 }
             }
 
+            const mouseoverQuery = function (d, cellData) {
+                if (!(clicked)) {
+                    const factor = cellData.factor
+                    const rank = cellData.rank
+                    const percentile = Math.round((cellData.percentile * 100 - 50) * 10) / 10
+                    const coords = cellData.coords
+                    const regionChr = coords.split(':')[0]
+                    const regionStart = coords.split(':')[1].split('-')[0]
+                    const regionEnd = coords.split(':')[1].split('-')[1]
+                    const sentence = cellData.sentence
+        
+                    const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
+                    const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
+                    tooltip
+                        .html("Coordinates: " + coords + "<br>Region Rank: " + rank +
+                        "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
+                        "<br><a href=" + indexPath + ">Index Browser</a>" +
+                        "<br><a href=" + epilogosPath + ">Epilogos Browser</a>")
+                        .style('opacity', 1)
+                }
+                
+            }
+
             const mousemove = function (e) {
                 if (!(clicked)) {
                     tooltip.style('left', (e.pageX + 20) + 'px')
@@ -285,7 +314,7 @@ function FactorHeatmap (props) {
                 clicked = !clicked
             }
 
-
+            // factor heatmap
             heatmapsvg.selectAll()
                 .data(heatmapData)
                 .join("rect")
@@ -304,14 +333,14 @@ function FactorHeatmap (props) {
                     .on('click', mouseclick)
 
             
-            // console.log(queryDataFlat)
+            // Z score bar chart
             heatmapsvg.selectAll()
                 .data(factorSigData)
                 .join("rect")
                     .attr("x", function(d) {return x(d.factor)})
-                    .attr("y", function(d) {return sigY(d.sig)})
+                    .attr("y", function(d) {if (d.sig > 0) {return sigY(d.sig)} else {return sigY(0)}})
                     .attr("width", x.bandwidth())
-                    .attr("height", function(d) {return height - margin.top - margin.bottom - sigY(d.sig)})
+                    .attr("height", function(d) {if (d.sig > 0) {return sigY(0) - sigY(d.sig)} else {return sigY(d.sig) - sigY(0)}})
                     .style("fill", "#555555")
                     .style("stroke-width", 4)
                     .style("stroke", "none")
@@ -322,13 +351,30 @@ function FactorHeatmap (props) {
                     .on('mouseleave', mouseleave)
                     .on('click', mouseclick)
 
+            heatmapsvg
+                .append("line")
+                    .style("stroke", "black")
+                    .style("stroke-width", 0.5)
+                    .attr("x1", 0)
+                    .attr("y1", sigY(0))
+                    .attr("x2", width - margin.left - margin.right)
+                    .attr("y2", sigY(0))
 
-            
+
             // console.log(props.heatmapProps.detailLevel)
-            // console.log(queryDataFlat.map(
-            //     function(d) {return color(d.factor)}
+            // console.log(factorSigData.map(
+            //     function(d) {if (d.sig < 0) {return sigY(d.sig)}}
             //     // return d.factorInd
             // ))
+            // console.log(factorSigData.map(
+            //     function(d) {if (d.sig < 0) {return sigY(d.sig) - sigY(0)}}
+            //     // return d.factorInd
+            // ))
+            // console.log(sigY(0))
+
+
+
+            // top color row
             heatmapsvg.selectAll()
                 .data(queryDataFlat)
                 .join("rect")
@@ -340,6 +386,7 @@ function FactorHeatmap (props) {
                     .style("stroke-width", 4)
                     .style("stroke", "none")
 
+            // bottom color row
             heatmapsvg.selectAll()
                 .data(queryDataFlat)
                 .join("rect")
@@ -351,31 +398,38 @@ function FactorHeatmap (props) {
                     .style("stroke-width", 4)
                     .style("stroke", "none")
 
+
+            // console.log(queryDataFlat.map(
+            //     function(d) {return queryY(d.percentile * 100 - 50)}
+            // ))
+            // console.log(queryHeight, queryY(0), colorHeight)
+            // query region bars
             heatmapsvg.selectAll()
                 .data(queryDataFlat)
                 .join("rect")
                     .attr("x", function(d) {return x(d.factor)})
-                    .attr("y", function(d) {return queryY(d.percentile)})
+                    .attr("y", function(d) {if (d.percentile > 0.5) {return queryY(d.percentile * 100 - 50)} else {return queryY(0)}})
                     .attr("width", x.bandwidth())
-                    .attr("height", function(d) {return queryHeight - queryY(d.percentile)})
+                    .attr("height", function(d) {if (d.percentile > 0.5) {return queryY(0) - queryY(d.percentile * 100 - 50)} else {return queryY(d.percentile * 100 - 50) - queryY(0)}})
                     .style("fill", function(d) {if (d.factorInd < props.heatmapProps.detailLevel) {return "#555555"} else {return "#999999"}})
                     .style("stroke-width", 4)
                     .style("stroke", "none")
                     // .style("opacity", function(d) {return sigOpacity(d.sig)})
 
-                    // .on('mouseover', mouseoverSig)
+                    .on('mouseover', mouseoverQuery)
                     .on('mousemove', mousemove)
                     .on('mouseleave', mouseleave)
                     .on('click', mouseclick)
-            
+
+            // line in query region bar chart
             heatmapsvg
                 .append("line")
                     .style("stroke", "black")
                     .style("stroke-width", 0.5)
                     .attr("x1", 0)
-                    .attr("y1", queryY(0.5))
+                    .attr("y1", queryY(0))
                     .attr("x2", width - margin.left - margin.right)
-                    .attr("y2", queryY(0.5))
+                    .attr("y2", queryY(0))
         }
     })
     return (
