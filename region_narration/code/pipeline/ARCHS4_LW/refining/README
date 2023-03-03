@@ -1,0 +1,13 @@
+Project's main objective is to build a gene expression data resource where we can compare gene expression levels between genes and between biosamples. With the standard ARCHS4 dataset this is not possible, as the data are not normalized for transcript length and read depth.
+
+In this folder, the clean up, categorization, filtration, and log transformation/normalization are done for the data to be unusable. 
+
+The files inside "refining/sbatch_files/makefiles" folder are the main files which:
+1. Assign biosamples to biosample-categories
+2. Filter biosamples based on a minimum required read depth (5K)
+3. Gene length correction 
+    (*This also has a separate part where we had to convert and match ARCHS4 genes to a file containing transcript length per gene inside "refining/gene_length_correction")
+4. Quantile normalization 
+
+Run each of the corresponding ".sh" files in order with the ARCHS4 data. 
+(*These files may need to be modified if ARCHS4 data's gene names are different from the v2.1 or continue to not have ENSEMBLE ID.)
