@@ -23,7 +23,7 @@ body {
   align-items: center;
   margin: 0 auto;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   padding-top: 4rem;
   padding-left: 20px;
   padding-right: 20px;
@@ -31,6 +31,7 @@ body {
 
 .form-container {
   width: 100%;
+  max-width: 600px;
   margin-bottom: 20px;
   display: flex;
   border-radius: calc(0.5 * 100px);
@@ -70,12 +71,12 @@ border: none;
 .boxed {
   width: 100%;
   border: 15px;
-  padding: 50px;
+  padding: 30px;
 }
 
 .sentence-header {
-  text-align: center;
-  font-size: 30px;
+  text-align: left;
+  font-size: 20px;
 }
 
 .sentence-body {
@@ -203,4 +204,11 @@ border: none;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 10px;
+}
+
+.detail-slider{
+  width: 200px
+}
+.deatil-level{
+  text-align: center;
 }

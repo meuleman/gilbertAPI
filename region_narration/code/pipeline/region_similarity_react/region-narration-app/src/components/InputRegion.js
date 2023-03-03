@@ -14,11 +14,11 @@ class InputRegion extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault()
-    if (
-      (this.state.location.trim()) &&
-            (this.state.location.split(':')[0].split('chr')[1].length > 0) &&
-            (!isNaN(this.state.location.split(':')[1].split('-')[0])) &&
-            (!isNaN(this.state.location.split(':')[1].split('-')[1]))
+    if (true
+      // (this.state.location.trim()) &&
+      //       (this.state.location.split(':')[0].split('chr')[1].length > 0) &&
+      //       (!isNaN(this.state.location.split(':')[1].split('-')[0])) &&
+      //       (!isNaN(this.state.location.split(':')[1].split('-')[1]))
     ) {
       this.props.setGenomicLocationProps(this.state.location)
       this.setState({
