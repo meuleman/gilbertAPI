@@ -57,19 +57,7 @@ def top_region_sig(percents, top_regions):
 
     return pval, Z
 
-def simsearch(DHS_per_f, epi_per_f, roi, included_factors,
-              detail_level):
-    # load region percentiles
-    DHS_per, DHS_factors, DHS_color = load_per(DHS_per_f)
-    epi_per, epi_factors, epi_color = load_per(epi_per_f)
-
-    # join data from each metric
-    percents = np.hstack((DHS_per, epi_per))
-    factor_order = np.append(DHS_factors, epi_factors)
-    metric_order = np.append(np.array(['DHSs'] * len(DHS_factors)),
-                             np.array(['chromatin states'] *
-                                      len(epi_factors)))
-    colors = np.append(DHS_color, epi_color)
+def simsearch(percents, roi, included_factors, detail_level):
 
     # factors the query region rank highest in
     query_factor_order = np.argsort(-percents[roi])
@@ -94,8 +82,7 @@ def simsearch(DHS_per_f, epi_per_f, roi, included_factors,
     pval, Z = top_region_sig(percents, top_regions)
 
     return (top_regions, roi_sim_all[top_regions], roi_conv_all[top_regions],
-            percents[top_regions], factor_order, metric_order, colors,
-            query_factor_order, target_factors, pval, Z)
+            percents[top_regions], query_factor_order, target_factors, pval, Z)
 
 
 def narrate_detail_level(top_regions, roi_per, factor_order, metric_order, included_factors, detail_level, conversion_dict, metriccolors, thresh=0.9):
