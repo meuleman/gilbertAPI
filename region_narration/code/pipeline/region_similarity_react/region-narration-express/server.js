@@ -1,7 +1,8 @@
 const express = require('express')
 const app = express()
-const port = 3001
+const port = process.env.PORT || 3001
 const cors = require('cors')
+const { inherits } = require('util')
 // const { compileFunction } = require("vm");
 // const { resolve } = require("path");
 // const cluster = require('cluster');
@@ -22,16 +23,20 @@ let findRegionValsObject = ''
 
 app.get('/', (request, response) => {
   const { spawn } = require('child_process')
+  // console.log(JSON.stringify(request.headers))
   if (request.headers.purpose === 'getRegions') {
     // get region information
     // console.log(request.headers.factors)
     const pythonFindRegions = spawn(
       'bash', [
-        '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_cluster_CT20230302.sh', 
+        '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_CT20230302.sh',
         request.headers.reqstate, 
         request.headers.factors,
         request.headers.detaillevel
-      ])
+      ], {
+        stdio: 'pipe',
+        shell: true,
+      })
     pythonFindRegions.stdout.on('data', (data) => {
       findRegionsBuffArr.push(data)
     })

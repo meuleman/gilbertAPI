@@ -31,7 +31,10 @@ class RegionRecContainer extends React.Component {
     possibleFactors: [...Array(factors.length).keys()],
     autoFactorSelection: true,
     included: new Array((factors.length) + 1).fill(true),
-
+    devQueryHost: 'localhost',
+    devQueryPort: 3001,
+    prodQueryHost: 'tools.altiusinstitute.org',
+    prodQueryPort: 9877,
     detailLevel: 1
   }
 
@@ -121,13 +124,18 @@ class RegionRecContainer extends React.Component {
       })
     } else {
       console.log(this.state.detailLevel)
+      const queryURL = (location.hostname === "localhost" || location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `http://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+      // console.log(`queryURL: ${queryURL}`)
+      // console.log(`location: ${location}`)
+      // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
       Axios({
         method: 'GET',
-        url: 'http://localhost:3001/',
+        url: queryURL,
         headers: {
           reqState: location,
           purpose: 'getRegions',
-          factors: JSON.stringify(this.state.selectedFactors)
+          factors: JSON.stringify(this.state.selectedFactors),
+          detailLevel: this.state.detailLevel,
         }
       }).then((response) => {
         const fullData = response.data.findRegionValsObject
