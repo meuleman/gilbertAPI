@@ -1,13 +1,21 @@
 const express = require('express')
-const app = express()
-const port = process.env.PORT || 3001
-const cors = require('cors')
-const { inherits } = require('util')
+const https = require('https')
+const fs = require('fs')
+const normalizePort = require('normalize-port')
+const nocache = require('nocache')
+const morgan = require('morgan')
+
+const app = module.exports = express();
+let port = normalizePort(process.env.PORT || 3001)
+app.set("port", port)
+
+// const cors = require('cors')
+// const { inherits } = require('util')
 // const { compileFunction } = require("vm");
 // const { resolve } = require("path");
 // const cluster = require('cluster');
 // import { Buffer } from 'node:buffer';
-app.use(cors())
+// app.use(cors())
 
 // let sentence = ''
 // let spectrum = ''
@@ -20,6 +28,85 @@ app.use(cors())
 // let barReduced = ''
 let findRegionsBuffArr = []
 let findRegionValsObject = ''
+
+let privateKeyFn = (process.env.SSLPRIVATEKEY || "/var/www/auth/altiusinstitute.org.key")
+let certificateFn = (process.env.SSLCERTIFICATE || "/var/www/auth/altiusinstitute.org.withIntermediateChain.crt")
+
+let privateKey = fs.readFileSync(privateKeyFn)
+let certificate = fs.readFileSync(certificateFn)
+
+const options = {
+  key: privateKey,
+  cert: certificate,
+}
+let server = https.createServer(options, app)
+server.listen(port)
+server.on("error", onError)
+server.on("listening", onListening)
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+  }
+
+  let bind = typeof port === "string"
+    ? "Pipe " + port
+    : "Port " + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  let addr = server.address();
+  let bind = typeof addr === "string"
+    ? "pipe " + addr
+    : "port " + addr.port;
+  console.log("Listening on " + bind);
+}
+
+/**
+ * Allow CORS
+ */
+
+function cors(req, res, next) {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET");
+  res.set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, reqstate, purpose, factors, detaillevel");
+  res.set("Access-Control-Allow-Credentials", true);
+  return next();
+}
+
+/**
+ * Response, CORS, cache policy and logging
+ */
+
+app.use(cors);
+app.use(nocache());
+app.use(morgan("combined"));
+
+app.get("/favicon.ico", (req, res) => {
+  res.sendStatus(404);
+});
 
 app.get('/', (request, response) => {
   const { spawn } = require('child_process')
@@ -55,8 +142,4 @@ app.get('/', (request, response) => {
     })
   } else if (request.headers.purpose === 'functional') {
   }
-})
-
-app.listen(port, () => {
-  console.log('Ready to rumble')
 })

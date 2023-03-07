@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.0.0-alpha.8"
+    "express": "^5.0.0-alpha.8",
+    "https": "^1.0.0",
+    "morgan": "^1.10.0",
+    "nocache": "^3.0.4",
+    "normalize-port": "^1.0.0"
   }
 }

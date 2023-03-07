@@ -123,8 +123,8 @@ class RegionRecContainer extends React.Component {
       }, () => {
       })
     } else {
-      console.log(this.state.detailLevel)
-      const queryURL = (location.hostname === "localhost" || location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `http://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+      // console.log(this.state.detailLevel)
+      const queryURL = (location.hostname === "localhost" || location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
       // console.log(`queryURL: ${queryURL}`)
       // console.log(`location: ${location}`)
       // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
