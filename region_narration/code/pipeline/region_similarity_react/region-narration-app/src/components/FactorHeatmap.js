@@ -19,6 +19,7 @@ function FactorHeatmap (props) {
             const data = props.heatmapProps.data
             
             const queryData = data[0]
+            const detailTargetFactors = queryData.target_factors.slice(0, props.heatmapProps.detailLevel)
 
             const factorColors = queryData.factor_colors            
             factorColors[queryData.factors.indexOf('Quies')] = "#e0e0e0" // changing Quies color to something visable
@@ -31,6 +32,7 @@ function FactorHeatmap (props) {
                 const sentence = region.sentence
                 const score = region.score
                 const regionInd = region.region_ind
+
                 return (
                     percentiles.map((p, index) => {
                         return ({
@@ -41,7 +43,8 @@ function FactorHeatmap (props) {
                             sentence: sentence,
                             score: score,
                             regionInd: regionInd,
-                            factorInd: index
+                            factorInd: index,
+                            originalFactorInd: queryData.query_factor_order[index]
                         })
                     })
                 )
@@ -51,6 +54,7 @@ function FactorHeatmap (props) {
             const heatmapData = dataFlat.slice(34)
 
             const factorSig = queryData.top_region_factor_Z_score
+            
             const factorSigData = factorSig.map((value, index) => {
                 var barValue = 0
                 if (value < zMin) {
@@ -63,7 +67,8 @@ function FactorHeatmap (props) {
                 return ({
                     zscore: value,
                     sig: barValue,
-                    factor: queryData.factors[index]
+                    factor: queryData.factors[index],
+                    originalFactorInd: queryData.query_factor_order[index]
                 })
             })
 
@@ -79,10 +84,6 @@ function FactorHeatmap (props) {
                 .attr('height', height)
                 .append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-
-            // const rowLabels = [data.map((d) => {
-            //     return d.rank
-            // })]
 
             const colLabels = queryData.factors
 
@@ -118,8 +119,6 @@ function FactorHeatmap (props) {
                 .style('font', '6px times')
                 .call(d3.axisLeft(queryY).tickValues([50, 0, -50]))
 
-            
-
             const botColorY = d3.scaleBand()
                 .domain(["Factor Colors"])
                 .range([queryHeight + gap - colorHeight, queryHeight + gap])
@@ -137,8 +136,6 @@ function FactorHeatmap (props) {
                 .style('font', '6px times')
                 .call(d3.axisLeft(y).tickValues([10, 20, 30, 40, 50, 60, 70, 80, 90]))
 
-            
-
             const sigY = d3.scaleLinear()
                 .domain([zMax, zMin])
                 .range([height - margin.top - margin.bottom - sigHeight, height - margin.top - margin.bottom])
@@ -146,10 +143,6 @@ function FactorHeatmap (props) {
             heatmapsvg.append('g')
                 .style('font', '6px times')
                 .call(d3.axisLeft(sigY).tickValues([-10, 0, 10, 20, 30, 40, 50]))
-            
-            
-
-            // console.log(queryY(queryData.percentiles))
             
             heatmapsvg.append("text")
                 .attr("class", "y label")
@@ -186,29 +179,6 @@ function FactorHeatmap (props) {
             const heatmapColor = d3.scaleLinear()
                 .range(["#FFC20A", "#0C7BDC"])
                 .domain([1, 0])
-
-            // const heatmapColor = d3.scaleSequential()
-            //     .interpolator(d3.interpolateWarm)
-            //     .domain([0,1])
-
-            
-
-            // const opacity = d3.scaleLinear()
-            //     .range([0, 1])
-            //     .domain([0.5, 1])
-
-            // const sigOpacity = d3.scaleLinear()
-            //     .range([0, 1])
-            //     .domain([0, Math.max(...factorSig)])
-
-
-
-            // console.log(factorSigData.map((d) => {
-            //     return(
-            //         sigOpacity(d.sig)
-            //     )
-            // }
-            // ))
 
             // tool tip and functions
             const tooltip = heatmapContainer
@@ -344,7 +314,7 @@ function FactorHeatmap (props) {
                     .attr("y", function(d) {if (d.sig > 0) {return sigY(d.sig)} else {return sigY(0)}})
                     .attr("width", x.bandwidth())
                     .attr("height", function(d) {if (d.sig > 0) {return sigY(0) - sigY(d.sig)} else {return sigY(d.sig) - sigY(0)}})
-                    .style("fill", "#555555")
+                    .style("fill", function(d) {if (detailTargetFactors.includes(d.originalFactorInd)) {return "#555555"} else {return "#999999"}})
                     .style("stroke-width", 4)
                     .style("stroke", "none")
                     // .style("opacity", function(d) {return sigOpacity(d.sig)})
@@ -362,20 +332,6 @@ function FactorHeatmap (props) {
                     .attr("y1", sigY(0))
                     .attr("x2", width - margin.left - margin.right)
                     .attr("y2", sigY(0))
-
-
-            // console.log(props.heatmapProps.detailLevel)
-            // console.log(factorSigData.map(
-            //     function(d) {if (d.sig < 0) {return sigY(d.sig)}}
-            //     // return d.factorInd
-            // ))
-            // console.log(factorSigData.map(
-            //     function(d) {if (d.sig < 0) {return sigY(d.sig) - sigY(0)}}
-            //     // return d.factorInd
-            // ))
-            // console.log(sigY(0))
-
-
 
             // top color row
             heatmapsvg.selectAll()
@@ -401,11 +357,6 @@ function FactorHeatmap (props) {
                     .style("stroke-width", 4)
                     .style("stroke", "none")
 
-
-            // console.log(queryDataFlat.map(
-            //     function(d) {return queryY(d.percentile * 100 - 50)}
-            // ))
-            // console.log(queryHeight, queryY(0), colorHeight)
             // query region bars
             heatmapsvg.selectAll()
                 .data(queryDataFlat)
@@ -414,7 +365,7 @@ function FactorHeatmap (props) {
                     .attr("y", function(d) {if (d.percentile > 0.5) {return queryY(d.percentile * 100 - 50)} else {return queryY(0)}})
                     .attr("width", x.bandwidth())
                     .attr("height", function(d) {if (d.percentile > 0.5) {return queryY(0) - queryY(d.percentile * 100 - 50)} else {return queryY(d.percentile * 100 - 50) - queryY(0)}})
-                    .style("fill", function(d) {if (d.factorInd < props.heatmapProps.detailLevel) {return "#555555"} else {return "#999999"}})
+                    .style("fill", function(d) {if (detailTargetFactors.includes(d.originalFactorInd)) {return "#555555"} else {return "#999999"}})
                     .style("stroke-width", 4)
                     .style("stroke", "none")
                     // .style("opacity", function(d) {return sigOpacity(d.sig)})

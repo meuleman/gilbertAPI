@@ -184,7 +184,7 @@ function SelectFactors (props) {
         //     </div>
         // </div>
         <div className='dropdown'>
-                <button className='dropdown-button' onClick={() => handleOpen(0)}>Factors for Simsearch</button>
+                <button className='dropdown-button' onClick={() => handleOpen(0)}>Factors</button>
                 {open[0] ? (
                     <div className='dropdown-option-container'>
                         {factors_ext.map(({name, ind}, index) => {
