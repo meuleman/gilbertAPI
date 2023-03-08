@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import * as d3 from 'd3'
-import { scaleLinear, timeFormatDefaultLocale } from 'd3'
+// import { scaleLinear, timeFormatDefaultLocale } from 'd3'
 
 function FactorHeatmap (props) {
     useEffect(() => {
@@ -52,12 +52,13 @@ function FactorHeatmap (props) {
 
             const factorSig = queryData.top_region_factor_Z_score
             const factorSigData = factorSig.map((value, index) => {
+                var barValue = 0
                 if (value < zMin) {
-                    var barValue = zMin
+                    barValue = zMin
                 } else if (value > zMax) {
-                    var barValue = zMax
+                    barValue = zMax
                 } else {
-                    var barValue = value
+                    barValue = value
                 }
                 return ({
                     zscore: value,
@@ -250,7 +251,8 @@ function FactorHeatmap (props) {
                     const queryIndexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + queryChr + '&chrRight=' + queryChr + '&start=' + queryStart + '&stop=' + queryEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
                     const queryEpilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + queryChr + '&chrRight=' + queryChr + '&start=' + queryStart + '&stop=' + queryEnd + '&gatt=cv'
                     tooltip
-                        .html("Coordinates: " + coords + "<br>Region Rank: " + rank + "<br>Similarity Score: " + score +
+                        .html("Region Ind: " + regionInd +
+                        "<br>Coordinates: " + coords + "<br>Region Rank: " + rank + "<br>Similarity Score: " + score +
                         "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
                         "<br><a href=" + indexPath + ">Index Browser</a>" +
                         "<br><a href=" + epilogosPath + ">Epilogos Browser</a>" +
@@ -258,8 +260,9 @@ function FactorHeatmap (props) {
                         "<br><a href=" + queryEpilogosPath + ">Query: Epilogos Browser</a>" +
                         "<br><button id='tooltipButton'>Search From This Region</button>")
                         .style('opacity', 1)
+                    document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
                 }
-                document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
+                
                 
             }
 

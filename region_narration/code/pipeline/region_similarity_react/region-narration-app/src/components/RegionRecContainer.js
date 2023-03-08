@@ -12,6 +12,7 @@ import FactorHeatmap from './FactorHeatmap'
 import QueryRegion from './QueryRegion'
 import SimSearchHeader from './SimSearchHeader'
 import SelectDetailLevel from './SelectDetailLevel'
+import Spinner from './Spinner'
 
 class RegionRecContainer extends React.Component {
   // devMode = devModeObj.devMode
@@ -31,6 +32,8 @@ class RegionRecContainer extends React.Component {
     possibleFactors: [...Array(factors.length).keys()],
     autoFactorSelection: true,
     included: new Array((factors.length) + 1).fill(true),
+    detailLevel: 1,
+    spinner: false,
     devQueryHost: 'localhost',
     devQueryPort: 3001,
     prodQueryHost: 'tools.altiusinstitute.org',
@@ -99,7 +102,7 @@ class RegionRecContainer extends React.Component {
     })
   }
   
-
+  
   setGenomicLocation = (location) => {
     console.log(location)
     this.setState({
@@ -110,8 +113,9 @@ class RegionRecContainer extends React.Component {
       upsetLimited: '',
       barNormal: '',
       barCluster: '',
-      barReduced: ''//,
+      barReduced: '',
       // regionalVals: ''
+      spinner: true
     })
     if (this.devMode) {
       // console.log(sampleData)
@@ -124,8 +128,9 @@ class RegionRecContainer extends React.Component {
       })
     } else {
       // console.log(this.state.detailLevel)
-      const queryURL = (location.hostname === "localhost" || location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-      // console.log(`queryURL: ${queryURL}`)
+    //   console.log(window.location.hostname)
+      const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+    //   console.log(`queryURL: ${queryURL}`)
       // console.log(`location: ${location}`)
       // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
       Axios({
@@ -135,7 +140,6 @@ class RegionRecContainer extends React.Component {
           reqState: location,
           purpose: 'getRegions',
           factors: JSON.stringify(this.state.selectedFactors),
-          detailLevel: this.state.detailLevel,
         }
       }).then((response) => {
         const fullData = response.data.findRegionValsObject
@@ -146,6 +150,7 @@ class RegionRecContainer extends React.Component {
           regionalVals: data,
           fullData: fullData,
           sentence: queryRegion.sentence,
+          spinner: false
         }, () => {
           console.log(this.state.regionalVals)
           console.log(this.state.fullData)
@@ -157,7 +162,6 @@ class RegionRecContainer extends React.Component {
   render () {
     return (
       <div className='container'>
-
         <div className='region'>
           <Header />
           <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
@@ -175,6 +179,7 @@ class RegionRecContainer extends React.Component {
             setIncluded: this.setIncluded,
             included: this.state.included
           }}/>
+          <Spinner spinnerProps={this.state.spinner}/>
           <DisplaySentence sentenceProps={this.state.sentence} />
           {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
           <FactorHeatmap heatmapProps={{
