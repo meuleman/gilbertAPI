@@ -68,10 +68,11 @@ outline: none;
 border: none;
 }
 
-.boxed {
+.sentence-box {
   width: 100%;
   border: 15px;
   padding: 30px;
+  height: 175px;
 }
 
 .sentence-header {

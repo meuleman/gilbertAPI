@@ -94,7 +94,7 @@ function FactorHeatmap (props) {
                 .padding(0.05)
 
             heatmapsvg.append('g')
-                .style('font', '10px times')
+                .style('font', '10px sans-serif')
                 .attr('class', 'x axis')
                 .attr('transform', `translate(0, ${0})`)
                 .call(d3.axisTop(x))
@@ -150,7 +150,7 @@ function FactorHeatmap (props) {
                 .attr("x", -(height) / 2 + 15)
                 .attr("y", -30)
                 .attr("transform", "rotate(-90)")
-                .style('font', '12px times')
+                .style('font', '13px sans-serif')
                 .text("Similar Regions")
             
             heatmapsvg.append("text")
@@ -159,7 +159,7 @@ function FactorHeatmap (props) {
                 .attr("x", -35)
                 .attr("y", -30)
                 .attr("transform", "rotate(-90)")
-                .style('font', '12px times')
+                .style('font', '13px sans-serif')
                 .text("Query Region")
 
             heatmapsvg.append("text")
@@ -168,7 +168,7 @@ function FactorHeatmap (props) {
                 .attr("x", -(height - margin.bottom) + 100)
                 .attr("y", -30)
                 .attr("transform", "rotate(-90)")
-                .style('font', '12px times')
+                .style('font', '13px sans-serif')
                 .text("Factor Z-scores")
             
             // Build color scale
