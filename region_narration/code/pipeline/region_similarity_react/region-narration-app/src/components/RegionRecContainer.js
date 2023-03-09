@@ -45,7 +45,7 @@ class RegionRecContainer extends React.Component {
     this.setState({
       detailLevel: value
     }, () => {
-      console.log(this.state.detailLevel)
+    //   console.log(this.state.detailLevel)
       if (this.state.fullData) {
         // this.setGenomicLocation(this.state.regionalVals[0].region_ind)
         this.setState({
@@ -104,58 +104,60 @@ class RegionRecContainer extends React.Component {
   
   
   setGenomicLocation = (location) => {
-    console.log(location)
-    this.setState({
-      // genomicLocation: location, // so we get the actual queried location
-      // sentence: '',
-      spectrum: '',
-      upsetFull: '',
-      upsetLimited: '',
-      barNormal: '',
-      barCluster: '',
-      barReduced: '',
-      // regionalVals: ''
-      spinner: true
-    })
-    if (this.devMode) {
-      // console.log(sampleData)
-      const data = sampleData
-      const queryRegion = data[0]
-      this.setState({
-        regionalVals: data,
-        sentence: queryRegion.sentence
-      }, () => {
-      })
-    } else {
-      // console.log(this.state.detailLevel)
-    //   console.log(window.location.hostname)
-      const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-    //   console.log(`queryURL: ${queryURL}`)
-      // console.log(`location: ${location}`)
-      // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
-      Axios({
-        method: 'GET',
-        url: queryURL,
-        headers: {
-          reqState: location,
-          purpose: 'getRegions',
-          factors: JSON.stringify(this.state.selectedFactors),
-        }
-      }).then((response) => {
-        const fullData = response.data.findRegionValsObject
-        const data = fullData[this.state.detailLevel - 1]
+    if (this.state.selectedFactors.length > 0) {
+        console.log(location)
+        this.setState({
+        // genomicLocation: location, // so we get the actual queried location
+        // sentence: '',
+        spectrum: '',
+        upsetFull: '',
+        upsetLimited: '',
+        barNormal: '',
+        barCluster: '',
+        barReduced: '',
+        // regionalVals: ''
+        spinner: true
+        })
+        if (this.devMode) {
+        // console.log(sampleData)
+        const data = sampleData
         const queryRegion = data[0]
         this.setState({
-          genomicLocation: queryRegion.coordinates, // so we get the actual queried location
-          regionalVals: data,
-          fullData: fullData,
-          sentence: queryRegion.sentence,
-          spinner: false
+            regionalVals: data,
+            sentence: queryRegion.sentence
         }, () => {
-          console.log(this.state.regionalVals)
-          console.log(this.state.fullData)
         })
-      })
+        } else {
+        // console.log(this.state.detailLevel)
+        //   console.log(window.location.hostname)
+        const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+        //   console.log(`queryURL: ${queryURL}`)
+        // console.log(`location: ${location}`)
+        // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
+        Axios({
+            method: 'GET',
+            url: queryURL,
+            headers: {
+            reqState: location,
+            purpose: 'getRegions',
+            factors: JSON.stringify(this.state.selectedFactors),
+            }
+        }).then((response) => {
+            const fullData = response.data.findRegionValsObject
+            const data = fullData[this.state.detailLevel - 1]
+            const queryRegion = data[0]
+            this.setState({
+            genomicLocation: queryRegion.coordinates, // so we get the actual queried location
+            regionalVals: data,
+            fullData: fullData,
+            sentence: queryRegion.sentence,
+            spinner: false
+            }, () => {
+            console.log(this.state.regionalVals)
+            //   console.log(this.state.fullData)
+            })
+        })
+        }
     }
   }
   
