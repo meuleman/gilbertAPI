@@ -45,14 +45,14 @@ class RegionRecContainer extends React.Component {
     this.setState({
       detailLevel: value
     }, () => {
-    //   console.log(this.state.detailLevel)
+      console.log(this.state.detailLevel)
       if (this.state.fullData) {
         // this.setGenomicLocation(this.state.regionalVals[0].region_ind)
         this.setState({
           regionalVals: this.state.fullData[this.state.detailLevel - 1],
           sentence: this.state.fullData[this.state.detailLevel - 1][0].sentence
         }, () => {
-          console.log(this.state.regionalVals)
+        //   console.log(this.state.regionalVals)
         })
 
       }

@@ -3,26 +3,17 @@ import React, { useState } from 'react'
 
 function SelectDetailLevel (props) {
 
-    const [detailLevel, setDetailLevel] = useState(props.detailProps.detailLevel);
-
-    // const [mouseUp, setMouseUp] = useState(true);
+    // const [detailLevel, setDetailLevel] = useState(props.detailProps.detailLevel);
 
     const handleChange = (value) => {
-        setDetailLevel(value)
+        // setDetailLevel(value)
+        props.detailProps.setDetailLevel(value)
     }
-
-    // const handleMouseUp = (value) => {
-    //     // setMouseUp(value)
-    //     if (value) {
-    //         props.detailProps.setDetailLevel(detailLevel)
-    //     }
-    // }
-    
 
     return (
 
         <div>
-            <div className='deatil-level'>Detail Level: {detailLevel}</div>
+            <div className='deatil-level'>Detail Level: {props.detailProps.detailLevel}</div>
             <input 
             className='detail-slider'
             type="range" 
@@ -30,12 +21,8 @@ function SelectDetailLevel (props) {
             min="1" 
             max="34" 
             step="1"
-            value={detailLevel}
-            // onChange={() => this.handleChange(document.getElementById("detailRange").value)}
+            value={props.detailProps.detailLevel}
             onChange={() => handleChange(document.getElementById("detailRange").value)}
-            // onMouseUp={() => handleMouseUp(true)}
-            // onMouseDown={() => handleMouseUp(false)}
-            onMouseUp={() => props.detailProps.setDetailLevel(detailLevel)}
             />
         </div>
     )

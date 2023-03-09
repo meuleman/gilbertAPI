@@ -112,12 +112,12 @@ function FactorHeatmap (props) {
                 .call(d3.axisLeft(topColorY).tickValues([]).tickSize(0))
 
             const queryY = d3.scaleLinear()
-                .domain([50, -50])
+                .domain([100, 0])
                 .range([colorHeight, queryHeight])
                 // .padding(0.1)
             heatmapsvg.append('g')
                 .style('font', '6px times')
-                .call(d3.axisLeft(queryY).tickValues([50, 0, -50]))
+                .call(d3.axisLeft(queryY).tickValues([100, 50, 0]))
 
             const botColorY = d3.scaleBand()
                 .domain(["Factor Colors"])
@@ -202,7 +202,7 @@ function FactorHeatmap (props) {
                     const factor = cellData.factor
                     const rank = cellData.rank
                     // const percentile = Math.round(cellData.percentile * 10000) / 10000
-                    const percentile = Math.round((cellData.percentile * 100 - 50) * 10) / 10
+                    const percentile = Math.round((cellData.percentile * 100) * 10) / 10
                     const coords = cellData.coords
                     const regionInd = cellData.regionInd
                     const regionChr = coords.split(':')[0]
@@ -224,10 +224,10 @@ function FactorHeatmap (props) {
                         .html("Region Ind: " + regionInd +
                         "<br>Coordinates: " + coords + "<br>Region Rank: " + rank + "<br>Similarity Score: " + score +
                         "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
-                        "<br><a href=" + indexPath + ">Index Browser</a>" +
-                        "<br><a href=" + epilogosPath + ">Epilogos Browser</a>" +
-                        "<br><a href=" + queryIndexPath + ">Query: Index Browser</a>" +
-                        "<br><a href=" + queryEpilogosPath + ">Query: Epilogos Browser</a>" +
+                        "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
+                        "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>" +
+                        "<br><a href=" + queryIndexPath + " target=_blank rel=noopener noreferrer>Query: Index Browser</a>" +
+                        "<br><a href=" + queryEpilogosPath + " target=_blank rel=noopener noreferrer>Query: Epilogos Browser</a>" +
                         "<br><button id='tooltipButton'>Search From This Region</button>")
                         .style('opacity', 1)
                     document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
@@ -250,7 +250,7 @@ function FactorHeatmap (props) {
                 if (!(clicked)) {
                     const factor = cellData.factor
                     const rank = cellData.rank
-                    const percentile = Math.round((cellData.percentile * 100 - 50) * 10) / 10
+                    const percentile = Math.round((cellData.percentile * 100) * 10) / 10
                     const coords = cellData.coords
                     const regionChr = coords.split(':')[0]
                     const regionStart = coords.split(':')[1].split('-')[0]
@@ -262,8 +262,8 @@ function FactorHeatmap (props) {
                     tooltip
                         .html("Coordinates: " + coords + "<br>Region Rank: " + rank +
                         "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
-                        "<br><a href=" + indexPath + ">Index Browser</a>" +
-                        "<br><a href=" + epilogosPath + ">Epilogos Browser</a>")
+                        "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
+                        "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>")
                         .style('opacity', 1)
                 }
                 
@@ -362,9 +362,9 @@ function FactorHeatmap (props) {
                 .data(queryDataFlat)
                 .join("rect")
                     .attr("x", function(d) {return x(d.factor)})
-                    .attr("y", function(d) {if (d.percentile > 0.5) {return queryY(d.percentile * 100 - 50)} else {return queryY(0)}})
+                    .attr("y", function(d) {if (d.percentile > 0.5) {return queryY(d.percentile * 100)} else {return queryY(50)}})
                     .attr("width", x.bandwidth())
-                    .attr("height", function(d) {if (d.percentile > 0.5) {return queryY(0) - queryY(d.percentile * 100 - 50)} else {return queryY(d.percentile * 100 - 50) - queryY(0)}})
+                    .attr("height", function(d) {if (d.percentile > 0.5) {return queryY(50) - queryY(d.percentile * 100)} else {return queryY(d.percentile * 100) - queryY(50)}})
                     .style("fill", function(d) {if (detailTargetFactors.includes(d.originalFactorInd)) {return "#555555"} else {return "#999999"}})
                     .style("stroke-width", 4)
                     .style("stroke", "none")
@@ -381,9 +381,9 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
                     .style("stroke-width", 0.5)
                     .attr("x1", 0)
-                    .attr("y1", queryY(0))
+                    .attr("y1", queryY(50))
                     .attr("x2", width - margin.left - margin.right)
-                    .attr("y2", queryY(0))
+                    .attr("y2", queryY(50))
         }
     })
     return (
