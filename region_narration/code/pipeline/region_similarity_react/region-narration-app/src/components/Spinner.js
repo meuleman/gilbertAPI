@@ -1,9 +1,12 @@
 function Spinner (props) {
   if (props.spinnerProps) {
-//   if (true) {
+  // if (true) {
 
     return (
-      <div className='spinner'></div>
+      <div className="spinner-background">
+        <div className='spinner'></div>
+      </div>
+      
     )
   } else {
     return (

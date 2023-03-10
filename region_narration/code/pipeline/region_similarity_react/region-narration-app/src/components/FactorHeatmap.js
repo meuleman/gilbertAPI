@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as d3 from 'd3'
 // import { scaleLinear, timeFormatDefaultLocale } from 'd3'
 
@@ -6,8 +6,8 @@ function FactorHeatmap (props) {
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
 
-            const margin = { top: 75, right: 50, left: 50, bottom: 20 }
-            const height = 700
+            const margin = { top: 75, right: 50, left: 50, bottom: 220 }
+            const height = 900
             const width = 800
             const sigHeight = 60
             const zMax = 50
@@ -147,7 +147,7 @@ function FactorHeatmap (props) {
             heatmapsvg.append("text")
                 .attr("class", "y label")
                 .attr("text-anchor", "middle")
-                .attr("x", -(height) / 2 + 15)
+                .attr("x", -(height) / 3 - 25)
                 .attr("y", -30)
                 .attr("transform", "rotate(-90)")
                 .style('font', '13px sans-serif')
@@ -156,7 +156,7 @@ function FactorHeatmap (props) {
             heatmapsvg.append("text")
                 .attr("class", "y label")
                 .attr("text-anchor", "middle")
-                .attr("x", -35)
+                .attr("x", -30)
                 .attr("y", -30)
                 .attr("transform", "rotate(-90)")
                 .style('font', '13px sans-serif')
@@ -165,7 +165,7 @@ function FactorHeatmap (props) {
             heatmapsvg.append("text")
                 .attr("class", "y label")
                 .attr("text-anchor", "middle")
-                .attr("x", -(height - margin.bottom) + 100)
+                .attr("x", -(height - margin.bottom) + 105)
                 .attr("y", -30)
                 .attr("transform", "rotate(-90)")
                 .style('font', '13px sans-serif')
@@ -196,6 +196,23 @@ function FactorHeatmap (props) {
                 .style('max-width', '500px')
 
             let clicked = false
+            const mouseclick = function () {
+                clicked = !clicked
+                if (!clicked) {
+                    heatmapsvg.selectAll("rect")
+                        .style("stroke", "none")
+                }
+            }
+            
+
+            // const [clicked, setClicked] = useState(
+            //     false
+            // );
+
+            // const mouseclick = function () {
+            //     setClicked(!clicked)
+            // }
+
 
             const mouseover = function (d, cellData) {
                 if (!(clicked)) {
@@ -231,9 +248,12 @@ function FactorHeatmap (props) {
                         "<br><button id='tooltipButton'>Search From This Region</button>")
                         .style('opacity', 1)
                     document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
+                    // heatmapsvg.selectAll("rect")
+                    //     .style("stroke", "none")
+                    d3.select(this)
+                        .style("stroke", "black")
+                        .style("stroke-width", "1")
                 }
-                
-                
             }
 
             const mouseoverSig = function (d, cellData) {
@@ -243,6 +263,11 @@ function FactorHeatmap (props) {
                     tooltip
                         .html("Factor: " + factor + "<br>Factor Z-score: " + Zscore)
                         .style('opacity', 1)
+                    // heatmapsvg.selectAll("rect")
+                    //     .style("stroke", "none")
+                    d3.select(this)
+                        .style("stroke", "black")
+                        .style("stroke-width", "1")
                 }
             }
 
@@ -261,10 +286,15 @@ function FactorHeatmap (props) {
                     const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
                     tooltip
                         .html("Coordinates: " + coords + "<br>Region Rank: " + rank +
-                        "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
+                        "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + //sentence +
                         "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
                         "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>")
                         .style('opacity', 1)
+                    // heatmapsvg.selectAll("rect")
+                    //     .style("stroke", "none")
+                    d3.select(this)
+                        .style("stroke", "black")
+                        .style("stroke-width", "1")
                 }
                 
             }
@@ -280,12 +310,12 @@ function FactorHeatmap (props) {
                 if (!(clicked)) {
                     tooltip
                         .style('opacity', 0)
+                    d3.select(this)
+                        .style("stroke", "none")
                 }
             }
         
-            const mouseclick = function () {
-                clicked = !clicked
-            }
+            
 
             // factor heatmap
             heatmapsvg.selectAll()
