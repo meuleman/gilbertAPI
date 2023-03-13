@@ -129,7 +129,14 @@ class RegionRecContainer extends React.Component {
         } else {
         // console.log(this.state.detailLevel)
         //   console.log(window.location.hostname)
-        const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+        // const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            var queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
+            var roiURL = "False"
+        } else {
+            var queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+            var roiURL = "True"
+        }
         //   console.log(`queryURL: ${queryURL}`)
         // console.log(`location: ${location}`)
         // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
@@ -140,6 +147,7 @@ class RegionRecContainer extends React.Component {
             reqState: location,
             purpose: 'getRegions',
             factors: JSON.stringify(this.state.selectedFactors),
+            roiURL: roiURL
             }
         }).then((response) => {
             const fullData = response.data.findRegionValsObject

@@ -17,15 +17,6 @@ app.set("port", port)
 // import { Buffer } from 'node:buffer';
 // app.use(cors())
 
-// let sentence = ''
-// let spectrum = ''
-// let upsetBuffArr = []
-// let upsetFull = ''
-// let upsetLimited = ''
-// let barBuffArr = []
-// let barNormal = ''
-// let barCluster = ''
-// let barReduced = ''
 let findRegionsBuffArr = []
 let findRegionValsObject = ''
 
@@ -116,9 +107,10 @@ app.get('/', (request, response) => {
     // console.log(request.headers.factors)
     const pythonFindRegions = spawn(
       'bash', [
-        '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions_CT20230306.sh',
+        '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions.sh',
         request.headers.reqstate, 
-        request.headers.factors
+        request.headers.factors,
+        request.headers.roiurl
       ], {
         stdio: 'pipe',
         shell: true,

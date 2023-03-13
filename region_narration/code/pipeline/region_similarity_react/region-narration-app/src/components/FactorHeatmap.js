@@ -23,6 +23,7 @@ function FactorHeatmap (props) {
             
             const queryData = data[0]
             const colLabels = queryData.factors
+            const roiURL = queryData.roiURL
             const detailTargetFactors = queryData.target_factors.slice(0, props.heatmapProps.detailLevel)
 
             const factorColors = queryData.factor_colors            
@@ -239,11 +240,17 @@ function FactorHeatmap (props) {
                     var searchFromSim = () => props.heatmapProps.search(regionInd)
                     const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
                     const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
+                    if (roiURL != "roiURL not available") {
+                        var roiURLTag = "<br><a href=" + roiURL + " target=_blank rel=noopener noreferrer>roiURL</a>"
+                    } else {
+                        var roiURLTag = ""
+                    }
                     tooltip
                         .html("Region: " + rank + "<br>Coordinates: " + coords + "<br>Similarity Score: " + score +
                         "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
                         "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
                         "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>" +
+                        roiURLTag +
                         "<br><button id='tooltipButton'>Search From This Region</button>")
                         .style('opacity', 1)
                     document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
