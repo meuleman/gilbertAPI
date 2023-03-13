@@ -38,7 +38,6 @@ class RegionRecContainer extends React.Component {
     devQueryPort: 3001,
     prodQueryHost: 'tools.altiusinstitute.org',
     prodQueryPort: 9877,
-    detailLevel: 1
   }
 
   setDetailLevel = (value) => {
@@ -170,7 +169,8 @@ class RegionRecContainer extends React.Component {
           <QueryRegion queryProps={this.state.genomicLocation} />
           <SelectDetailLevel detailProps={{
             setDetailLevel: this.setDetailLevel, 
-            detailLevel: this.state.detailLevel
+            detailLevel: this.state.detailLevel,
+            selectedFactors: this.state.selectedFactors
           }}/>
           <SelectFactors factorProps={{
             possibleFactors: this.state.possibleFactors, 

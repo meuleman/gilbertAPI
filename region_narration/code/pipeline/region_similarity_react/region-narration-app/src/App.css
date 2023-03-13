@@ -179,6 +179,8 @@ border: none;
 
 .dropdown {
   position: relative;
+
+  z-index: 1;
 }
 
 .dropdown-button {
@@ -224,9 +226,9 @@ border: none;
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 2;
 }
 .spinner{
-  z-index: 1000;
   position: absolute;
   top: 30%;
 
