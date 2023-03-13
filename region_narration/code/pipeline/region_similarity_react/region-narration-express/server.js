@@ -82,7 +82,7 @@ function onListening() {
 function cors(req, res, next) {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET");
-  res.set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, reqstate, purpose, factors, detaillevel");
+  res.set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, reqstate, purpose, factors, roiurl");
   res.set("Access-Control-Allow-Credentials", true);
   return next();
 }
