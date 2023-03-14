@@ -82,10 +82,13 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     # genomic coordinates for each region
     f = open(regions_path, 'r')
     regions = []
+    regions_sep = []
     for line in f.readlines():
         line = line.strip().split('\t')
+        regions_sep.append(line)
         regions.append(line[0] + ':' + line[1] + '-' + line[2])
     f.close()
+    regions_sep = np.array(regions_sep)
 
     # find most similar region inds
     (top_regions, roi_sim,
@@ -101,8 +104,8 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     for dl in range(1, 35):
         if get_roiURL == 'True':
             # roiURLs.append('roiURL not available')
-            roiURLs.append(roiURL(roi, top_region_coords[dl-1], dl,
-                                  '_'.join(target_factors.astype(str))))
+            roiURLs.append(roiURL(roi, regions_sep[top_regions[dl-1]],
+                                  dl, '_'.join(target_factors.astype(str))))
         else:
             roiURLs.append('roiURL not available')
 
