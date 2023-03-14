@@ -100,8 +100,9 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     roiURLs = []
     for dl in range(1, 35):
         if get_roiURL == 'True':
-            roiURLs.append(roiURL(roi, top_region_coords[dl-1], dl,
-                                  '_'.join(target_factors.astype(str))))
+            roiURLs.append('roiURL not available')
+            # roiURLs.append(roiURL(roi, top_region_coords[dl-1], dl,
+            #                       '_'.join(target_factors.astype(str))))
         else:
             roiURLs.append('roiURL not available')
 
