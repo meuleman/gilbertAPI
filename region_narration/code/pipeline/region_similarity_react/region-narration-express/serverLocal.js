@@ -2,12 +2,21 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 3001
 const cors = require('cors')
-const { inherits } = require('util')
-// const { compileFunction } = require("vm");
-// const { resolve } = require("path");
-// const cluster = require('cluster');
-// import { Buffer } from 'node:buffer';
+const { exit } = require('process')
+// const { inherits } = require('util')
+// const { compileFunction } = require("vm")
+// const { resolve } = require("path")
+// const cluster = require('cluster')
+// import { Buffer } from 'node:buffer'
 app.use(cors())
+
+/**
+ * Allow overriding of locations of similar regions script and other parameters
+ */
+
+const similarRegionsShellScript = process.env.SIMILAR_REGIONS_SH || '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions.sh'
+const alternateDataDir = process.env.ALTERNATE_DATA_DIR || '/Users/ctrader/Documents/local_data/region_similarity/data/rank_based'
+const alternateSimsearchDir = process.env.ALTERNATE_SIMSEARCH_DIR || '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch'
 
 let findRegionsBuffArr = []
 let findRegionValsObject = ''
@@ -18,13 +27,18 @@ app.get('/', (request, response) => {
   if (request.headers.purpose === 'getRegions') {
     // get region information
     // console.log(request.headers.factors)
+    const similarRegionsCall = [
+      similarRegionsShellScript,
+      request.headers.reqstate, 
+      request.headers.factors,
+      request.headers.roiurl,
+      alternateDataDir,
+      alternateSimsearchDir,
+    ]
     const pythonFindRegions = spawn(
-      'bash', [
-        '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions.sh',
-        request.headers.reqstate, 
-        request.headers.factors,
-        request.headers.roiurl
-      ], {
+      'bash', 
+      similarRegionsCall, 
+      {
         stdio: 'pipe',
         shell: true,
       })

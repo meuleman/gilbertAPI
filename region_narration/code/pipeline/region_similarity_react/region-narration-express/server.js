@@ -5,9 +5,21 @@ const normalizePort = require('normalize-port')
 const nocache = require('nocache')
 const morgan = require('morgan')
 
+/**
+ * Specify port for running service
+ */
+
 const app = module.exports = express();
-let port = normalizePort(process.env.PORT || 3001)
+const port = normalizePort(process.env.PORT || 3001)
 app.set("port", port)
+
+/**
+ * Allow overriding of locations of similar regions script and other parameters
+ */
+
+const similarRegionsShellScript = process.env.SIMILAR_REGIONS_SH || '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions.sh'
+const alternateDataDir = process.env.ALTERNATE_DATA_DIR || '/home/ctrader/AG/NarrativeGenomics/region_narration/data'
+const alternateSimsearchDir = process.env.ALTERNATE_SIMSEARCH_DIR || '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch'
 
 // const cors = require('cors')
 // const { inherits } = require('util')
@@ -20,17 +32,17 @@ app.set("port", port)
 let findRegionsBuffArr = []
 let findRegionValsObject = ''
 
-let privateKeyFn = (process.env.SSLPRIVATEKEY || "/var/www/auth/altiusinstitute.org.key")
-let certificateFn = (process.env.SSLCERTIFICATE || "/var/www/auth/altiusinstitute.org.withIntermediateChain.crt")
+const privateKeyFn = process.env.SSLPRIVATEKEY || "/var/www/auth/altiusinstitute.org.key"
+const certificateFn = process.env.SSLCERTIFICATE || "/var/www/auth/altiusinstitute.org.withIntermediateChain.crt"
 
-let privateKey = fs.readFileSync(privateKeyFn)
-let certificate = fs.readFileSync(certificateFn)
+const privateKey = fs.readFileSync(privateKeyFn)
+const certificate = fs.readFileSync(certificateFn)
 
 const options = {
   key: privateKey,
   cert: certificate,
 }
-let server = https.createServer(options, app)
+const server = https.createServer(options, app)
 server.listen(port)
 server.on("error", onError)
 server.on("listening", onListening)
@@ -44,18 +56,18 @@ function onError(error) {
     throw error;
   }
 
-  let bind = typeof port === "string"
+  const bind = typeof port === "string"
     ? "Pipe " + port
     : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case "EACCES":
-      console.error(bind + " requires elevated privileges");
+      console.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
     case "EADDRINUSE":
-      console.error(bind + " is already in use");
+      console.error(`${bind} is already in use`);
       process.exit(1);
       break;
     default:
@@ -68,11 +80,11 @@ function onError(error) {
  */
 
 function onListening() {
-  let addr = server.address();
-  let bind = typeof addr === "string"
+  const addr = server.address();
+  const bind = typeof addr === "string"
     ? "pipe " + addr
     : "port " + addr.port;
-  console.log("Listening on " + bind);
+  console.log(`Listening on ${bind}`);
 }
 
 /**
@@ -105,13 +117,18 @@ app.get('/', (request, response) => {
   if (request.headers.purpose === 'getRegions') {
     // get region information
     // console.log(request.headers.factors)
+    const similarRegionsCall = [
+      similarRegionsShellScript,
+      request.headers.reqstate, 
+      request.headers.factors,
+      request.headers.roiurl,
+      alternateDataDir,
+      alternateSimsearchDir,
+    ]
     const pythonFindRegions = spawn(
-      'bash', [
-        '/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions.sh',
-        request.headers.reqstate, 
-        request.headers.factors,
-        request.headers.roiurl
-      ], {
+      'bash', 
+      similarRegionsCall, 
+      {
         stdio: 'pipe',
         shell: true,
       })

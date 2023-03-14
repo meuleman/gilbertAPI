@@ -1,35 +1,56 @@
 #!/bin/bash
 
-GENOMIC_LOCATION=${1}
-INCLUDED_FACTORS=${2}
-GET_ROIURL=${3}
+genomic_location=${1}
+included_factors=${2}
+get_roiURL=${3}
+alternate_data_dir=${4}
+alternate_simsearch_dir=${5}
 
-if [ ! -n "${GENOMIC_LOCATION}" ]
+if [ ! -n "${genomic_location}" ]
 then
     echo "Error: Genomic location was not provided"
     exit -1
 fi
 
-if [ ! -n "${INCLUDED_FACTORS}" ]
+if [ ! -n "${included_factors}" ]
 then
     echo "Error: Factors were not provided"
     exit -1
 fi
-if [ ! -n "${GET_ROIURL}" ]
+
+if [ ! -n "${get_roiURL}" ]
 then
     echo "Error: option to get roiURL not selected"
     exit -1
 fi
 
 ##########################
-# data dir
-DATADIR=/Users/ctrader/Documents/local_data/region_similarity/data/rank_based
+# Allow omission to replace with useful defaults
+##########################
+
+if [ ! -n "${alternate_data_dir}" ]
+then
+    data_dir=/Users/ctrader/Documents/local_data/region_similarity/data/rank_based
+else
+    data_dir="${alternate_data_dir}"
+fi
+
+if [ ! -n "${alternate_simsearch_dir}" ]
+then
+    simsearch_dir=/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch
+else
+    simsearch_dir="${alternate_simsearch_dir}"
+fi
+
+##########################
+# Altius data dirs
+# DATADIR=/Users/ctrader/Documents/local_data/region_similarity/data/rank_based
+# SIMSEARCHDIR=/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch
 altius_data_dir=/home/ctrader/AG/NarrativeGenomics/region_narration/data
-SIMSEARCHDIR=/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch
 altius_simsearch_dir=/home/ctrader/AG/NarrativeGenomics/region_narration/code/simsearch
 ##########################
 
-#########################
+##########################
 # test if conda is available
 environment_name=simsearch_env
 if command -v conda &> /dev/null
@@ -52,25 +73,34 @@ fi
 # data
 true_data_dir=${altius_data_dir}
 true_code_dir=${altius_simsearch_dir}
-if [ -d ${DATADIR} ]
+if [ -d "${data_dir}" ]
 then
-    true_data_dir=${DATADIR}
-    true_code_dir=${SIMSEARCHDIR}
+    true_data_dir="${data_dir}"
+    true_code_dir="${simsearch_dir}"
 fi
-SCALE_GZ_FILENAME=${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.bed.gz
-REGIONS_PATH=${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed
-DHS_HDF5_FILE=${true_data_dir}/regions_25kb_CT20230214.DHS.factornormNMF.sum_enrich_corank_percentile.hdf5
-EPILOGOS_HDF5_FILE=${true_data_dir}/regions_25kb_CT20230214.epilogos.statesum_rank_percentile.hdf5
+scale_gz_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.bed.gz"
+regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed"
+dhs_hdf5_filename="${true_data_dir}/regions_25kb_CT20230214.DHS.factornormNMF.sum_enrich_corank_percentile.hdf5"
+epilogos_hdf5_filename="${true_data_dir}/regions_25kb_CT20230214.epilogos.statesum_rank_percentile.hdf5"
 ##########################
 
 ##########################
 # find similar regions
-time python ${true_code_dir}/similar_regions.py \
-    $DHS_HDF5_FILE \
-    $EPILOGOS_HDF5_FILE \
-    $SCALE_GZ_FILENAME \
-    $REGIONS_PATH \
-    $GENOMIC_LOCATION \
-    $INCLUDED_FACTORS \
-    $GET_ROIURL
+#
+# using cProfile to profile function runtimes
+#
+#  $ pip install cprofilev (if needed)
+#  $ cprofilev -f ${region_narration_express_dir}/similar_regions.cProfile.out
+#
+# open http://127.0.0.1:4000/
+#
+##########################
+time python -m cProfile -o similar_regions.cProfile.out "${true_code_dir}/similar_regions.py" \
+    "${dhs_hdf5_filename}" \
+    "${epilogos_hdf5_filename}" \
+    "${scale_gz_filename}" \
+    "${regions_filename}" \
+    "${genomic_location}" \
+    "${included_factors}" \
+    "${get_roiURL}"
 ##########################

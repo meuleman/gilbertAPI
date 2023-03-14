@@ -1,13 +1,13 @@
+#!/usr/bin/env python
+
 import numpy as np
 import sys
 import tabix
 import json
 from simsearch_functions import simsearch, narrate_detail_level, roiURL, load_per
 
-
-def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
-         genomic_location, included_factors_str, get_roiURL):
-
+def load_roi(genomic_location, gz_file_path):
+    global roi
     if str.isalpha(str(genomic_location)[0]):
         # load roi
         gz_tb = tabix.open(gz_file_path)
@@ -17,17 +17,123 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     else:
         roi = int(genomic_location)
 
-    # load region percentiles
-    DHS_per, DHS_factors, DHS_color = load_per(DHS_per_f)
-    epi_per, epi_factors, epi_color = load_per(epi_per_f)
-
-    # join data from each metric
+def join_data_per_metric(DHS_per, DHS_factors, DHS_color, epi_per, epi_factors, epi_color):
+    global percents, factor_order, metric_order, colors
     percents = np.hstack((DHS_per, epi_per))
     factor_order = np.append(DHS_factors, epi_factors)
     metric_order = np.append(np.array(['DHSs'] * len(DHS_factors)),
                              np.array(['chromatin states'] *
                                       len(epi_factors)))
     colors = np.append(DHS_color, epi_color)
+
+def setup_included_factors(included_factors_str):
+    global included_factors
+    included_factors = np.int_(
+        included_factors_str.strip('[').strip(']').split(',')
+    )
+
+def read_in_genomic_coordinates(regions_path):
+    global regions, regions_sep
+    f = open(regions_path, 'r')
+    regions = []
+    regions_sep = []
+    for line in f.readlines():
+        line = line.strip().split('\t')
+        regions_sep.append(line)
+        regions.append(line[0] + ':' + line[1] + '-' + line[2])
+    f.close()
+    regions_sep = np.array(regions_sep)
+
+def find_most_similar_region_indices():
+    global top_regions, roi_sim, roi_per, query_factor_order, target_factors, pval, Z
+    (top_regions, roi_sim,
+     roi_per, query_factor_order,
+     target_factors, pval,
+     Z) = simsearch(percents, roi, included_factors)
+
+def setup_coordinates(top_regions):
+    global top_region_coords
+    top_region_coords = np.array(regions)[top_regions]
+
+def setup_roiURLs(get_roiURL, top_regions, target_factors):
+    global roiURLs
+    roiURLs = []
+    for dl in range(1, 35):
+        if get_roiURL == 'True':
+            # roiURLs.append('roiURL not available')
+            roiURLs.append(roiURL(roi, regions_sep[top_regions[dl-1]],
+                                  dl, '_'.join(target_factors.astype(str))))
+        else:
+            roiURLs.append('roiURL not available')
+
+def narrate_regions(top_regions, conversion_dict, metriccolors):
+    global sentences
+    sentences = []
+    for i in range(34):
+        detail_level = i + 1
+        sentences_pre = narrate_detail_level(top_regions[i], roi_per[i],
+                                             factor_order, metric_order,
+                                             included_factors, detail_level, conversion_dict,
+                                             metriccolors)
+        sentences.append(sentences_pre)
+    sentences = np.array(sentences)
+
+def reorder_by_query_region():
+    global roi_per_copy, pval_copy, Z_copy, return_factor_order, return_metric_order, return_colors
+    roi_per_copy = roi_per[:, :, query_factor_order]
+    return_factor_order = factor_order[query_factor_order]
+    return_metric_order = metric_order[query_factor_order]
+    return_colors = colors[query_factor_order]
+    pval_copy = pval[:, query_factor_order]
+    Z_copy = Z[:, query_factor_order]
+    # return_factor_order = return_factor_order.astype(object)
+    for i in range(len(return_factor_order)):
+        return_factor_order[i] = return_factor_order[i].replace('_', '/')
+    #     return_factor_order[i] = metriccolors[return_metric_order[i]] + return_factor_order[i] + metriccolors['STANDARD']
+
+def generate_result_array():
+    global return_arr_full
+    return_arr_full = []
+    for dl in range(34):
+        # for the roi, return results as json array
+        # each element is an object of scores for each metric
+        return_arr = []
+        for rank in range(101):
+            region_dict = {
+                'rank': rank,
+                'coordinates': top_region_coords[dl, rank],
+                'region_ind': int(top_regions[dl, rank]),
+                'score': float(roi_sim[dl, rank]),
+                'percentiles': list(roi_per[dl, rank]),
+                'factors': list(return_factor_order),
+                'metrics': list(return_metric_order),
+                'factor_colors': list(return_colors),
+                'sentence': sentences[dl, rank],
+                'detail_level': dl + 1
+            }
+            if rank == 0:
+                region_dict['query_factor_order'] = query_factor_order.tolist()
+                region_dict['target_factors'] = target_factors.tolist()
+                region_dict['top_region_factor_Z_score'] = list(Z[dl])
+                region_dict['top_region_factor_pval'] = list(pval[dl])
+                region_dict['roiURL'] = roiURLs[dl]
+            return_arr.append(region_dict)
+
+        return_arr_full.append(return_arr)
+
+def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
+         genomic_location, included_factors_str, get_roiURL):
+
+    # load ROI
+    load_roi(genomic_location, gz_file_path)
+
+    # load region percentiles
+    DHS_per, DHS_factors, DHS_color = load_per(DHS_per_f)
+    epi_per, epi_factors, epi_color = load_per(epi_per_f)
+
+    # join data from each metric
+    join_data_per_metric(DHS_per, DHS_factors, DHS_color, epi_per, epi_factors, epi_color)
+
     # conversion dictionary
     conversion_dict = {
         'EnhA1': 'active enhancer 1',
@@ -75,91 +181,31 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     }
 
     # factors the user cares about
-    included_factors = np.int_(
-        included_factors_str.strip('[').strip(']').split(',')
-    )
+    setup_included_factors(included_factors_str)
 
-    # genomic coordinates for each region
-    f = open(regions_path, 'r')
-    regions = []
-    regions_sep = []
-    for line in f.readlines():
-        line = line.strip().split('\t')
-        regions_sep.append(line)
-        regions.append(line[0] + ':' + line[1] + '-' + line[2])
-    f.close()
-    regions_sep = np.array(regions_sep)
+    # read in genomic coordinates for each region
+    read_in_genomic_coordinates(regions_path)
 
     # find most similar region inds
-    (top_regions, roi_sim,
-     roi_per, query_factor_order,
-     target_factors, pval,
-     Z) = simsearch(percents, roi, included_factors)
+    find_most_similar_region_indices()
 
     # get coordinates
-    top_region_coords = np.array(regions)[top_regions]
+    setup_coordinates(top_regions)
 
     # dual track roiURL
-    roiURLs = []
-    for dl in range(1, 35):
-        if get_roiURL == 'True':
-            # roiURLs.append('roiURL not available')
-            roiURLs.append(roiURL(roi, regions_sep[top_regions[dl-1]],
-                                  dl, '_'.join(target_factors.astype(str))))
-        else:
-            roiURLs.append('roiURL not available')
+    setup_roiURLs(get_roiURL, top_regions, target_factors)
 
     # narrate regions
-    sentences = []
-    for i in range(34):
-        detail_level = i + 1
-        sentences_pre = narrate_detail_level(top_regions[i], roi_per[i],
-                                             factor_order, metric_order,
-                                             included_factors, detail_level, conversion_dict,
-                                             metriccolors)
-        sentences.append(sentences_pre)
-    sentences = np.array(sentences)
+    narrate_regions(top_regions, conversion_dict, metriccolors)
 
     # reorder based on query region
-    roi_per = roi_per[:, :, query_factor_order]
-    return_factor_order = factor_order[query_factor_order]
-    return_metric_order = metric_order[query_factor_order]
-    return_colors = colors[query_factor_order]
-    pval = pval[:, query_factor_order]
-    Z = Z[:, query_factor_order]
+    reorder_by_query_region()
+    roi_per = roi_per_copy
+    pval = pval_copy
+    Z = Z_copy
 
-    # return_factor_order = return_factor_order.astype(object)
-    for i in range(len(return_factor_order)):
-        return_factor_order[i] = return_factor_order[i].replace('_', '/')
-    #     return_factor_order[i] = metriccolors[return_metric_order[i]] + return_factor_order[i] + metriccolors['STANDARD']
-
-    return_arr_full = []
-    for dl in range(34):
-        # for the roi, return results as json array
-        # each element is an object of scores for each metric
-        return_arr = []
-        for rank in range(101):
-            region_dict = {
-                'rank': rank,
-                'coordinates': top_region_coords[dl, rank],
-                'region_ind': int(top_regions[dl, rank]),
-                'score': float(roi_sim[dl, rank]),
-                'percentiles': list(roi_per[dl, rank]),
-                'factors': list(return_factor_order),
-                'metrics': list(return_metric_order),
-                'factor_colors': list(return_colors),
-                'sentence': sentences[dl, rank],
-                'detail_level': dl + 1
-            }
-            if rank == 0:
-                region_dict['query_factor_order'] = query_factor_order.tolist()
-                region_dict['target_factors'] = target_factors.tolist()
-                region_dict['top_region_factor_Z_score'] = list(Z[dl])
-                region_dict['top_region_factor_pval'] = list(pval[dl])
-                region_dict['roiURL'] = roiURLs[dl]
-            return_arr.append(region_dict)
-
-        return_arr_full.append(return_arr)
+    # generate result array
+    generate_result_array()
 
     json_return = json.dumps(return_arr_full)
     sys.stdout.write(json_return)
