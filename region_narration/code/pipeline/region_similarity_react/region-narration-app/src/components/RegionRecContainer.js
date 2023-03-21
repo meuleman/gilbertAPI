@@ -19,7 +19,7 @@ class RegionRecContainer extends React.Component {
   devMode = false;
   state = {
     genomicLocation: '',
-    sentence: '',
+    // sentence: '',
     spectrum: '',
     upsetFull: '',
     upsetLimited: '',
@@ -49,7 +49,7 @@ class RegionRecContainer extends React.Component {
         // this.setGenomicLocation(this.state.regionalVals[0].region_ind)
         this.setState({
           regionalVals: this.state.fullData[this.state.detailLevel - 1],
-          sentence: this.state.fullData[this.state.detailLevel - 1][0].sentence
+        //   sentence: this.state.fullData[this.state.detailLevel - 1][0].sentence
         }, () => {
         //   console.log(this.state.regionalVals)
         })
@@ -123,7 +123,7 @@ class RegionRecContainer extends React.Component {
         const queryRegion = data[0]
         this.setState({
             regionalVals: data,
-            sentence: queryRegion.sentence
+            // sentence: queryRegion.sentence
         }, () => {
         })
         } else {
@@ -157,7 +157,7 @@ class RegionRecContainer extends React.Component {
             genomicLocation: queryRegion.coordinates, // so we get the actual queried location
             regionalVals: data,
             fullData: fullData,
-            sentence: queryRegion.sentence,
+            // sentence: queryRegion.sentence,
             spinner: false
             }, () => {
             console.log(this.state.regionalVals)
@@ -190,7 +190,11 @@ class RegionRecContainer extends React.Component {
             included: this.state.included
           }}/>
           <Spinner spinnerProps={this.state.spinner}/>
-          <DisplaySentence sentenceProps={this.state.sentence} />
+          <DisplaySentence sentenceProps={{
+            // sentence: this.state.sentence, 
+            data: this.state.regionalVals,
+            detailLevel: this.state.detailLevel
+            }} />
           {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
           <FactorHeatmap heatmapProps={{
             data: this.state.regionalVals, 

@@ -79,17 +79,15 @@ def narrate_regions(top_regions, conversion_dict, metriccolors):
     sentences = np.array(sentences)
 
 def reorder_by_query_region():
-    global roi_per_copy, pval_copy, Z_copy, return_factor_order, return_metric_order, return_colors
-    roi_per_copy = roi_per[:, :, query_factor_order]
+    global return_roi_per, return_pval, return_Z, return_factor_order, return_metric_order, return_colors
+    return_roi_per = roi_per[:, :, query_factor_order]
     return_factor_order = factor_order[query_factor_order]
     return_metric_order = metric_order[query_factor_order]
     return_colors = colors[query_factor_order]
-    pval_copy = pval[:, query_factor_order]
-    Z_copy = Z[:, query_factor_order]
-    # return_factor_order = return_factor_order.astype(object)
+    return_pval = pval[:, query_factor_order]
+    return_Z = Z[:, query_factor_order]
     for i in range(len(return_factor_order)):
         return_factor_order[i] = return_factor_order[i].replace('_', '/')
-    #     return_factor_order[i] = metriccolors[return_metric_order[i]] + return_factor_order[i] + metriccolors['STANDARD']
 
 def generate_result_array():
     global return_arr_full
@@ -98,25 +96,28 @@ def generate_result_array():
         # for the roi, return results as json array
         # each element is an object of scores for each metric
         return_arr = []
-        for rank in range(101):
+        for rank in range(21):
             region_dict = {
                 'rank': rank,
                 'coordinates': top_region_coords[dl, rank],
                 'region_ind': int(top_regions[dl, rank]),
                 'score': float(roi_sim[dl, rank]),
-                'percentiles': list(roi_per[dl, rank]),
+                'percentiles': list(return_roi_per[dl, rank]),
                 'factors': list(return_factor_order),
                 'metrics': list(return_metric_order),
                 'factor_colors': list(return_colors),
-                'sentence': sentences[dl, rank],
+                #'sentence': sentences[dl, rank],
                 'detail_level': dl + 1
             }
             if rank == 0:
                 region_dict['query_factor_order'] = query_factor_order.tolist()
                 region_dict['target_factors'] = target_factors.tolist()
-                region_dict['top_region_factor_Z_score'] = list(Z[dl])
-                region_dict['top_region_factor_pval'] = list(pval[dl])
+                region_dict['top_region_factor_Z_score'] = list(return_Z[dl])
+                region_dict['top_region_factor_pval'] = list(return_pval[dl])
                 region_dict['roiURL'] = roiURLs[dl]
+                #region_dict['factors'] = list(return_factor_order)
+                #region_dict['metrics'] = list(return_metric_order)
+                #region_dict['factor_colors'] = list(return_colors)
             return_arr.append(region_dict)
 
         return_arr_full.append(return_arr)
@@ -195,14 +196,14 @@ def main(DHS_per_f, epi_per_f, gz_file_path, regions_path,
     # dual track roiURL
     setup_roiURLs(get_roiURL, top_regions, target_factors)
 
-    # narrate regions
-    narrate_regions(top_regions, conversion_dict, metriccolors)
+    # # narrate regions
+    # narrate_regions(top_regions, conversion_dict, metriccolors)
 
     # reorder based on query region
     reorder_by_query_region()
-    roi_per = roi_per_copy
-    pval = pval_copy
-    Z = Z_copy
+    # roi_per = roi_per_copy
+    # pval = pval_copy
+    # Z = Z_copy
 
     # generate result array
     generate_result_array()

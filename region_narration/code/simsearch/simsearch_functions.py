@@ -81,12 +81,12 @@ def simsearch(percents, roi, included_factors):
 
     # most similar regions
     top_regions = []
-    top_regions_pre = np.argsort(-roi_sim_all, axis=1)[:, :101]
+    top_regions_pre = np.argsort(-roi_sim_all, axis=1)[:, :21]
     for i in range(34):
         top_regions.append(
             np.append(
                 roi,
-                top_regions_pre[i][top_regions_pre[i] != roi][:100]
+                top_regions_pre[i][top_regions_pre[i] != roi][:20]
             )
         )
     top_regions = np.array(top_regions)

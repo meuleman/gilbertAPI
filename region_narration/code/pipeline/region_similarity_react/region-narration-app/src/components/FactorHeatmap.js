@@ -4,18 +4,37 @@ import { scaleLinear } from 'd3'
 // import { scaleLinear, timeFormatDefaultLocale } from 'd3'
 
 function FactorHeatmap (props) {
+    // let clicked = false
+    // if (typeof(tooltip) !== "undefined") {
+    //     console.log("testnew")
+    //     // tooltip.style('opacity', 0)
+    // }
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
 
-            const margin = { top: 75, right: 120, left: 25, bottom: 220 }
-            const height = 900
-            const width = 800
+            const margin = { top: 75, right: 325, left: 200, bottom: 100 }
+            const height = 700
+            const width = 1300
             const sigHeight = 60
-            const zMax = 50
+            const zMax = 30
             const zMin = -10
             const queryHeight = 60
             const colorHeight = 5
             const gap = 50
+            const browserButtonWidth = 25
+            const indexButtonX = 0
+            const epilogosButtonX = indexButtonX + browserButtonWidth + 5
+            const queryButtonX = margin.left - 60
+            
+            const legendX = width - margin.right + 10
+            const legendWidth = 20
+            const searchButtonX = legendX + legendWidth + 50
+            const searchButtonWidth = 25
+            const simFactorXStart = searchButtonX + searchButtonWidth + 10
+            const simFactorXWidth = colorHeight * 34
+            const simThresh = 0.9
+
+
 
 
             // data
@@ -27,14 +46,14 @@ function FactorHeatmap (props) {
             const detailTargetFactors = queryData.target_factors.slice(0, props.heatmapProps.detailLevel)
 
             const factorColors = queryData.factor_colors            
-            factorColors[queryData.factors.indexOf('Quies')] = "#e0e0e0" // changing Quies color to something visable
+            factorColors[colLabels.indexOf('Quies')] = "#e0e0e0" // changing Quies color to something visable
 
             const dataFlat = (data.flatMap((region) => {
                 const factors = region.factors
                 const rank = region.rank
                 const percentiles = region.percentiles
                 const coords = region.coordinates
-                const sentence = region.sentence
+                //const sentence = region.sentence
                 const score = region.score
                 const regionInd = region.region_ind
 
@@ -45,7 +64,7 @@ function FactorHeatmap (props) {
                             factor: factors[index],
                             rank: rank,
                             coords: coords,
-                            sentence: sentence,
+                            //sentence: sentence,
                             score: score,
                             regionInd: regionInd,
                             factorInd: index,
@@ -58,9 +77,15 @@ function FactorHeatmap (props) {
             const queryDataFlat = dataFlat.slice(0,34)
             const heatmapData = dataFlat.slice(34)
 
-            const allSimRanks = heatmapData.map((d) => {
-                return d.percentile
+            let allSimRanks = heatmapData.map((d) => {
+                if (detailTargetFactors.includes(d.originalFactorInd)) {
+                    return d.percentile
+                }
             })
+            allSimRanks = allSimRanks.filter((value) => {
+                return value != undefined
+            })
+            // console.log(allSimRanks)
             const maxRank = Math.max(...allSimRanks)
             const minRank = Math.min(...allSimRanks)
             const meanRank = allSimRanks.reduce((rankSum, val) => rankSum + val, 0) / allSimRanks.length
@@ -87,18 +112,18 @@ function FactorHeatmap (props) {
             // clear document
             if (document.getElementById('factorHeatmap').getElementsByTagName('*').length !== 0) {
                 d3.select('svg').remove()
-                document.getElementById('factorHeatmap').removeChild(document.getElementById('factorHeatmap').lastElementChild)
+                d3.selectAll("div.tooltip").remove()
+                // document.getElementById('factorHeatmap').removeChild(document.getElementById('factorHeatmap').lastElementChild)
             }
-        
+
             // container
             const heatmapContainer = d3.select('#factorHeatmap')
             const heatmapsvg = heatmapContainer
                 .append('svg')
-                .attr('width', width)
-                .attr('height', height)
+                .attr('width', width + margin.left)
+                .attr('height', height + margin.top)
                 .append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-
             // X axis
             const x = d3.scaleBand()
                 .domain(colLabels)
@@ -113,6 +138,15 @@ function FactorHeatmap (props) {
                 .attr('transform', `rotate(-45)`)
                 .style("text-anchor", "start")
                 .attr('dx', '5')
+
+            // Factors similar to query
+            const simFactorX = d3.scaleBand()
+                .domain([...Array(colLabels.length).keys()])
+                .range([simFactorXStart, simFactorXStart + simFactorXWidth])
+            // heatmapsvg.append('g')
+            //     .attr('class', 'x axis')
+            //     .attr('transform', `translate(0, ${queryHeight + gap})`)
+            //     .call(d3.axisTop(simFactorX).tickValues([]).tickSize(0))
 
             // colors for each factor
             const topColorY = d3.scaleBand()
@@ -139,25 +173,43 @@ function FactorHeatmap (props) {
                 .padding(0.1)
             heatmapsvg.append('g')
 
+            // console.log(data)
             // heatmap y axis
             const y = d3.scaleBand()
                 .domain(heatmapData.map(d => d.rank))
                 .range([queryHeight + gap, height - margin.bottom - sigHeight])
                 .padding(0.1)
             heatmapsvg.append('g')
-                .style('font', '8px sans-serif')
+                .style('font', '10px sans-serif')
                 .attr("transform", "translate(" + margin.left + ", 0)")
-                .call(d3.axisLeft(y).tickValues([10, 20, 30, 40, 50, 60, 70, 80, 90]))
+                .call(d3.axisLeft(y).tickFormat((regionInd) => {
+                    const coords = data[regionInd].coordinates
+                    return coords //+ ' - ' + regionInd
+                }))
+
+            heatmapsvg.append('g')
+                .style('font', '10px sans-serif')
+                .attr("transform", "translate(-10, 0)")
+                .call(d3.axisLeft(y).tickSize(0))
+                .call((g) => {return g.select(".domain").remove()})
+
 
             // z score y axis
+            const sigTicks = [...Array(((zMax - zMin) / 10) + 1).keys()].map((val) => {
+                return val * 10 - 10
+            })
             const sigY = d3.scaleLinear()
                 .domain([zMax, zMin])
                 .range([height - margin.bottom - sigHeight, height - margin.bottom])
             heatmapsvg.append('g')
                 .style('font', '8px sans-serif')
                 .attr("transform", "translate(" + margin.left + ", 0)")
-                .call(d3.axisLeft(sigY).tickValues([-10, 0, 10, 20, 30, 40, 50]))
+                .call(d3.axisLeft(sigY).tickValues(sigTicks))
 
+            
+
+            // console.log(height - margin.bottom - sigHeight, height - margin.bottom)
+            
             // colors for each factor
             const color = d3.scaleOrdinal()
                 .range(factorColors)
@@ -190,7 +242,7 @@ function FactorHeatmap (props) {
                 .range([queryHeight + gap, height - margin.bottom - sigHeight])
             heatmapsvg.append('g')
                 .style('font', '8px sans-serif')
-                .attr("transform", "translate(" + (width - margin.right + 30) + ", 0)")
+                .attr("transform", "translate(" + (legendX + legendWidth) + ", 0)")
                 .call(d3.axisRight(legendY).tickValues([0, 0.25, 0.50, 0.75, 1.0]).tickFormat(d3.format(".0%")))
 
             // tool tip
@@ -205,18 +257,18 @@ function FactorHeatmap (props) {
                 .style('padding', '10px')
                 .style('position', 'absolute')
                 .style('display', 'inline')
-                .style('z-index', 1)
+                .style('z-index', -1)
                 .style('max-width', '500px')
 
             // click tracker
-            let clicked = false
-            const mouseclick = function () {
-                clicked = !clicked
-                if (!clicked) {
-                    heatmapsvg.selectAll("rect")
-                        .style("stroke", "none")
-                }
-            }
+            // let clicked = false
+            // const mouseclick = function () {
+            //     clicked = !clicked
+            //     if (!clicked) {
+            //         heatmapsvg.selectAll("rect")
+            //             .style("stroke", "none")
+            //     }
+            // }
             // const [clicked, setClicked] = useState(
             //     false
             // );
@@ -226,96 +278,101 @@ function FactorHeatmap (props) {
 
             // mouseover for heatmap 
             const mouseover = function (d, cellData) {
-                if (!(clicked)) {
+                // if (!(clicked)) {
                     const factor = cellData.factor
-                    const rank = cellData.rank
+                    // const rank = cellData.rank
                     const percentile = Math.round((cellData.percentile * 100) * 10) / 10
-                    const coords = cellData.coords
-                    const regionInd = cellData.regionInd
-                    const regionChr = coords.split(':')[0]
-                    const regionStart = coords.split(':')[1].split('-')[0]
-                    const regionEnd = coords.split(':')[1].split('-')[1]
-                    const sentence = cellData.sentence
+                    // const coords = cellData.coords
+                    // const regionInd = cellData.regionInd
+                    // const regionChr = coords.split(':')[0]
+                    // const regionStart = coords.split(':')[1].split('-')[0]
+                    // const regionEnd = coords.split(':')[1].split('-')[1]
+                    // const sentence = cellData.sentence
                     const score = Math.round(cellData.score * 10000) / 10000
-                    var searchFromSim = () => props.heatmapProps.search(regionInd)
-                    const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
-                    const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
-                    if (roiURL != "roiURL not available") {
-                        var roiURLTag = "<br><a href=" + roiURL + " target=_blank rel=noopener noreferrer>roiURL</a>"
-                    } else {
-                        var roiURLTag = ""
-                    }
+                    // var searchFromSim = () => props.heatmapProps.search(regionInd)
+                    // const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
+                    // const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
+                    // if (roiURL != "roiURL not available") {
+                    //     var roiURLTag = "<br><a href=" + roiURL + " target=_blank rel=noopener noreferrer>roiURL</a>"
+                    // } else {
+                    //     var roiURLTag = ""
+                    // }
                     tooltip
-                        .html("Region: " + rank + "<br>Coordinates: " + coords + "<br>Similarity Score: " + score +
-                        "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + sentence +
-                        "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
-                        "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>" +
-                        roiURLTag +
-                        "<br><button id='tooltipButton'>Search From This Region</button>")
+                        .html("Similarity Score: " + score +
+                        "<br>" + factor + ": " + percentile + "%" //+ "<br>" + sentence +
+                        // "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
+                        // "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>" +
+                        // roiURLTag +
+                        // "<br><button id='tooltipButton'>Search From This Region</button>"
+                        )
                         .style('opacity', 1)
-                    document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
+                        .style('z-index', 1)
+                    // document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
                     d3.select(this)
                         .style("stroke", "black")
                         .style("stroke-width", "1")
-                }
+                // }
             }
 
             // mouseover for z score bar plot
             const mouseoverSig = function (d, cellData) {
-                if (!(clicked)) {
+                // if (!(clicked)) {
                     const Zscore = Math.round(cellData.zscore * 10000) / 10000
                     const factor = cellData.factor
                     tooltip
-                        .html("Factor: " + factor + "<br>Factor Z-score: " + Zscore)
+                        .html(factor + " Z-score: " + Zscore)
                         .style('opacity', 1)
+                        .style('z-index', 1)
                     d3.select(this)
                         .style("stroke", "black")
                         .style("stroke-width", "1")
-                }
+                // }
             }
 
             // mouseover for query region bar chart
             const mouseoverQuery = function (d, cellData) {
-                if (!(clicked)) {
+                // if (!(clicked)) {
                     const factor = cellData.factor
                     // const rank = cellData.rank
                     const percentile = Math.round((cellData.percentile * 100) * 10) / 10
-                    const coords = cellData.coords
-                    const regionChr = coords.split(':')[0]
-                    const regionStart = coords.split(':')[1].split('-')[0]
-                    const regionEnd = coords.split(':')[1].split('-')[1]
-                    const sentence = cellData.sentence
+                    // const coords = cellData.coords
+                    // const regionChr = coords.split(':')[0]
+                    // const regionStart = coords.split(':')[1].split('-')[0]
+                    // const regionEnd = coords.split(':')[1].split('-')[1]
+                    // const sentence = cellData.sentence
         
-                    const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
-                    const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
+                    // const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
+                    // const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
                     tooltip
-                        .html("Coordinates: " + coords +
-                        "<br>Factor: " + factor + "<br>Factor Enrichment: " + percentile + "%<br>" + //sentence +
-                        "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
-                        "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>")
+                        .html(factor + ": " + percentile + "%" // + "<br>" + //sentence +
+                        // "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
+                        // "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>")
+                        )
                         .style('opacity', 1)
+                        .style('z-index', 1)
                     d3.select(this)
                         .style("stroke", "black")
                         .style("stroke-width", "1")
-                }
+                // }
             }
 
             // mousemove
             const mousemove = function (e) {
-                if (!(clicked)) {
+                // if (!(clicked)) {
                     tooltip.style('left', (e.pageX + 20) + 'px')
                     tooltip.style('top', (e.pageY) + 'px')
-                };
+                // };
             }
 
             // mouseleave
             const mouseleave = function (d) {
-                if (!(clicked)) {
+                // if (!(clicked)) {
                     tooltip
                         .style('opacity', 0)
+                        .style('z-index', -1)
                     d3.select(this)
                         .style("stroke", "none")
-                }
+                // }
             }
 
             const labelTooltip = heatmapContainer
@@ -328,7 +385,7 @@ function FactorHeatmap (props) {
                 .style('padding', '2px')
                 .style('position', 'absolute')
                 .style('display', 'inline')
-                .style('z-index', 1)
+                .style('z-index', -1)
                 .style('max-width', '500px')
 
 
@@ -337,6 +394,7 @@ function FactorHeatmap (props) {
                 labelTooltip
                     .html("<div style= font-size:10px; >Ranks for factors in the query region</div>")
                     .style('opacity', 1)
+                    .style('z-index', 1)
             }
 
             // mouseover for heatmap label
@@ -344,6 +402,7 @@ function FactorHeatmap (props) {
                 labelTooltip
                     .html("<div style= font-size:10px; >Ranks for factors in similar regions</div>")
                     .style('opacity', 1)
+                    .style('z-index', 1)
             }
 
             // mouseover for z score label
@@ -351,6 +410,7 @@ function FactorHeatmap (props) {
                 labelTooltip
                     .html("<div style= font-size:10px; >Significance of factor ranks in similar regions</div>")
                     .style('opacity', 1)
+                    .style('z-index', 1)
             }
 
             // mouseover for scale max line
@@ -358,6 +418,7 @@ function FactorHeatmap (props) {
                 labelTooltip
                     .html("<div style= font-size:10px; >Max Rank in Similar Regions</div>")
                     .style('opacity', 1)
+                    .style('z-index', 1)
             }
 
             // mouseover for scale min line
@@ -365,6 +426,7 @@ function FactorHeatmap (props) {
                 labelTooltip
                     .html("<div style= font-size:10px; >Min Rank in Similar Regions</div>")
                     .style('opacity', 1)
+                    .style('z-index', 1)
             }
 
             // mouseover for scale mean line
@@ -372,6 +434,7 @@ function FactorHeatmap (props) {
                 labelTooltip
                     .html("<div style= font-size:10px; >Mean Rank in Similar Regions</div>")
                     .style('opacity', 1)
+                    .style('z-index', 1)
             }
 
             // mousemove
@@ -384,56 +447,57 @@ function FactorHeatmap (props) {
             const mouseleaveLabel = function () {
                 labelTooltip
                     .style('opacity', 0)
+                    .style('z-index', -1)
             }
 
-            // query region bar chart label
-            heatmapsvg.append("text")
-                .attr("class", "y label")
-                .attr("text-anchor", "middle")
-                .attr("x", -30)
-                .attr("y", -10)
-                .attr("transform", "rotate(-90)")
-                .style('font', '13px sans-serif')
-                .text("Query Region")
-                .on('mouseover', mouseoverQueryLabel)
-                .on('mousemove', mousemoveLabel)
-                .on('mouseleave', mouseleaveLabel)
+            // // query region bar chart label
+            // heatmapsvg.append("text")
+            //     .attr("class", "y label")
+            //     .attr("text-anchor", "middle")
+            //     .attr("x", -30)
+            //     .attr("y", -10)
+            //     .attr("transform", "rotate(-90)")
+            //     .style('font', '13px sans-serif')
+            //     .text("Query Region")
+            //     .on('mouseover', mouseoverQueryLabel)
+            //     .on('mousemove', mousemoveLabel)
+            //     .on('mouseleave', mouseleaveLabel)
 
-            // add similar regions label
-            heatmapsvg.append("text")
-                .attr("class", "y label")
-                .attr("text-anchor", "middle")
-                .attr("x", -(height) / 3 - 65)
-                .attr("y", -10)
-                .attr("transform", "rotate(-90)")
-                .style('font', '13px sans-serif')
-                .text("Similar Regions")
-                .on('mouseover', mouseoverHeatmapLabel)
-                .on('mousemove', mousemoveLabel)
-                .on('mouseleave', mouseleaveLabel)
+            // // add similar regions label
+            // heatmapsvg.append("text")
+            //     .attr("class", "y label")
+            //     .attr("text-anchor", "middle")
+            //     .attr("x", -(height) / 3 - 65)
+            //     .attr("y", -10)
+            //     .attr("transform", "rotate(-90)")
+            //     .style('font', '13px sans-serif')
+            //     .text("Similar Regions")
+            //     .on('mouseover', mouseoverHeatmapLabel)
+            //     .on('mousemove', mousemoveLabel)
+            //     .on('mouseleave', mouseleaveLabel)
             
-            // add colorbar label
-            heatmapsvg.append("text")
-                .attr("class", "y label")
-                .attr("text-anchor", "middle")
-                .attr("x", (height) / 3 + 65)
-                .attr("y", -width + margin.right - 65)
-                .attr("transform", "rotate(90)")
-                .style('font', '13px sans-serif')
-                .text("Rank")
+            // // add colorbar label
+            // heatmapsvg.append("text")
+            //     .attr("class", "y label")
+            //     .attr("text-anchor", "middle")
+            //     .attr("x", (height) / 2)
+            //     .attr("y", -legendX - 55)
+            //     .attr("transform", "rotate(90)")
+            //     .style('font', '13px sans-serif')
+            //     .text("Rank")
 
-            // add z score bar chart label
-            heatmapsvg.append("text")
-                .attr("class", "y label")
-                .attr("text-anchor", "middle")
-                .attr("x", -(height - margin.bottom) + 30)
-                .attr("y", -10)
-                .attr("transform", "rotate(-90)")
-                .style('font', '13px sans-serif')
-                .text("Factor Z-scores")
-                .on('mouseover', mouseoverSigLabel)
-                .on('mousemove', mousemoveLabel)
-                .on('mouseleave', mouseleaveLabel)
+            // // add z score bar chart label
+            // heatmapsvg.append("text")
+            //     .attr("class", "y label")
+            //     .attr("text-anchor", "middle")
+            //     .attr("x", -(height - margin.bottom) + 30)
+            //     .attr("y", -10)
+            //     .attr("transform", "rotate(-90)")
+            //     .style('font', '13px sans-serif')
+            //     .text("Rank Enrichment")
+            //     .on('mouseover', mouseoverSigLabel)
+            //     .on('mousemove', mousemoveLabel)
+            //     .on('mouseleave', mouseleaveLabel)
         
             // add factor heatmap
             heatmapsvg.selectAll()
@@ -449,23 +513,229 @@ function FactorHeatmap (props) {
                     .on('mouseover', mouseover)
                     .on('mousemove', mousemove)
                     .on('mouseleave', mouseleave)
-                    .on('click', mouseclick)
+                    // .on('click', mouseclick)
+
+            
+            const simFactorData = heatmapData.filter((d) => {
+                return d.percentile * queryDataFlat[d.factorInd].percentile > simThresh
+            })
+            console.log(simFactorData)
+            let factorNum = 0
+            let simRank = 0
+            heatmapsvg.selectAll()
+                .data(simFactorData)
+                .join("rect")
+                    // .attr("x", function(d) {return simFactorX(d.factor)})
+                    .attr("x", function(d) {
+                        if (d.rank == simRank) {
+                            factorNum += 1
+                        } else {
+                            factorNum = 0
+                            simRank = d.rank
+                        }
+                        return simFactorX(factorNum)
+                    })
+                    .attr("y", function(d) {return y(d.rank)})
+                    .attr("width", simFactorX.bandwidth())
+                    .attr("height", y.bandwidth())
+                    .style("fill", function(d) {return color(d.factor)})
+                    .style("fill", function(d) {return color(d.factor)})
+                    .style("stroke-width", 0.1)
+                    .style("stroke", "black")
+            
+            const linkClick = (d) => {
+                const data = d.srcElement.__data__
+                const coords = data.coords
+                const seqname = coords.split(":")[0]
+                const start  = coords.split(":")[1].split("-")[0]
+                const stop = coords.split(":")[1].split("-")[1]
+                const browser = data.browser
+                if (browser == "index") {
+                    var url = "https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=" + seqname + "&chrRight=" + seqname + "&start=" + start + "&stop=" + stop + "&dtt=200000&dtc=av3&gatt=cv&gac=off"
+                } else if (browser == "epilogos") {
+                    var url = "https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=" + seqname + "&chrRight=" + seqname + "&start=" + start + "&stop=" + stop + "&gatt=cv"
+                }
+                window.open(url, "_blank")
+            }
+                
+            // add index buttons
+            heatmapsvg.selectAll()
+                .data(data.slice(1))
+                .join("rect")
+                    .attr("x", indexButtonX)
+                    .attr("y", function(d) {return y(d.rank)})
+                    .attr("width", browserButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "index"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            heatmapsvg.selectAll()
+                .data(data.slice(1))
+                .join("text")
+                    .attr("x", indexButtonX + browserButtonWidth / 2)
+                    .attr("y", function(d) {return y(d.rank) + y.bandwidth() - 5})
+                    .attr("text-anchor", "middle")
+                    .style('font', '15px sans-serif')
+                    .text("i")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "index"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+
+            // add query index buttons
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("rect")
+                    .attr("x", queryButtonX)
+                    .attr("y", queryY(1.0))
+                    .attr("width", browserButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "index"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("text")
+                    .attr("x", queryButtonX + browserButtonWidth / 2)
+                    .attr("y", queryY(1.0) + y.bandwidth() - 5)
+                    .attr("text-anchor", "middle")
+                    .style('font', '15px sans-serif')
+                    .text("i")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "index"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            
+            // add epilogos buttons
+            heatmapsvg.selectAll()
+                .data(data.slice(1))
+                .join("rect")
+                    .attr("x", epilogosButtonX)
+                    .attr("y", function(d) {return y(d.rank)})
+                    .attr("width", browserButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "epilogos"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            heatmapsvg.selectAll()
+                .data(data.slice(1))
+                .join("text")
+                    .attr("x", epilogosButtonX + browserButtonWidth / 2)
+                    .attr("y", function(d) {return y(d.rank) + y.bandwidth() - 5})
+                    .attr("text-anchor", "middle")
+                    .style('font', '15px sans-serif')
+                    .text("e")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "epilogos"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+
+            // add query epilogos buttons
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("rect")
+                    .attr("x", queryButtonX)
+                    .attr("y", queryY(1.0) + y.bandwidth() + 5)
+                    .attr("width", browserButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "epilogos"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("text")
+                    .attr("x", queryButtonX + browserButtonWidth / 2)
+                    .attr("y", queryY(1.0) + 2 * y.bandwidth())
+                    .attr("text-anchor", "middle")
+                    .style('font', '15px sans-serif')
+                    .text("e")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "epilogos"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+
+
+            heatmapsvg.selectAll()
+                .data(data.slice(1))
+                .join("rect")
+                    .attr("x", searchButtonX)
+                    .attr("y", function(d) {return y(d.rank)})
+                    .attr("width", searchButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .datum(function(d) {return {
+                        "regionInd": d.region_ind
+                    }})
+                    .on("click", (d) => {
+                        props.heatmapProps.search(d.srcElement.__data__.regionInd)
+                    })
+
+            heatmapsvg.selectAll()
+                .data(data.slice(1))
+                .join("text")
+                    .attr("x", searchButtonX + searchButtonWidth / 2)
+                    .attr("y", function(d) {return y(d.rank) + y.bandwidth() - 5})
+                    .attr("text-anchor", "middle")
+                    .style('font', '10px sans-serif')
+                    .text("Go!")
+                    .datum(function(d) {return {
+                        "regionInd": d.region_ind
+                    }})
+                    .on("click", (d) => {
+                        props.heatmapProps.search(d.srcElement.__data__.regionInd)
+                    })
 
             // add heatmap colorbar legend
             heatmapsvg.append("rect")
-                .attr("x", width - margin.right + 10)
+                .attr("x", legendX)
                 .attr("y", legendY(1))
                 .attr("height", legendY(0) - legendY(1))
-                .attr("width", 20)
+                .attr("width", legendWidth)
                 .style("fill", "url(#heatmap-legend)")
 
             // add heatmap colorbar max rank
             heatmapsvg.append("line")
                 .style("stroke", "green")
                 .style("stroke-width", 5)
-                .attr("x1", width - margin.right + 10)
+                .attr("x1", legendX)
                 .attr("y1", legendY(maxRank))
-                .attr("x2", width - margin.right + 30)
+                .attr("x2", legendX + legendWidth)
                 .attr("y2", legendY(maxRank))
                 .on('mouseover', mouseoverMax)
                 .on('mousemove', mousemoveLabel)
@@ -475,9 +745,9 @@ function FactorHeatmap (props) {
             heatmapsvg.append("line")
                 .style("stroke", "orange")
                 .style("stroke-width", 5)
-                .attr("x1", width - margin.right + 10)
+                .attr("x1", legendX)
                 .attr("y1", legendY(meanRank))
-                .attr("x2", width - margin.right + 30)
+                .attr("x2", legendX + legendWidth)
                 .attr("y2", legendY(meanRank))
                 .on('mouseover', mouseoverMean)
                 .on('mousemove', mousemoveLabel)
@@ -487,9 +757,9 @@ function FactorHeatmap (props) {
             heatmapsvg.append("line")
                 .style("stroke", "red")
                 .style("stroke-width", 5)
-                .attr("x1", width - margin.right + 10)
+                .attr("x1", legendX)
                 .attr("y1", legendY(minRank))
-                .attr("x2", width - margin.right + 30)
+                .attr("x2", legendX + legendWidth)
                 .attr("y2", legendY(minRank))
                 .on('mouseover', mouseoverMin)
                 .on('mousemove', mousemoveLabel)
@@ -509,7 +779,7 @@ function FactorHeatmap (props) {
                     .on('mouseover', mouseoverSig)
                     .on('mousemove', mousemove)
                     .on('mouseleave', mouseleave)
-                    .on('click', mouseclick)
+                    // .on('click', mouseclick)
 
             // add line at 0 for z score bar chart
             heatmapsvg
@@ -559,7 +829,7 @@ function FactorHeatmap (props) {
                     .on('mouseover', mouseoverQuery)
                     .on('mousemove', mousemove)
                     .on('mouseleave', mouseleave)
-                    .on('click', mouseclick)
+                    // .on('click', mouseclick)
 
             // line at 50% in query region bar chart
             heatmapsvg
