@@ -1,13 +1,17 @@
 import React from 'react'
-// import factors from '../factors.json'
+import factorsArr from '../factors.json'
 
 function DisplaySentence (props) {
   if (props.sentenceProps.data !== '') {
     const queryRegion = props.sentenceProps.data[0]
     const targetFactors = queryRegion.target_factors
     const queryFactorOrder = queryRegion.query_factor_order
-    const metrics = queryRegion.metrics
-    const factors = queryRegion.factors
+    const metrics = queryFactorOrder.map((ind) => {
+      return factorsArr[ind].metric
+    })
+    const factors = queryFactorOrder.map((ind) => {
+      return factorsArr[ind].name
+    })
     const percentiles = queryRegion.percentiles
     const detailLevel = props.sentenceProps.detailLevel
     const thresh = Math.sqrt(0.9)

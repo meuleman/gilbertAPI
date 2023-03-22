@@ -15,7 +15,7 @@ app.use(cors())
  */
 
 const similarRegionsShellScript = process.env.SIMILAR_REGIONS_SH || '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch/similar_regions.sh'
-const alternateDataDir = process.env.ALTERNATE_DATA_DIR || '/Users/ctrader/Documents/local_data/region_similarity/data/rank_based'
+const alternateDataDir = process.env.ALTERNATE_DATA_DIR || '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/data'
 const alternateSimsearchDir = process.env.ALTERNATE_SIMSEARCH_DIR || '/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/code/simsearch'
 
 let findRegionsBuffArr = []

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import * as d3 from 'd3'
-import { scaleLinear } from 'd3'
+// import { scaleLinear } from 'd3'
+import factorsArr from '../factors.json'
 // import { scaleLinear, timeFormatDefaultLocale } from 'd3'
 
 function FactorHeatmap (props) {
-    // let clicked = false
-    // if (typeof(tooltip) !== "undefined") {
-    //     console.log("testnew")
-    //     // tooltip.style('opacity', 0)
-    // }
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
 
@@ -41,19 +37,22 @@ function FactorHeatmap (props) {
             const data = props.heatmapProps.data
             
             const queryData = data[0]
-            const colLabels = queryData.factors
+            
+            const colLabels = queryData.query_factor_order.map((ind) => {
+                return factorsArr[ind].name
+            })
             const roiURL = queryData.roiURL
             const detailTargetFactors = queryData.target_factors.slice(0, props.heatmapProps.detailLevel)
 
-            const factorColors = queryData.factor_colors            
+            const factorColors = queryData.query_factor_order.map((ind) => {
+                return factorsArr[ind].color
+            })
             factorColors[colLabels.indexOf('Quies')] = "#e0e0e0" // changing Quies color to something visable
 
             const dataFlat = (data.flatMap((region) => {
-                const factors = region.factors
                 const rank = region.rank
                 const percentiles = region.percentiles
                 const coords = region.coordinates
-                //const sentence = region.sentence
                 const score = region.score
                 const regionInd = region.region_ind
 
@@ -61,10 +60,9 @@ function FactorHeatmap (props) {
                     percentiles.map((p, index) => {
                         return ({
                             percentile: p,
-                            factor: factors[index],
+                            factor: colLabels[index],
                             rank: rank,
                             coords: coords,
-                            //sentence: sentence,
                             score: score,
                             regionInd: regionInd,
                             factorInd: index,
@@ -73,6 +71,9 @@ function FactorHeatmap (props) {
                     })
                 )
             }))
+
+            
+            
 
             const queryDataFlat = dataFlat.slice(0,34)
             const heatmapData = dataFlat.slice(34)
@@ -104,7 +105,7 @@ function FactorHeatmap (props) {
                 return ({
                     zscore: value,
                     sig: barValue,
-                    factor: queryData.factors[index],
+                    factor: colLabels[index],
                     originalFactorInd: queryData.query_factor_order[index]
                 })
             })
@@ -519,7 +520,7 @@ function FactorHeatmap (props) {
             const simFactorData = heatmapData.filter((d) => {
                 return d.percentile * queryDataFlat[d.factorInd].percentile > simThresh
             })
-            console.log(simFactorData)
+            // console.log(simFactorData)
             let factorNum = 0
             let simRank = 0
             heatmapsvg.selectAll()

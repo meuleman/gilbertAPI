@@ -30,7 +30,7 @@ fi
 
 if [ ! -n "${alternate_data_dir}" ]
 then
-    data_dir=/Users/ctrader/Documents/local_data/region_similarity/data/rank_based
+    data_dir=/Users/ctrader/Documents/AG/NarrativeGenomics/region_narration/data
 else
     data_dir="${alternate_data_dir}"
 fi
@@ -78,10 +78,11 @@ then
     true_data_dir="${data_dir}"
     true_code_dir="${simsearch_dir}"
 fi
+
 scale_gz_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.bed.gz"
-regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed"
-dhs_hdf5_filename="${true_data_dir}/regions_25kb_CT20230214.DHS.factornormNMF.sum_enrich_corank_percentile.hdf5"
-epilogos_hdf5_filename="${true_data_dir}/regions_25kb_CT20230214.epilogos.statesum_rank_percentile.hdf5"
+regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed.npy"
+per_filename="${true_data_dir}/regions_25kb_CT20230321.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
+num_similar_regions=20
 ##########################
 
 ##########################
@@ -96,11 +97,11 @@ epilogos_hdf5_filename="${true_data_dir}/regions_25kb_CT20230214.epilogos.states
 #
 ##########################
 time python -m cProfile -o similar_regions.cProfile.out "${true_code_dir}/similar_regions.py" \
-    "${dhs_hdf5_filename}" \
-    "${epilogos_hdf5_filename}" \
+    "${per_filename}" \
     "${scale_gz_filename}" \
     "${regions_filename}" \
     "${genomic_location}" \
     "${included_factors}" \
-    "${get_roiURL}"
+    "${get_roiURL}" \
+    "${num_similar_regions}"
 ##########################

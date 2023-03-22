@@ -58,12 +58,12 @@ def top_region_sig(percents, top_regions):
     return pval, Z
 
 
-def simsearch(percents, roi, included_factors):
+def simsearch(percents, roi, included_factors, num_similar_regions):
 
-    # factors the query region rank highest in
+        # factors the query region rank highest in
     query_factor_order = np.argsort(-percents[roi])
 
-    # factors to search over based on detail level
+    # factors to search over
     target_factors = query_factor_order[
         np.isin(query_factor_order, included_factors)
     ]
@@ -74,22 +74,27 @@ def simsearch(percents, roi, included_factors):
 
     # fusion
     roi_sim_all = []
-    for dl in range(1, 35):
+    for dl in range(1, len(included_factors) + 1):
         roi_sim = 1 - np.prod(1 - roi_conv_all[:, :dl], axis=1)
         roi_sim_all.append(roi_sim)
     roi_sim_all = np.array(roi_sim_all)
 
     # most similar regions
-    top_regions = []
-    top_regions_pre = np.argsort(-roi_sim_all, axis=1)[:, :21]
-    for i in range(34):
-        top_regions.append(
-            np.append(
-                roi,
-                top_regions_pre[i][top_regions_pre[i] != roi][:20]
-            )
+    top_regions = np.zeros(
+        (len(included_factors), num_similar_regions + 1)
+        , dtype=int
+    )
+    top_regions_pre = np.argsort(
+        -roi_sim_all, axis=1
+    )[:, :(num_similar_regions + 1)]
+
+    for i in range(len(included_factors)):
+        top_regions[i] = np.append(
+            roi,
+            top_regions_pre[i][
+                top_regions_pre[i] != roi
+            ][:num_similar_regions]
         )
-    top_regions = np.array(top_regions)
 
     # factor percentile significance
     pval, Z = top_region_sig(percents, top_regions)
@@ -100,7 +105,9 @@ def simsearch(percents, roi, included_factors):
     )
 
     return (top_regions, roi_sim_all[rows, top_regions],
-            percents[top_regions], query_factor_order, target_factors, pval, Z)
+            percents[top_regions], query_factor_order,
+            target_factors, pval, Z)
+
 
 def narrate_detail_level(top_regions, roi_per, factor_order, metric_order, included_factors, detail_level, conversion_dict, metriccolors, thresh=0.9):
     query = top_regions[0]
