@@ -23,11 +23,15 @@ def load_ranks(per_f):
     percents = np.load(per_f)
 
 
-def setup_included_factors(included_factors_str):
+def setup_included_factors(included_factors_str, query_factor_thresh):
     global included_factors
     included_factors = np.int_(
         included_factors_str.strip('[').strip(']').split(',')
     )
+    query_factors_above_thresh = np.where(percents[roi] > query_factor_thresh)[0]
+    included_factors = included_factors[
+        np.isin(included_factors, query_factors_above_thresh)
+    ]
 
 
 def read_in_genomic_coordinates(regions_path):
@@ -96,7 +100,8 @@ def generate_result_array(num_similar_regions):
 
 
 def main(per_f, gz_file_path, regions_path, genomic_location,
-         included_factors_str, get_roiURL, num_similar_regions):
+         included_factors_str, get_roiURL, num_similar_regions,
+         query_factor_thresh):
 
     # load ROI
     load_roi(genomic_location, gz_file_path)
@@ -105,7 +110,7 @@ def main(per_f, gz_file_path, regions_path, genomic_location,
     load_ranks(per_f)
 
     # factors the user cares about
-    setup_included_factors(included_factors_str)
+    setup_included_factors(included_factors_str, query_factor_thresh)
 
     # read in genomic coordinates for each region
     read_in_genomic_coordinates(regions_path)
@@ -139,4 +144,4 @@ def main(per_f, gz_file_path, regions_path, genomic_location,
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5],
-         sys.argv[6], int(sys.argv[7]))
+         sys.argv[6], int(sys.argv[7]), float(sys.argv[8]))

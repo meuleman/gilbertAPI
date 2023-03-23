@@ -83,6 +83,7 @@ scale_gz_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.
 regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed.npy"
 per_filename="${true_data_dir}/regions_25kb_CT20230321.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
 num_similar_regions=20
+query_factor_thresh=0.5
 ##########################
 
 ##########################
@@ -103,5 +104,6 @@ time python -m cProfile -o similar_regions.cProfile.out "${true_code_dir}/simila
     "${genomic_location}" \
     "${included_factors}" \
     "${get_roiURL}" \
-    "${num_similar_regions}"
+    "${num_similar_regions}" \
+    "${query_factor_thresh}"
 ##########################

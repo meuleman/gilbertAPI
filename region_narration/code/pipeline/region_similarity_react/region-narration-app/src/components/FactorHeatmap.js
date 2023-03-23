@@ -85,7 +85,7 @@ function FactorHeatmap (props) {
                     return null
                 }
             })
-            console.log(allSimRanks)
+            // console.log(allSimRanks)
             allSimRanks = allSimRanks.filter((value) => {
                 return value != null
             })

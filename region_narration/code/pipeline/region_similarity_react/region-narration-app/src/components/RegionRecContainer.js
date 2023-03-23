@@ -33,6 +33,7 @@ class RegionRecContainer extends React.Component {
     autoFactorSelection: true,
     included: new Array((factors.length) + 1).fill(true),
     detailLevel: 1,
+    maxDetailLevel: 34,
     spinner: false,
     devQueryHost: 'localhost',
     devQueryPort: 3001,
@@ -144,24 +145,28 @@ class RegionRecContainer extends React.Component {
             method: 'GET',
             url: queryURL,
             headers: {
-            reqState: location,
-            purpose: 'getRegions',
-            factors: JSON.stringify(this.state.selectedFactors),
-            roiURL: roiURL
+                reqState: location,
+                purpose: 'getRegions',
+                factors: JSON.stringify(this.state.selectedFactors),
+                roiURL: roiURL
             }
         }).then((response) => {
             const fullData = response.data.findRegionValsObject
-            const data = fullData[this.state.detailLevel - 1]
+            const startDetailLevel = fullData[0][0].percentiles.filter((rank) => {
+                return rank > Math.sqrt(0.9)
+            }).length
+            
+            const data = fullData[startDetailLevel - 1]
             const queryRegion = data[0]
             this.setState({
-            genomicLocation: queryRegion.coordinates, // so we get the actual queried location
-            regionalVals: data,
-            fullData: fullData,
-            // sentence: queryRegion.sentence,
-            spinner: false
+                genomicLocation: queryRegion.coordinates, // so we get the actual queried location
+                regionalVals: data,
+                fullData: fullData,
+                spinner: false,
+                maxDetailLevel: fullData.length,
+                detailLevel: startDetailLevel
             }, () => {
-            console.log(this.state.regionalVals)
-            //   console.log(this.state.fullData)
+                console.log(this.state.regionalVals)
             })
         })
         }
@@ -178,7 +183,7 @@ class RegionRecContainer extends React.Component {
           <SelectDetailLevel detailProps={{
             setDetailLevel: this.setDetailLevel, 
             detailLevel: this.state.detailLevel,
-            selectedFactors: this.state.selectedFactors
+            maxDetailLevel: this.state.maxDetailLevel
           }}/>
           <SelectFactors factorProps={{
             possibleFactors: this.state.possibleFactors, 
