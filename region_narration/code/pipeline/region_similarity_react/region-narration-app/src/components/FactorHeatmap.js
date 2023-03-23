@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import * as d3 from 'd3'
 // import { scaleLinear } from 'd3'
 import factorsArr from '../factors.json'
@@ -81,10 +81,13 @@ function FactorHeatmap (props) {
             let allSimRanks = heatmapData.map((d) => {
                 if (detailTargetFactors.includes(d.originalFactorInd)) {
                     return d.percentile
+                } else {
+                    return null
                 }
             })
+            console.log(allSimRanks)
             allSimRanks = allSimRanks.filter((value) => {
-                return value != undefined
+                return value != null
             })
             // console.log(allSimRanks)
             const maxRank = Math.max(...allSimRanks)
@@ -390,29 +393,29 @@ function FactorHeatmap (props) {
                 .style('max-width', '500px')
 
 
-            // mouseover for query region bar chart label
-            const mouseoverQueryLabel = function () {
-                labelTooltip
-                    .html("<div style= font-size:10px; >Ranks for factors in the query region</div>")
-                    .style('opacity', 1)
-                    .style('z-index', 1)
-            }
+            // // mouseover for query region bar chart label
+            // const mouseoverQueryLabel = function () {
+            //     labelTooltip
+            //         .html("<div style= font-size:10px; >Ranks for factors in the query region</div>")
+            //         .style('opacity', 1)
+            //         .style('z-index', 1)
+            // }
 
-            // mouseover for heatmap label
-            const mouseoverHeatmapLabel = function () {
-                labelTooltip
-                    .html("<div style= font-size:10px; >Ranks for factors in similar regions</div>")
-                    .style('opacity', 1)
-                    .style('z-index', 1)
-            }
+            // // mouseover for heatmap label
+            // const mouseoverHeatmapLabel = function () {
+            //     labelTooltip
+            //         .html("<div style= font-size:10px; >Ranks for factors in similar regions</div>")
+            //         .style('opacity', 1)
+            //         .style('z-index', 1)
+            // }
 
-            // mouseover for z score label
-            const mouseoverSigLabel = function () {
-                labelTooltip
-                    .html("<div style= font-size:10px; >Significance of factor ranks in similar regions</div>")
-                    .style('opacity', 1)
-                    .style('z-index', 1)
-            }
+            // // mouseover for z score label
+            // const mouseoverSigLabel = function () {
+            //     labelTooltip
+            //         .html("<div style= font-size:10px; >Significance of factor ranks in similar regions</div>")
+            //         .style('opacity', 1)
+            //         .style('z-index', 1)
+            // }
 
             // mouseover for scale max line
             const mouseoverMax = function () {
@@ -528,7 +531,7 @@ function FactorHeatmap (props) {
                 .join("rect")
                     // .attr("x", function(d) {return simFactorX(d.factor)})
                     .attr("x", function(d) {
-                        if (d.rank == simRank) {
+                        if (d.rank === simRank) {
                             factorNum += 1
                         } else {
                             factorNum = 0
@@ -545,18 +548,23 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
             
             const linkClick = (d) => {
-                const data = d.srcElement.__data__
-                const coords = data.coords
+                const buttonData = d.srcElement.__data__
+                const coords = buttonData.coords
                 const seqname = coords.split(":")[0]
                 const start  = coords.split(":")[1].split("-")[0]
                 const stop = coords.split(":")[1].split("-")[1]
-                const browser = data.browser
-                if (browser == "index") {
-                    var url = "https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=" + seqname + "&chrRight=" + seqname + "&start=" + start + "&stop=" + stop + "&dtt=200000&dtc=av3&gatt=cv&gac=off"
-                } else if (browser == "epilogos") {
-                    var url = "https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=" + seqname + "&chrRight=" + seqname + "&start=" + start + "&stop=" + stop + "&gatt=cv"
+                const browser = buttonData.browser
+                let url = null
+                if (browser === "index") {
+                    url = "https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=" + seqname + "&chrRight=" + seqname + "&start=" + start + "&stop=" + stop + "&dtt=200000&dtc=av3&gatt=cv&gac=off"
+                } else if (browser === "epilogos") {
+                    url = "https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=" + seqname + "&chrRight=" + seqname + "&start=" + start + "&stop=" + stop + "&gatt=cv"
+                } else if (browser === "roiURL") {
+                    url = roiURL
                 }
-                window.open(url, "_blank")
+                if ((url !== "roiURL not available") & (url !== null)) {
+                    window.open(url, "_blank")
+                }
             }
                 
             // add index buttons
@@ -572,6 +580,7 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
                     .style("rx", 1)
                     .style("ry", 1)
+                    .style("cursor", "pointer")
                     .datum(function(d) {return {
                         "coords": d.coordinates,
                         "browser": "index"
@@ -584,38 +593,7 @@ function FactorHeatmap (props) {
                     .attr("y", function(d) {return y(d.rank) + y.bandwidth() - 5})
                     .attr("text-anchor", "middle")
                     .style('font', '15px sans-serif')
-                    .text("i")
-                    .datum(function(d) {return {
-                        "coords": d.coordinates,
-                        "browser": "index"
-                    }})
-                    .on("click", (d) => {linkClick(d)})
-
-            // add query index buttons
-            heatmapsvg.selectAll()
-                .data(data.slice(0, 1))
-                .join("rect")
-                    .attr("x", queryButtonX)
-                    .attr("y", queryY(1.0))
-                    .attr("width", browserButtonWidth)
-                    .attr("height", y.bandwidth())
-                    .style("fill", "#E0E0E0")
-                    .style("stroke-width", 1)
-                    .style("stroke", "black")
-                    .style("rx", 1)
-                    .style("ry", 1)
-                    .datum(function(d) {return {
-                        "coords": d.coordinates,
-                        "browser": "index"
-                    }})
-                    .on("click", (d) => {linkClick(d)})
-            heatmapsvg.selectAll()
-                .data(data.slice(0, 1))
-                .join("text")
-                    .attr("x", queryButtonX + browserButtonWidth / 2)
-                    .attr("y", queryY(1.0) + y.bandwidth() - 5)
-                    .attr("text-anchor", "middle")
-                    .style('font', '15px sans-serif')
+                    .style("cursor", "pointer")
                     .text("i")
                     .datum(function(d) {return {
                         "coords": d.coordinates,
@@ -636,6 +614,7 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
                     .style("rx", 1)
                     .style("ry", 1)
+                    .style("cursor", "pointer")
                     .datum(function(d) {return {
                         "coords": d.coordinates,
                         "browser": "epilogos"
@@ -648,6 +627,7 @@ function FactorHeatmap (props) {
                     .attr("y", function(d) {return y(d.rank) + y.bandwidth() - 5})
                     .attr("text-anchor", "middle")
                     .style('font', '15px sans-serif')
+                    .style("cursor", "pointer")
                     .text("e")
                     .datum(function(d) {return {
                         "coords": d.coordinates,
@@ -655,12 +635,12 @@ function FactorHeatmap (props) {
                     }})
                     .on("click", (d) => {linkClick(d)})
 
-            // add query epilogos buttons
+            // add query index button
             heatmapsvg.selectAll()
                 .data(data.slice(0, 1))
                 .join("rect")
                     .attr("x", queryButtonX)
-                    .attr("y", queryY(1.0) + y.bandwidth() + 5)
+                    .attr("y", queryY(0.5) - 3 * y.bandwidth() / 2 - 2.5)
                     .attr("width", browserButtonWidth)
                     .attr("height", y.bandwidth())
                     .style("fill", "#E0E0E0")
@@ -668,22 +648,93 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
                     .style("rx", 1)
                     .style("ry", 1)
+                    .style("cursor", "pointer")
                     .datum(function(d) {return {
                         "coords": d.coordinates,
-                        "browser": "epilogos"
+                        "browser": "index"
                     }})
                     .on("click", (d) => {linkClick(d)})
             heatmapsvg.selectAll()
                 .data(data.slice(0, 1))
                 .join("text")
                     .attr("x", queryButtonX + browserButtonWidth / 2)
-                    .attr("y", queryY(1.0) + 2 * y.bandwidth())
+                    .attr("y", queryY(0.5) - y.bandwidth() / 2 - 7.5)
                     .attr("text-anchor", "middle")
                     .style('font', '15px sans-serif')
+                    .style("cursor", "pointer")
+                    .text("i")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "index"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            
+            // add query epilogos button
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("rect")
+                    .attr("x", queryButtonX)
+                    .attr("y", queryY(0.5) - y.bandwidth() / 2)
+                    .attr("width", browserButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .style("cursor", "pointer")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "epilogos"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("text")
+                    .attr("x", queryButtonX + browserButtonWidth / 2)
+                    .attr("y", queryY(0.5) + (y.bandwidth() / 2) - 5)
+                    .attr("text-anchor", "middle")
+                    .style('font', '15px sans-serif')
+                    .style("cursor", "pointer")
                     .text("e")
                     .datum(function(d) {return {
                         "coords": d.coordinates,
                         "browser": "epilogos"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+
+            // add roiURL button
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("rect")
+                    .attr("x", queryButtonX)
+                    .attr("y", queryY(0.5) + y.bandwidth() / 2 + 2.5)
+                    .attr("width", browserButtonWidth)
+                    .attr("height", y.bandwidth())
+                    .style("fill", "#E0E0E0")
+                    .style("stroke-width", 1)
+                    .style("stroke", "black")
+                    .style("rx", 1)
+                    .style("ry", 1)
+                    .style("cursor", "pointer")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "roiURL"
+                    }})
+                    .on("click", (d) => {linkClick(d)})
+            heatmapsvg.selectAll()
+                .data(data.slice(0, 1))
+                .join("text")
+                    .attr("x", queryButtonX + browserButtonWidth / 2)
+                    .attr("y", queryY(0.5) + 3 * y.bandwidth() / 2 - 2.5)
+                    .attr("text-anchor", "middle")
+                    .style('font', '15px sans-serif')
+                    .style("cursor", "pointer")
+                    .text("r")
+                    .datum(function(d) {return {
+                        "coords": d.coordinates,
+                        "browser": "roiURL"
                     }})
                     .on("click", (d) => {linkClick(d)})
 
@@ -700,13 +751,13 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
                     .style("rx", 1)
                     .style("ry", 1)
+                    .style("cursor", "pointer")
                     .datum(function(d) {return {
                         "regionInd": d.region_ind
                     }})
                     .on("click", (d) => {
                         props.heatmapProps.search(d.srcElement.__data__.regionInd)
                     })
-
             heatmapsvg.selectAll()
                 .data(data.slice(1))
                 .join("text")
@@ -714,6 +765,7 @@ function FactorHeatmap (props) {
                     .attr("y", function(d) {return y(d.rank) + y.bandwidth() - 5})
                     .attr("text-anchor", "middle")
                     .style('font', '10px sans-serif')
+                    .style("cursor", "pointer")
                     .text("Go!")
                     .datum(function(d) {return {
                         "regionInd": d.region_ind

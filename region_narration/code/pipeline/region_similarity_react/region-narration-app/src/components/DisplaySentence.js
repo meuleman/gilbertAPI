@@ -58,8 +58,9 @@ function DisplaySentence (props) {
       if ((targetFactors.includes(regionIndex)) & (percentiles[index] > thresh)) {
         percentileCount += 1
       }
+      return null
     })
-    if (percentileCount == 0) {
+    if (percentileCount === 0) {
       percentileCount = 1
     }
     const numFactorsToInclude = Math.min(percentileCount, detailLevel)
@@ -68,15 +69,16 @@ function DisplaySentence (props) {
     queryFactorOrder.map((regionIndex, index) => {
       if ((targetFactors.includes(regionIndex)) & (detailCount < numFactorsToInclude)) {
         sentence += conversion[factors[index]] + " " + metrics[index]
-        if ((numFactorsToInclude == 2) & (detailCount == 0)) {
+        if ((numFactorsToInclude === 2) & (detailCount === 0)) {
           sentence += " and "
-        } else if ((numFactorsToInclude > 2) & (detailCount == numFactorsToInclude - 2)) {
+        } else if ((numFactorsToInclude > 2) & (detailCount === numFactorsToInclude - 2)) {
           sentence += ", and "
         } else if ((numFactorsToInclude > 2) & (detailCount < numFactorsToInclude - 2)) {
           sentence += ", "
         }
         detailCount += 1
       }
+      return null
     })
     sentence += "."
     
