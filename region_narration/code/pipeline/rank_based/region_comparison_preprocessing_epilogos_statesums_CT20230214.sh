@@ -27,27 +27,27 @@ PERCENTILE_FILE=regions_25kb_CT20230214.epilogos.statesum_rank_percentile.hdf5
 #mapping features to sorted scale file
 #initializing new file
 
-#cut -f 1-3 $SORTED_SCALE_FILENAME > $NEW_MAPPED_FILE
-#HEADER="chrm\tstart\tend"
+cut -f 1-3 $SORTED_SCALE_FILENAME > $NEW_MAPPED_FILE
+HEADER="chrm\tstart\tend"
 
-#echo "Mapping"
-#for f in $MAPPING_DIR
-#do
-#    MAP_NAME=${f##*/}
-#    MAP_NAME=${MAP_NAME%.*}
-#    HEADER+="\t$MAP_NAME"
-#    f_SORTED=$MAP_NAME.sorted.bed
-#    sort-bed $f > $f_SORTED
-#    TMP_FILE2=$MAP_NAME.tmp.bed
-#    bedmap --echo --sum $SORTED_SCALE_FILENAME $f_SORTED | cut -d'|' -f 2 | paste $NEW_MAPPED_FILE - > $TMP_FILE2
-#    mv $TMP_FILE2 ./$NEW_MAPPED_FILE
-#    rm $f_SORTED
-#done
+echo "Mapping"
+for f in $MAPPING_DIR
+do
+    MAP_NAME=${f##*/}
+    MAP_NAME=${MAP_NAME%.*}
+    HEADER+="\t$MAP_NAME"
+    f_SORTED=$MAP_NAME.sorted.bed
+    sort-bed $f > $f_SORTED
+    TMP_FILE2=$MAP_NAME.tmp.bed
+    bedmap --echo --sum $SORTED_SCALE_FILENAME $f_SORTED | cut -d'|' -f 2 | paste $NEW_MAPPED_FILE - > $TMP_FILE2
+    mv $TMP_FILE2 ./$NEW_MAPPED_FILE
+    rm $f_SORTED
+done
 
-#sed -i "1i $HEADER" $NEW_MAPPED_FILE
+sed -i "1i $HEADER" $NEW_MAPPED_FILE
 
-## Means
-#python /home/ctrader/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_epilogos_statesum_CT20230209.py $NEW_MAPPED_FILE $BASE_HDF5_FILE
+# Means
+python /home/ctrader/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_epilogos_statesum_CT20230209.py $NEW_MAPPED_FILE $BASE_HDF5_FILE
 
 # Ranking
 python /home/ctrader/AG/NarrativeGenomics/region_narration/code/pipeline/rank_based/region_comparison_epilogos_sum_rank_CT20230214.py $BASE_HDF5_FILE $PERCENTILE_FILE
