@@ -79,9 +79,12 @@ then
     true_code_dir="${simsearch_dir}"
 fi
 
-scale_gz_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.bed.gz"
-regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed.npy"
-per_filename="${true_data_dir}/regions_25kb_CT20230321.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
+#scale_gz_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.bed.gz"
+scale_gz_filename="${true_data_dir}/hg38.1kb.regions.CT20230323.sorted.rownum4.bed.gz"
+#regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed.npy"
+regions_filename="${true_data_dir}/hg38.1kb.regions.CT20230323.sorted.bed.npy"
+#per_filename="${true_data_dir}/regions_25kb_CT20230321.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
+per_filename="${true_data_dir}/regions_1kb_CT20230323.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
 num_similar_regions=20
 query_factor_thresh=0.5
 ##########################
