@@ -152,9 +152,9 @@ class RegionRecContainer extends React.Component {
             }
         }).then((response) => {
             const fullData = response.data.findRegionValsObject
-            const startDetailLevel = fullData[0][0].percentiles.filter((rank) => {
+            const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
                 return rank > Math.sqrt(0.9)
-            }).length
+            }).length, 1)
             
             const data = fullData[startDetailLevel - 1]
             const queryRegion = data[0]
