@@ -31,6 +31,7 @@ app.get('/', (request, response) => {
       similarRegionsShellScript,
       request.headers.reqstate, 
       request.headers.factors,
+      request.headers.scale,
       request.headers.roiurl,
       alternateDataDir,
       alternateSimsearchDir,

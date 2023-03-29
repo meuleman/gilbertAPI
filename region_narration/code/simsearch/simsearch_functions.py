@@ -58,10 +58,10 @@ def top_region_sig(percents, top_regions):
     return pval, Z
 
 
-def simsearch(percents, roi, included_factors, num_similar_regions):
+def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions):
 
-        # factors the query region rank highest in
-    query_factor_order = np.argsort(-percents[roi])
+    # factors the query region ranks highest in
+    query_factor_order = np.argsort(-roi_percents)
 
     # factors to search over
     target_factors = query_factor_order[
@@ -69,8 +69,8 @@ def simsearch(percents, roi, included_factors, num_similar_regions):
     ]
 
     # convolution
-    roi_percents = percents[roi, target_factors]
-    roi_conv_all = percents[:, target_factors] * roi_percents
+    roi_percents_targeted = roi_percents[target_factors]
+    roi_conv_all = percents[:, target_factors] * roi_percents_targeted
 
     # fusion
     roi_sim_all = []
@@ -84,30 +84,69 @@ def simsearch(percents, roi, included_factors, num_similar_regions):
         (len(included_factors), num_similar_regions + 1)
         , dtype=int
     )
-    top_regions_pre = np.argsort(
-        -roi_sim_all, axis=1
-    )[:, :(num_similar_regions + 1)]
 
-    for i in range(len(included_factors)):
-        top_regions[i] = np.append(
-            roi,
-            top_regions_pre[i][
-                top_regions_pre[i] != roi
-            ][:num_similar_regions]
-        )
+    # top region genomic coordinates
+    top_region_coords = np.ones(
+        (len(included_factors), num_similar_regions + 1, 3),
+        dtype=object
+    ) * -1
+
+    # add roi to top region lists
+    top_regions[:, 0] = roi
+    top_region_coords[:, 0] = roi_coords
+
+
+    # adding similar regions
+    sorted_sim_inds_all = np.argsort(-roi_sim_all, axis=1)
+
+    # only add regions if no overlapping regions are already added
+    for i in range(len(target_factors)):
+        regions_added = 0
+        for ind in sorted_sim_inds_all[i]:
+            ind_coords = coords[ind]
+            num_overlaps = np.count_nonzero(
+                (top_region_coords[i][:, 0].astype(str) == ind_coords[0]) &
+                (
+                    (
+                        (top_region_coords[i][:, 1].astype(int) > int(ind_coords[1])) &
+                        (top_region_coords[i][:, 1].astype(int) < int(ind_coords[2]))
+                    ) |
+                    (
+                        (top_region_coords[i][:, 2].astype(int) > int(ind_coords[1])) &
+                        (top_region_coords[i][:, 2].astype(int) < int(ind_coords[2]))
+                    ) |
+                    (
+                        (top_region_coords[i][:, 2].astype(int) == int(ind_coords[1])) &
+                        (top_region_coords[i][:, 2].astype(int) == int(ind_coords[2]))
+                    )
+                )
+            )
+            if num_overlaps == 0:
+                top_regions[i, regions_added + 1] = ind
+                top_region_coords[i, regions_added + 1] = ind_coords
+                regions_added += 1
+            if regions_added == num_similar_regions:
+                break
 
     # factor percentile significance
     pval, Z = top_region_sig(percents, top_regions)
 
     rows = (
-        np.ones(top_regions.shape, dtype=int) *
-        np.arange(top_regions.shape[0]).reshape(-1, 1)
+        np.ones((len(target_factors), num_similar_regions), dtype=int) *
+        np.arange(len(target_factors)).reshape(-1, 1)
     )
 
-    return (top_regions, roi_sim_all[rows, top_regions],
-            percents[top_regions], query_factor_order,
-            target_factors, pval, Z)
+    return_sim = np.hstack((
+        np.ones(len(target_factors)).reshape(-1, 1),
+        roi_sim_all[rows, top_regions[:, 1:]]
+    ))
+    return_per = np.hstack((
+        np.array([roi_percents.reshape(1, -1)] * len(target_factors)),
+        percents[top_regions[:, 1:]]
+    ))
 
+    return (top_regions, top_region_coords, return_sim, return_per,
+            query_factor_order, target_factors, pval, Z)
 
 def narrate_detail_level(top_regions, roi_per, factor_order, metric_order, included_factors, detail_level, conversion_dict, metriccolors, thresh=0.9):
     query = top_regions[0]

@@ -2,9 +2,10 @@
 
 genomic_location=${1}
 included_factors=${2}
-get_roiURL=${3}
-alternate_data_dir=${4}
-alternate_simsearch_dir=${5}
+scale=${3}
+get_roiURL=${4}
+alternate_data_dir=${5}
+alternate_simsearch_dir=${6}
 
 if [ ! -n "${genomic_location}" ]
 then
@@ -15,6 +16,12 @@ fi
 if [ ! -n "${included_factors}" ]
 then
     echo "Error: Factors were not provided"
+    exit -1
+fi
+
+if [ ! -n "${scale}" ]
+then
+    echo "Error: scale not provided"
     exit -1
 fi
 
@@ -80,11 +87,18 @@ then
 fi
 
 #scale_gz_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.rownum4.bed.gz"
-scale_gz_filename="${true_data_dir}/hg38.1kb.regions.CT20230323.sorted.rownum4.bed.gz"
+#scale_gz_filename="${true_data_dir}/hg38.1kb.regions.CT20230323.sorted.rownum4.bed.gz"
 #regions_filename="${true_data_dir}/hg38.25kb.maxMean.CT20230118.sorted.bed.npy"
-regions_filename="${true_data_dir}/hg38.1kb.regions.CT20230323.sorted.bed.npy"
+#regions_filename="${true_data_dir}/hg38.1kb.regions.CT20230323.sorted.bed.npy"
 #per_filename="${true_data_dir}/regions_25kb_CT20230321.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
-per_filename="${true_data_dir}/regions_1kb_CT20230323.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
+#per_filename="${true_data_dir}/regions_1kb_CT20230323.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.npy"
+
+
+
+query_file="${true_data_dir}/regions_${scale}kb_CT20230327.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.hdf5"
+search_space_file="${true_data_dir}/regions_${scale}kb_CT20230327.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space.npz"
+tabix_file="${true_data_dir}/hg38.${scale}kb.regions.CT20230327.sorted.rownum4.bed.gz"
+
 num_similar_regions=20
 query_factor_thresh=0.5
 ##########################
@@ -101,9 +115,9 @@ query_factor_thresh=0.5
 #
 ##########################
 time python -m cProfile -o similar_regions.cProfile.out "${true_code_dir}/similar_regions.py" \
-    "${per_filename}" \
-    "${scale_gz_filename}" \
-    "${regions_filename}" \
+    "${query_file}" \
+    "${search_space_file}" \
+    "${tabix_file}" \
     "${genomic_location}" \
     "${included_factors}" \
     "${get_roiURL}" \

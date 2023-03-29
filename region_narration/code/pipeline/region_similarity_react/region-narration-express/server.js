@@ -94,7 +94,7 @@ function onListening() {
 function cors(req, res, next) {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET");
-  res.set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, reqstate, purpose, factors, roiurl, accept");
+  res.set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, reqstate, purpose, factors, scale, roiurl, accept");
   res.set("Access-Control-Allow-Credentials", true);
   return next();
 }
@@ -121,6 +121,7 @@ app.get('/', (request, response) => {
       similarRegionsShellScript,
       request.headers.reqstate, 
       request.headers.factors,
+      request.headers.scale,
       request.headers.roiurl,
       alternateDataDir,
       alternateSimsearchDir,

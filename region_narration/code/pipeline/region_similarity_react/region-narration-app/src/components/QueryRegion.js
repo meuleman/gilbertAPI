@@ -1,10 +1,11 @@
 import React from 'react'
 
 function QueryRegion (props) {
-  if (props.queryProps !== '') {
+  if (props.queryProps.region !== '') {
     return (
-      <div>
-        <div>{props.queryProps}</div>
+      <div className='query-region'>
+        <div>{props.queryProps.region}</div>
+        <div>Scale: {props.queryProps.scale / 1000}kb</div>
       </div>
     )
   } else {

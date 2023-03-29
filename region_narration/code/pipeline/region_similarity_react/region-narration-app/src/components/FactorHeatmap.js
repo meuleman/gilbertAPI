@@ -12,7 +12,7 @@ function FactorHeatmap (props) {
             const height = 700
             const width = 1300
             const sigHeight = 60
-            const zMax = 30
+            const zMax = 20
             const zMin = -10
             const queryHeight = 60
             const colorHeight = 5

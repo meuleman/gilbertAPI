@@ -4,23 +4,42 @@ import numpy as np
 import sys
 import tabix
 import json
+import h5py
 from simsearch_functions import simsearch, roiURL, load_per
+
 
 def load_roi(genomic_location, gz_file_path):
     global roi
-    if str.isalpha(str(genomic_location)[0]):
-        # load roi
-        gz_tb = tabix.open(gz_file_path)
-        roi = np.array(
-            list(gz_tb.querys(genomic_location))
-        )[:, 3].astype(int)[0]
-    else:
-        roi = int(genomic_location)
+
+    # determine roi from hdf5 scale file
+    query_start_end = genomic_location.split(':')[1].split('-')
+    query_start = int(query_start_end[0])
+    query_end = int(query_start_end[1])
+
+    gz_tb = tabix.open(gz_file_path)
+    possible_coords = np.array(list(gz_tb.querys(genomic_location)))
+
+    start_dist = np.abs(possible_coords[:, 1].astype(int) - query_start)
+    end_dist = np.abs(possible_coords[:, 2].astype(int) - query_end)
+
+    query_region = possible_coords[np.argmin(start_dist + end_dist)]
+
+    roi = int(query_region[3])
 
 
-def load_ranks(per_f):
-    global percents
-    percents = np.load(per_f)
+def load_ranks(query_path, search_space_path):
+    global roi_percents, percents, roi_coords, coords
+
+    # load roi ranks
+    hdf5_f = h5py.File(query_path, 'r')
+    roi_percents = hdf5_f['percentiles'][roi]
+    roi_coords = np.char.decode(hdf5_f['coordinates'][roi])
+    hdf5_f.close()
+
+    # load search space ranks
+    search_space = np.load(search_space_path)
+    percents = search_space['percentiles']
+    coords = search_space['coordinates']
 
 
 def setup_included_factors(included_factors_str, query_factor_thresh):
@@ -28,31 +47,21 @@ def setup_included_factors(included_factors_str, query_factor_thresh):
     included_factors = np.int_(
         included_factors_str.strip('[').strip(']').split(',')
     )
-    query_factors_above_thresh = np.where(percents[roi] > query_factor_thresh)[0]
+    query_factors_above_thresh = np.where(roi_percents > query_factor_thresh)[0]
     included_factors = included_factors[
         np.isin(included_factors, query_factors_above_thresh)
     ]
 
 
-def read_in_genomic_coordinates(regions_path):
-    global regions_sep
-    regions_sep = np.load(regions_path)
-
-
 def find_most_similar_region_indices(num_similar_regions):
-    global top_regions, roi_sim, roi_per, query_factor_order, target_factors, pval, Z
-    (top_regions, roi_sim,
-     roi_per, query_factor_order,
+    global top_regions, top_region_coords, top_regions_sim, top_regions_per, query_factor_order, target_factors, pval, Z
+    (top_regions, top_region_coords, top_regions_sim,
+     top_regions_per, query_factor_order,
      target_factors, pval,
-     Z) = simsearch(percents, roi, included_factors, num_similar_regions)
+     Z) = simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions)
 
 
-def setup_coordinates(top_regions):
-    global top_region_coords
-    top_region_coords = regions_sep[top_regions]
-
-
-def setup_roiURLs(get_roiURL, top_regions, target_factors):
+def setup_roiURLs(get_roiURL, target_factors):
     global roiURLs
     roiURLs = []
     for dl in range(1, len(included_factors) + 1):
@@ -65,8 +74,8 @@ def setup_roiURLs(get_roiURL, top_regions, target_factors):
 
 
 def reorder_by_query_region():
-    global return_roi_per, return_pval, return_Z
-    return_roi_per = roi_per[:, :, query_factor_order]
+    global return_top_regions_per, return_pval, return_Z
+    return_top_regions_per = top_regions_per[:, :, query_factor_order]
     return_pval = pval[:, query_factor_order]
     return_Z = Z[:, query_factor_order]
 
@@ -84,10 +93,12 @@ def generate_result_array(num_similar_regions):
                 'rank': rank,
                 'coordinates': coord[0] + ':' + coord[1] + '-' + coord[2],
                 'region_ind': int(top_regions[dl, rank]),
-                'score': float(roi_sim[dl, rank]),
-                'percentiles': return_roi_per[dl, rank].tolist(),
+                'score': float(top_regions_sim[dl, rank]),
+                'percentiles': return_top_regions_per[dl, rank].tolist(),
             }
             if rank == 0:
+                region_dict['region_ind'] = 'NA'
+                region_dict['score'] = 'NA'
                 region_dict['query_factor_order'] = query_factor_order.tolist()
                 region_dict['target_factors'] = target_factors.tolist()
                 region_dict['top_region_factor_Z_score'] = return_Z[dl].tolist()
@@ -99,7 +110,7 @@ def generate_result_array(num_similar_regions):
         return_arr_full.append(return_arr)
 
 
-def main(per_f, gz_file_path, regions_path, genomic_location,
+def main(query_path, search_space_path, gz_file_path, genomic_location,
          included_factors_str, get_roiURL, num_similar_regions,
          query_factor_thresh):
 
@@ -107,22 +118,16 @@ def main(per_f, gz_file_path, regions_path, genomic_location,
     load_roi(genomic_location, gz_file_path)
 
     # load region percentiles
-    load_ranks(per_f)
+    load_ranks(query_path, search_space_path)
 
     # factors the user cares about
     setup_included_factors(included_factors_str, query_factor_thresh)
 
-    # read in genomic coordinates for each region
-    read_in_genomic_coordinates(regions_path)
-
     # find most similar region inds
     find_most_similar_region_indices(num_similar_regions)
 
-    # get coordinates
-    setup_coordinates(top_regions)
-
     # dual track roiURL
-    setup_roiURLs(get_roiURL, top_regions, target_factors)
+    setup_roiURLs(get_roiURL, target_factors)
 
     # reorder based on query region
     reorder_by_query_region()
