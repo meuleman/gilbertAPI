@@ -753,10 +753,10 @@ function FactorHeatmap (props) {
                     .style("ry", 1)
                     .style("cursor", "pointer")
                     .datum(function(d) {return {
-                        "regionInd": d.region_ind
+                        "regionCoords": d.coordinates
                     }})
                     .on("click", (d) => {
-                        props.heatmapProps.search(d.srcElement.__data__.regionInd)
+                        props.heatmapProps.search(d.srcElement.__data__.regionCoords)
                     })
             heatmapsvg.selectAll()
                 .data(data.slice(1))
@@ -768,10 +768,10 @@ function FactorHeatmap (props) {
                     .style("cursor", "pointer")
                     .text("Go!")
                     .datum(function(d) {return {
-                        "regionInd": d.region_ind
+                        "regionCoords": d.coordinates
                     }})
                     .on("click", (d) => {
-                        props.heatmapProps.search(d.srcElement.__data__.regionInd)
+                        props.heatmapProps.search(d.srcElement.__data__.regionCoords)
                     })
 
             // add heatmap colorbar legend
