@@ -116,7 +116,7 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
                         (top_region_coords[i][:, 2].astype(int) < int(ind_coords[2]))
                     ) |
                     (
-                        (top_region_coords[i][:, 2].astype(int) == int(ind_coords[1])) &
+                        (top_region_coords[i][:, 1].astype(int) == int(ind_coords[1])) &
                         (top_region_coords[i][:, 2].astype(int) == int(ind_coords[2]))
                     )
                 )
