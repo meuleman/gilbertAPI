@@ -417,6 +417,18 @@ function FactorHeatmap (props) {
             //         .style('z-index', 1)
             // }
 
+            // mouseover for convolution bars
+            const mouseoverConv = function (d, cellData) {
+                const factor = cellData.factor
+                tooltip
+                    .html(factor)
+                    .style('opacity', 1)
+                    .style('z-index', 1)
+                d3.select(this)
+                    .style("stroke", "black")
+                    .style("stroke-width", "1")
+            }
+
             // mouseover for scale max line
             const mouseoverMax = function () {
                 labelTooltip
@@ -441,13 +453,13 @@ function FactorHeatmap (props) {
                     .style('z-index', 1)
             }
 
-            // mousemove
+            // mousemove for labels
             const mousemoveLabel = function (e) {
                 labelTooltip.style('left', (e.pageX + 20) + 'px')
                 labelTooltip.style('top', (e.pageY) + 'px')
             }
 
-            // mouseleave
+            // mouseleave for labels
             const mouseleaveLabel = function () {
                 labelTooltip
                     .style('opacity', 0)
@@ -546,6 +558,10 @@ function FactorHeatmap (props) {
                     .style("fill", function(d) {return color(d.factor)})
                     .style("stroke-width", 0.1)
                     .style("stroke", "black")
+                    .on('mouseover', mouseoverConv)
+                    .on("mousemove", mousemove)
+                    .on("mouseleave", mouseleave)
+
             
             const linkClick = (d) => {
                 const buttonData = d.srcElement.__data__
