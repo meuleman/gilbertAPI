@@ -3,16 +3,17 @@ import Header from './Header'
 import InputRegion from './InputRegion'
 import DisplaySentence from './DisplaySentence'
 import Axios from 'axios'
-import DisplayTabs from './DisplayTabs'
+// import DisplayTabs from './DisplayTabs'
 import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
-import devModeObj from '../devmode.json'
+// import devModeObj from '../devmode.json'
 import SelectFactors from './SelectFactors'
 import factors from '../factors.json'
 import FactorHeatmap from './FactorHeatmap'
 import QueryRegion from './QueryRegion'
-import SimSearchHeader from './SimSearchHeader'
+// import SimSearchHeader from './SimSearchHeader'
 import SelectDetailLevel from './SelectDetailLevel'
 import Spinner from './Spinner'
+// import LoadDataTest from './LoadDataTest'
 
 class RegionRecContainer extends React.Component {
   // devMode = devModeObj.devMode
@@ -120,6 +121,7 @@ class RegionRecContainer extends React.Component {
                 minDistance = Math.abs(s - queryLength)
                 bestScaleInd = i
             }
+            return null
         })
         const scale = this.state.scales[bestScaleInd]
 
@@ -134,7 +136,7 @@ class RegionRecContainer extends React.Component {
         })
         if (this.devMode) {
             const data = sampleData
-            const queryRegion = data[0]
+            // const queryRegion = data[0]
             this.setState({
                 regionalVals: data,
         }, () => {
@@ -143,13 +145,15 @@ class RegionRecContainer extends React.Component {
             // console.log(this.state.detailLevel)
             //   console.log(window.location.hostname)
             // const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+            let queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+            let roiURL = "True"
             if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                var queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
-                var roiURL = "False"
-            } else {
-                var queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-                var roiURL = "True"
-            }
+                queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
+                roiURL = "False"
+            } //else {
+            //     queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+            //     roiURL = "True"
+            // }
             //   console.log(`queryURL: ${queryURL}`)
             // console.log(`location: ${location}`)
             // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
@@ -166,9 +170,23 @@ class RegionRecContainer extends React.Component {
             }).then((response) => {
                 const fullData = response.data.findRegionValsObject
                 console.log(fullData)
-                const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
-                    return rank > Math.sqrt(0.9)
-                }).length, 1)
+
+                // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
+                //     return rank > Math.sqrt(0.9)
+                // }).length, 1)
+
+                const queryProdRanks = fullData.map((d) => {
+                    return d[0].query_prod_rank
+                })
+                let startDetailLevel = 1
+                let maxProdRank = 0
+                queryProdRanks.map((value, index) => {
+                    if (Math.max(maxProdRank, value) !== maxProdRank) {
+                        maxProdRank = value
+                        startDetailLevel = index + 1
+                    }
+                    return null
+                })
                 
                 const data = fullData[startDetailLevel - 1]
                 const queryRegion = data[0]
@@ -226,6 +244,7 @@ class RegionRecContainer extends React.Component {
             autoFactorSelection: this.state.autoFactorSelection,
             detailLevel: this.state.detailLevel
           }} />
+          {/* <LoadDataTest /> */}
         </div>
 
         {/*<div className='tab-figures'>

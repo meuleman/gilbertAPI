@@ -3,6 +3,16 @@ from datetime import date
 import h5py
 import os
 import scipy.stats as stats
+# from scipy.stats import percentileofscore
+
+
+def factor_prod_ranks(roi_percents, percents, target_factors):
+    query_prod_ranks = np.zeros(len(target_factors))
+    for dl in range(1, len(target_factors) + 1):
+        query_prod = np.prod(roi_percents[target_factors[:dl]])
+        search_space_prod = np.prod(percents[:, target_factors[:dl]], axis=1)
+        query_prod_ranks[dl - 1] = stats.percentileofscore(search_space_prod, query_prod, kind='strict')
+    return query_prod_ranks
 
 
 def roiURL(roi, top_regions, detail_level, target_factors_str,
@@ -128,6 +138,9 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
             if regions_added == num_similar_regions:
                 break
 
+    # rank of query factor products for each detail level
+    query_prod_ranks = factor_prod_ranks(roi_percents, percents, target_factors)
+
     # factor percentile significance
     pval, Z = top_region_sig(percents, top_regions)
 
@@ -146,7 +159,7 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
     ))
 
     return (top_regions, top_region_coords, return_sim, return_per,
-            query_factor_order, target_factors, pval, Z)
+            query_factor_order, target_factors, pval, Z, query_prod_ranks)
 
 def narrate_detail_level(top_regions, roi_per, factor_order, metric_order, included_factors, detail_level, conversion_dict, metriccolors, thresh=0.9):
     query = top_regions[0]

@@ -4,6 +4,8 @@ import factorsArr from '../factors.json'
 function DisplaySentence (props) {
   if (props.sentenceProps.data !== '') {
     const queryRegion = props.sentenceProps.data[0]
+
+    const queryProdRank = queryRegion.query_prod_rank
     const targetFactors = queryRegion.target_factors
     const queryFactorOrder = queryRegion.query_factor_order
     const metrics = queryFactorOrder.map((ind) => {
@@ -81,6 +83,9 @@ function DisplaySentence (props) {
       return null
     })
     sentence += "."
+
+    // add query product rank for detail level
+    sentence += " (" + String(Math.round(queryProdRank * 100) / 100) + "%)"
     
     return (
       <div className='sentence-box'>
