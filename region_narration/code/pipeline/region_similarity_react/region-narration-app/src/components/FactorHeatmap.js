@@ -8,7 +8,7 @@ function FactorHeatmap (props) {
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
 
-            const margin = { top: 75, right: 325, left: 200, bottom: 100 }
+            const margin = { top: 100, right: 325, left: 200, bottom: 100 }
             const height = 700
             const width = 1300
             const sigHeight = 60
@@ -25,7 +25,8 @@ function FactorHeatmap (props) {
             
             const legendX = width - margin.right + 10
             const legendWidth = 20
-            const searchButtonX = legendX + legendWidth + 50
+            const prodFactorRankX = legendX + legendWidth + 50
+            const searchButtonX = prodFactorRankX + 50
             const searchButtonWidth = 25
             const simFactorXStart = searchButtonX + searchButtonWidth + 10
             const simFactorXWidth = colorHeight * 34
@@ -107,6 +108,15 @@ function FactorHeatmap (props) {
                     originalFactorInd: queryData.query_factor_order[index]
                 })
             })
+
+            const prodFactorRanks = data.map((d) => {
+                return {
+                    rank: d.rank,
+                    prodFactorRank: d.prod_rank
+                }
+            })
+
+
 
             // clear document
             if (document.getElementById('factorHeatmap').getElementsByTagName('*').length !== 0) {
@@ -588,7 +598,6 @@ function FactorHeatmap (props) {
                         "browser": "epilogos"
                     }})
                     .on("click", (d) => {linkClick(d)})
-
             heatmapsvg.selectAll()
                 .data(data.slice(0, 1))
                 .join("text")
@@ -639,6 +648,50 @@ function FactorHeatmap (props) {
                     .on("click", (d) => {linkClick(d)})
 
 
+            // Product of factor ranks
+            heatmapsvg.selectAll()
+                .data(prodFactorRanks)
+                    .join("text")
+                        .attr("x", prodFactorRankX)
+                        .attr("y", function(d) {
+                            if (d.rank === 0) {
+                                return queryY(0.5) + 4
+                            } else {
+                                return y(d.rank) + y.bandwidth() - 5
+                            }
+                            
+                        })
+                        .attr("text-anchor", "start")
+                        .style('font', '12px sans-serif')
+                        .text(function(d) {
+                            return String(
+                                Math.round(d.prodFactorRank * 100) / 100
+                            ) + "%"
+                        })
+
+            // Product of Factor Ranks Label
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "middle")
+                .attr("y", queryY(1))
+                .attr("x", prodFactorRankX + 18)
+                .style('font', '13px sans-serif')
+                .text("Factor Combination")
+                .on('mouseover', () => mouseoverLabel("Regional ranks for factors used in similarity search"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "middle")
+                .attr("y", queryY(0.75))
+                .attr("x", prodFactorRankX + 18)
+                .style('font', '13px sans-serif')
+                .text("Ranks")
+                .on('mouseover', () => mouseoverLabel("Regional ranks for factors used in similarity search"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
+
+            // search from here button
             heatmapsvg.selectAll()
                 .data(data.slice(1))
                 .join("rect")

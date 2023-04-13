@@ -95,9 +95,9 @@ fi
 
 
 
-query_file="${true_data_dir}/regions_${scale}kb_CT20230330.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.hdf5"
-search_space_file="${true_data_dir}/regions_${scale}kb_CT20230403.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz"
-tabix_file="${true_data_dir}/hg38.${scale}kb.regions.CT20230330.sorted.rownum4.bed.gz"
+query_file="${true_data_dir}/regions_${scale}kb_CT20230412.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.hdf5"
+search_space_file="${true_data_dir}/regions_${scale}kb_CT20230412.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz"
+tabix_file="${true_data_dir}/hg38.${scale}kb.regions.CT20230412.sorted.rownum4.bed.gz"
 
 num_similar_regions=20
 query_factor_thresh=0.5

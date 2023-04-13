@@ -157,6 +157,8 @@ class RegionRecContainer extends React.Component {
             //   console.log(`queryURL: ${queryURL}`)
             // console.log(`location: ${location}`)
             // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
+
+            // Express.js server
             Axios({
                 method: 'GET',
                 url: queryURL,
@@ -174,9 +176,9 @@ class RegionRecContainer extends React.Component {
                 // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
                 //     return rank > Math.sqrt(0.9)
                 // }).length, 1)
-
+                
                 const queryProdRanks = fullData.map((d) => {
-                    return d[0].query_prod_rank
+                    return d[0].prod_rank
                 })
                 let startDetailLevel = 1
                 let maxProdRank = 0
@@ -190,8 +192,16 @@ class RegionRecContainer extends React.Component {
                 
                 const data = fullData[startDetailLevel - 1]
                 const queryRegion = data[0]
+
+                const queryCoordinates = queryRegion.coordinates
+                const queryChr = queryCoordinates.split(":")[0]
+                const queryStart = queryCoordinates.split(":")[1].split("-")[0]
+                const queryEnd = queryCoordinates.split(":")[1].split("-")[1]
+
+                // window.location.href = "http://localhost:3000/" + "?chr=" + queryChr + "&start=" + queryStart + "&stop=" + queryEnd
+
                 this.setState({
-                    genomicLocation: queryRegion.coordinates, // so we get the actual queried location
+                    genomicLocation: queryCoordinates, // so we get the actual queried location
                     regionalVals: data,
                     fullData: fullData,
                     spinner: false,
@@ -202,6 +212,23 @@ class RegionRecContainer extends React.Component {
                     console.log(this.state.regionalVals)
                 })
             })
+            // // Flask Server
+            // Axios({
+            //     method: 'POST',
+            //     url: "http://127.0.0.1:5435/narration",
+            //     data: {
+            //         location: location,
+            //         factors: JSON.stringify(this.state.selectedFactors),
+            //         roiURL: roiURL,
+            //         scale: scale / 1000,
+            //         queryFactorThresh: 0.5,
+            //         numSimilarRegions: 20
+            //     }
+
+            // }).then((response) => { 
+            //     console.log(response)
+            // })
+
         }
     }
   }

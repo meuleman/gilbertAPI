@@ -54,11 +54,11 @@ def setup_included_factors(included_factors_str, query_factor_thresh):
 
 
 def find_most_similar_region_indices(num_similar_regions):
-    global top_regions, top_region_coords, top_regions_sim, top_regions_per, query_factor_order, target_factors, pval, Z, query_prod_ranks
+    global top_regions, top_region_coords, top_regions_sim, top_regions_per, query_factor_order, target_factors, pval, Z, query_sim_prod_ranks
     (top_regions, top_region_coords, top_regions_sim,
      top_regions_per, query_factor_order,
      target_factors, pval,
-     Z, query_prod_ranks) = simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions)
+     Z, query_sim_prod_ranks) = simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions)
 
 
 def setup_roiURLs(get_roiURL, target_factors):
@@ -95,6 +95,7 @@ def generate_result_array(num_similar_regions):
                 'region_ind': int(top_regions[dl, rank]),
                 'score': float(top_regions_sim[dl, rank]),
                 'percentiles': return_top_regions_per[dl, rank].tolist(),
+                'prod_rank': query_sim_prod_ranks[dl, rank]
             }
             if rank == 0:
                 region_dict['region_ind'] = 'NA'
@@ -105,7 +106,7 @@ def generate_result_array(num_similar_regions):
                 region_dict['top_region_factor_pval'] = return_pval[dl].tolist()
                 region_dict['roiURL'] = roiURLs[dl]
                 region_dict['detail_level'] = dl + 1
-                region_dict['query_prod_rank'] = query_prod_ranks[dl]
+                # region_dict['query_prod_rank'] = query_sim_prod_ranks[dl]
             return_arr.append(region_dict)
 
         return_arr_full.append(return_arr)
