@@ -41,7 +41,8 @@ class RegionRecContainer extends React.Component {
     prodQueryHost: 'tools.altiusinstitute.org',
     prodQueryPort: 9877,
     scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
-    currentScale: 1000
+    currentScale: 1000,
+    requiredURLParams: ['chr', 'start', 'stop']
   }
 
   setDetailLevel = (value) => {
@@ -79,6 +80,25 @@ class RegionRecContainer extends React.Component {
     })
   }
 
+  updateURL = (coordinates, popped) => {
+    const chrm = coordinates.split(":")[0]
+    const start = coordinates.split(":")[1].split("-")[0]
+    const end = coordinates.split(":")[1].split("-")[1]
+
+    let hostname = "https://tools.altiusinstitute.org/ng/region-narration-app/"
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        hostname = "http://localhost:3000/"
+    }
+
+    const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end
+    const historyTitle = "Region Narration - " + coordinates
+    if (!popped) {
+        window.history.pushState(newUrl, historyTitle, newUrl)
+    }
+    document.title = historyTitle;
+  }
+  
+
   // setAutoFactorSelection = (value) => {
   //   console.log(value)
   //   // console.log(this.state.selectedFactors)
@@ -106,7 +126,7 @@ class RegionRecContainer extends React.Component {
   }
   
   
-  setGenomicLocation = (location) => {
+  setGenomicLocation = (location, popped=false) => {
     if (this.state.selectedFactors.length > 0) {
         console.log(location)
         const startToEnd = location.split(':')[1]
@@ -194,11 +214,9 @@ class RegionRecContainer extends React.Component {
                 const queryRegion = data[0]
 
                 const queryCoordinates = queryRegion.coordinates
-                const queryChr = queryCoordinates.split(":")[0]
-                const queryStart = queryCoordinates.split(":")[1].split("-")[0]
-                const queryEnd = queryCoordinates.split(":")[1].split("-")[1]
-
-                // window.location.href = "http://localhost:3000/" + "?chr=" + queryChr + "&start=" + queryStart + "&stop=" + queryEnd
+                
+                // push state on new query and update tab title
+                this.updateURL(queryCoordinates, popped)
 
                 this.setState({
                     genomicLocation: queryCoordinates, // so we get the actual queried location
@@ -225,13 +243,107 @@ class RegionRecContainer extends React.Component {
             //         numSimilarRegions: 20
             //     }
 
-            // }).then((response) => { 
-            //     console.log(response)
+            // }).then((response) => {
+            //     const fullData = response.data
+            //     console.log(fullData)
+
+            //     // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
+            //     //     return rank > Math.sqrt(0.9)
+            //     // }).length, 1)
+                
+            //     const queryProdRanks = fullData.map((d) => {
+            //         return d[0].prod_rank
+            //     })
+            //     let startDetailLevel = 1
+            //     let maxProdRank = 0
+            //     queryProdRanks.map((value, index) => {
+            //         if (Math.max(maxProdRank, value) !== maxProdRank) {
+            //             maxProdRank = value
+            //             startDetailLevel = index + 1
+            //         }
+            //         return null
+            //     })
+                
+            //     const data = fullData[startDetailLevel - 1]
+            //     const queryRegion = data[0]
+
+            //     const queryCoordinates = queryRegion.coordinates
+                
+            //     // push state on new query and update tab title
+            //     this.updateURL(queryCoordinates, popped)
+
+            //     this.setState({
+            //         genomicLocation: queryCoordinates, // so we get the actual queried location
+            //         regionalVals: data,
+            //         fullData: fullData,
+            //         spinner: false,
+            //         maxDetailLevel: fullData.length,
+            //         detailLevel: startDetailLevel,
+            //         currentScale: scale
+            //     }, () => {
+            //         console.log(this.state.regionalVals)
+            //     })
             // })
 
         }
     }
   }
+
+  parseQueryParams = (popped) => {
+    const parseURL = () => {
+        const urlParams = window.location.search.slice(1)
+        let paramsObj = {}
+        urlParams.split('&').forEach((param) => {
+            const keyVal = param.split("=")
+            if (keyVal[0].length > 0) {
+                paramsObj[keyVal[0]] = decodeURIComponent(keyVal[1])
+            }
+        })
+        return paramsObj
+    }
+    const paramsObj = parseURL();
+    if (paramsObj) {
+        let passed  = false;
+        const paramKeys = Object.keys(paramsObj)
+        let numParamDifferences = 0
+        if (paramKeys.length === this.state.requiredURLParams.length) {
+            numParamDifferences = paramKeys.filter((param) => {
+                return !this.state.requiredURLParams.includes(param)
+            }).length;
+        }
+        if (
+            (paramKeys.length !== this.state.requiredURLParams.length) ||
+            (numParamDifferences > 0)
+        ) {
+            if (window.location.href !== document.location.href.split("?")[0]) {
+                window.location.href = document.location.href.split("?")[0];
+            }
+        } else {
+            passed = true
+        }
+        if (passed) {
+            const coordinates = paramsObj.chr + ":" + paramsObj.start + "-" + paramsObj.stop
+            this.setGenomicLocation(coordinates, popped)
+        }
+    }
+  }
+
+  handlePopState = (e) => {
+    this.parseQueryParams(true)
+  }
+
+  componentDidMount() {
+    // component is mounting twice causing two renders and 2 pop states to be added, but only in development env?
+    // https://stackoverflow.com/questions/63383473/why-componentdidmount-called-two-times#:~:text=Multiple%20componentDidMount%20calls%20may%20be,help%20detect%20unexpected%20side%20effects.
+    // make sure this doesn't happen in production
+    this.parseQueryParams(false)
+    window.addEventListener("popstate", (e) => this.handlePopState(e));
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", null);
+  }
+  
   
   render () {
     return (
