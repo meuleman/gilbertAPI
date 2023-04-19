@@ -30,6 +30,8 @@ function FactorHeatmap (props) {
             const searchButtonWidth = 25
             const simFactorXStart = searchButtonX + searchButtonWidth + 10
             const simFactorXWidth = colorHeight * 34
+            const topQueryFactorXStart = legendX
+            const topQueryFactorXWidth = colorHeight * 34
             const simThresh = 0.9
 
             // data
@@ -151,6 +153,11 @@ function FactorHeatmap (props) {
             const simFactorX = d3.scaleBand()
                 .domain([...Array(colLabels.length).keys()])
                 .range([simFactorXStart, simFactorXStart + simFactorXWidth])
+
+
+            const topQueryFactorX = d3.scaleBand()
+                .domain([...Array(colLabels.length).keys()])
+                .range([topQueryFactorXStart, topQueryFactorXStart + topQueryFactorXWidth])
 
             // colors for each factor
             const topColorY = d3.scaleBand()
@@ -426,16 +433,18 @@ function FactorHeatmap (props) {
                     .on('mouseleave', mouseleave)
 
             
-            const simFactorData = heatmapData.filter((d) => {
+            // const simFactorData = heatmapData.filter((d) => {
+            //     return d.percentile * queryDataFlat[d.factorInd].percentile > simThresh
+            // })
+            const simFactorData = dataFlat.filter((d) => {
                 return d.percentile * queryDataFlat[d.factorInd].percentile > simThresh
-            })
-            // console.log(simFactorData)
+            }) // includes query region data
+
             let factorNum = 0
-            let simRank = 0
+            let simRank = null
             heatmapsvg.selectAll()
                 .data(simFactorData)
                 .join("rect")
-                    // .attr("x", function(d) {return simFactorX(d.factor)})
                     .attr("x", function(d) {
                         if (d.rank === simRank) {
                             factorNum += 1
@@ -443,9 +452,20 @@ function FactorHeatmap (props) {
                             factorNum = 0
                             simRank = d.rank
                         }
-                        return simFactorX(factorNum)
+                        if (d.rank === 0) {
+                            return topQueryFactorX(factorNum)
+                        } else {
+                            return simFactorX(factorNum)
+                        }
+                        
                     })
-                    .attr("y", function(d) {return y(d.rank)})
+                    .attr("y", function(d) {
+                        if (d.rank === 0) {
+                            return queryY(0.5) - (y.bandwidth() / 2)
+                        } else{
+                            return y(d.rank)
+                        }
+                    })
                     .attr("width", simFactorX.bandwidth())
                     .attr("height", y.bandwidth())
                     .style("fill", function(d) {return color(d.factor)})

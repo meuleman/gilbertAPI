@@ -91,7 +91,7 @@ class RegionRecContainer extends React.Component {
     }
 
     const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end
-    const historyTitle = "Region Narration - " + coordinates
+    const historyTitle = "Genomic Narration - " + coordinates
     if (!popped) {
         window.history.pushState(newUrl, historyTitle, newUrl)
     }
