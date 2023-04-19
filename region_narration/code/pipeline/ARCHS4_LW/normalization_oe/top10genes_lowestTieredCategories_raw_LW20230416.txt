@@ -1,0 +1,3174 @@
+Top 10 values in Column "Heart":
+RN7SKP288          5.907271
+CACNA1C-IT1        5.888424
+ENSG00000286639    5.634871
+ENSG00000267784    5.631258
+BTF3L4P4           5.521224
+ENSG00000232056    5.499700
+ENSG00000238156    5.445967
+ENSG00000250500    5.412281
+ENSG00000271401    5.217601
+ENSG00000237324    5.191716
+Name: Heart, dtype: float64
+
+Gene descriptions for Column "Heart":
+RN7SK pseudogene 288
+CACNA1C intronic transcript 1
+novel transcript
+novel transcript, antisense to titin
+basic transcription factor 3 like 4 pseudogene 4
+novel transcript
+novel transcript
+eukaryotic translation initiation factor 2, subunit 3 gamma, 52kDa (EIF2S3) pseudogene
+novel transcript
+novel transcript
+
+Top 10 values in Column "Atrium":
+BMP10              6.531578
+MIR208A            6.423206
+ENSG00000287891    6.074370
+MYBPHL             6.059309
+ENSG00000261606    6.048335
+ENSG00000225519    6.004728
+LMAN1L             5.917669
+MYH6               5.836798
+LINC01880          5.775577
+LINC02248          5.713546
+Name: Atrium, dtype: float64
+
+Gene descriptions for Column "Atrium":
+bone morphogenetic protein 10
+microRNA 208a
+novel transcript
+myosin binding protein H like
+novel transcript
+novel transcript
+lectin, mannose binding 1 like
+myosin heavy chain 6
+long intergenic non-protein coding RNA 1880
+long intergenic non-protein coding RNA 2248
+
+Top 10 values in Column "Cardiac Muscle Fiber":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Cardiac Muscle Fiber, dtype: float64
+
+Gene descriptions for Column "Cardiac Muscle Fiber":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "Pericardium":
+FAR1P1             5.965299
+ENSG00000257976    5.922910
+IGHV1-14           5.837595
+MIR3129            5.778352
+RN7SL201P          5.749262
+ENSG00000212712    5.731297
+ENSG00000263369    5.702680
+MIR3612            5.650952
+ENSG00000283566    5.648080
+IGKV2-18           5.617327
+Name: Pericardium, dtype: float64
+
+Gene descriptions for Column "Pericardium":
+fatty acyl-CoA reductase 1 pseudogene 1
+1-acylglycerol-3-phosphate O-acyltransferase 6 (lysophosphatidic acid acyltransferase, zeta) (AGPAT6) pseudogene
+immunoglobulin heavy variable 1-14 (pseudogene)
+microRNA 3129
+RNA, 7SL, cytoplasmic 201, pseudogene
+kinesin family member 1C (KIF1C) pseudogene
+bromodomain PHD finger transcription factor (BPTF) pseudogene
+microRNA 3612
+dual specificity mitogen-activated protein kinase kinase 3
+immunoglobulin kappa variable 2-18 (pseudogene)
+
+Top 10 values in Column "Valve":
+LINC01235          5.239953
+RN7SL422P          4.938529
+RNA5SP280          4.845358
+ENSG00000258206    4.766216
+ENSG00000263821    4.708271
+ENSG00000226063    4.651751
+BMX                4.473424
+ART4               4.438725
+PKHD1L1            4.433575
+SELP               4.376627
+Name: Valve, dtype: float64
+
+Gene descriptions for Column "Valve":
+long intergenic non-protein coding RNA 1235
+RNA, 7SL, cytoplasmic 422, pseudogene
+RNA, 5S ribosomal pseudogene 280
+TM2 domain containing 3 (TM2D3) pseudogene
+novel transcript
+novel transcript
+BMX non-receptor tyrosine kinase
+ADP-ribosyltransferase 4 (inactive) (Dombrock blood group)
+PKHD1 like 1
+selectin P
+
+Top 10 values in Column "Ventricle":
+ENSG00000236958    5.722264
+LINC02502          5.667342
+ENSG00000286820    5.581935
+ENSG00000231811    5.549123
+LINC02941          5.435491
+MYL2               5.407491
+ENSG00000286598    5.384128
+ENSG00000267110    5.360866
+RD3L               5.348510
+ENSG00000287568    5.306135
+Name: Ventricle, dtype: float64
+
+Gene descriptions for Column "Ventricle":
+novel transcript
+long intergenic non-protein coding RNA 2502
+novel transcript
+novel transcript
+long intergenic non-protein coding RNA 2941
+myosin light chain 2
+novel transcript
+novel transcript
+RD3 like
+novel transcript, antisense to GRM8
+
+Top 10 values in Column "HUVEC":
+VWFP1              5.297584
+MMRN1              5.236703
+LINC02915          5.194419
+BMX                5.091314
+FAM124B            5.059159
+ENSG00000259072    4.941092
+LINC01013          4.906569
+HHIP               4.852171
+SLC25A34-AS1       4.720778
+ENSG00000229308    4.673439
+Name: HUVEC, dtype: float64
+
+Gene descriptions for Column "HUVEC":
+von Willebrand factor pseudogene 1
+multimerin 1
+long intergenic non-protein coding RNA 2915
+BMX non-receptor tyrosine kinase
+family with sequence similarity 124 member B
+novel transcript
+long intergenic non-protein coding RNA 1013
+hedgehog interacting protein
+SLC25A34 and TMEM82 antisense RNA 1
+novel transcript
+
+Top 10 values in Column "Adipose":
+LINCADL    5.989423
+LEP        5.947777
+DEFB132    5.775448
+TRARG1     5.769247
+MIR3654    5.666475
+CIDEA      5.605777
+TNMD       5.571731
+ADIPOQ     5.549443
+PLIN1      5.507115
+MIR4709    5.260016
+Name: Adipose, dtype: float64
+
+Gene descriptions for Column "Adipose":
+lincRNA adipogenesis and lipogenesis associated
+leptin
+defensin beta 132
+trafficking regulator of GLUT4 (SLC2A4) 1
+microRNA 3654
+cell death inducing DFFA like effector a
+tenomodulin
+adiponectin, C1Q and collagen domain containing
+perilipin 1
+microRNA 4709
+
+Top 10 values in Column "Adipocyte":
+ADIPOQ             5.004968
+CHIA               4.741020
+LGALS12            4.605630
+THRSP              4.559614
+ADIPOQ-AS1         4.551412
+LINCADL            4.481478
+CIDEC              4.470602
+PLIN1              4.465994
+ENSG00000267653    4.445830
+RNF186-AS1         4.371049
+Name: Adipocyte, dtype: float64
+
+Gene descriptions for Column "Adipocyte":
+adiponectin, C1Q and collagen domain containing
+chitinase acidic
+galectin 12
+thyroid hormone responsive
+ADIPOQ antisense RNA 1
+lincRNA adipogenesis and lipogenesis associated
+cell death inducing DFFA like effector c
+perilipin 1
+novel transcript
+RNF186 antisense RNA 1
+
+Top 10 values in Column "Myofibroblast":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Myofibroblast, dtype: float64
+
+Gene descriptions for Column "Myofibroblast":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "Osteoblast":
+LINC01614          4.668593
+ENSG00000225007    4.385805
+ENSG00000285964    3.879379
+ITGA11             3.781476
+HAPLN1             3.668532
+ENSG00000280241    3.664249
+LINC01085          3.560170
+ENSG00000238195    3.475280
+ENSG00000253163    3.462296
+SCUBE3             3.458084
+Name: Osteoblast, dtype: float64
+
+Gene descriptions for Column "Osteoblast":
+long intergenic non-protein coding RNA 1614
+novel transcript
+novel transcript
+integrin subunit alpha 11
+hyaluronan and proteoglycan link protein 1
+novel transcript, antisense to DCHS2
+long intergenic non-protein coding RNA 1085
+novel transcript
+novel transcript
+signal peptide, CUB domain and EGF like domain containing 3
+
+Top 10 values in Column "Stromal Cell":
+WNT2               4.638625
+FAM197Y6           4.501883
+ENSG00000285824    4.471919
+ENSG00000229939    4.435783
+ENSG00000255839    4.359697
+ENSG00000269289    4.320703
+ENSG00000263424    4.308998
+ENSG00000260755    4.241154
+FAM197Y7           4.020620
+ENSG00000255252    4.016108
+Name: Stromal Cell, dtype: float64
+
+Gene descriptions for Column "Stromal Cell":
+Wnt family member 2
+family with sequence similarity 197 Y-linked member 6
+novel transcript, antisense to MTPAP
+novel pseudogene (PRO1843)
+novel transcript
+novel transcript, antisense to ZNF726
+novel transcript, antisense to DSEL
+novel transcript
+family with sequence similarity 197 Y-linked member 7
+novel transcript
+
+Top 10 values in Column "MG63":
+CER1               6.308894
+RPL23AP56          5.834504
+ENSG00000253698    5.764795
+OR7A3P             5.690862
+MTND2P7            5.561837
+MTCO1P49           5.499948
+CCKAR              5.342645
+LINC01925          5.167245
+OR7A1P             5.046962
+KRTAP20-2          5.035583
+Name: MG63, dtype: float64
+
+Gene descriptions for Column "MG63":
+cerberus 1, DAN family BMP antagonist
+ribosomal protein L23a pseudogene 56
+novel transcript
+olfactory receptor family 7 subfamily A member 3 pseudogene
+MT-ND2 pseudogene 7
+MT-CO1 pseudogene 49
+cholecystokinin A receptor
+long intergenic non-protein coding RNA 1925
+olfactory receptor family 7 subfamily A member 1 pseudogene
+keratin associated protein 20-2
+
+Top 10 values in Column "K562":
+ENSG00000287973    6.401167
+ENSG00000237311    6.309770
+ABCB10P4           6.290556
+BGLT3              6.169530
+RHAG               6.081805
+HBZ                6.069475
+HBZP1              5.983487
+HBG1               5.966152
+HBBP1              5.922931
+GATA1              5.906244
+Name: K562, dtype: float64
+
+Gene descriptions for Column "K562":
+novel transcript
+novel transcript
+ABCB10 pseudogene 4
+beta globin locus transcript 3
+Rh associated glycoprotein
+hemoglobin subunit zeta
+hemoglobin subunit zeta pseudogene 1
+hemoglobin subunit gamma 1
+hemoglobin subunit beta pseudogene 1
+GATA binding protein 1
+
+Top 10 values in Column "Bone Marrow":
+AHSP               5.318180
+IGKV2-23           5.306852
+LINC02573          5.291942
+PRSS57             5.258188
+RNA5SP394          5.165848
+ENSG00000286151    5.008461
+ENSG00000221031    4.997946
+EPB42              4.987394
+TRBVB              4.981400
+MPO                4.928281
+Name: Bone Marrow, dtype: float64
+
+Gene descriptions for Column "Bone Marrow":
+alpha hemoglobin stabilizing protein
+immunoglobulin kappa variable 2-23 (pseudogene)
+long intergenic non-protein coding RNA 2573
+serine protease 57
+RNA, 5S ribosomal pseudogene 394
+SLAM family member 5-like pseudogene
+None
+erythrocyte membrane protein band 4.2
+T cell receptor beta variable B (pseudogene)
+myeloperoxidase
+
+Top 10 values in Column "Chondrocyte":
+CCN6               5.881937
+EPYC               5.692170
+ITIH6              5.645423
+IBSP               5.598720
+ACAN               5.540007
+ENSG00000261257    5.517153
+NOS2               5.489610
+LINC02906          5.229872
+COL2A1             5.166719
+COMP               5.136850
+Name: Chondrocyte, dtype: float64
+
+Gene descriptions for Column "Chondrocyte":
+cellular communication network factor 6
+epiphycan
+inter-alpha-trypsin inhibitor heavy chain family member 6
+integrin binding sialoprotein
+aggrecan
+novel transcript
+nitric oxide synthase 2
+long intergenic non-protein coding RNA 2906
+collagen type II alpha 1 chain
+cartilage oligomeric matrix protein
+
+Top 10 values in Column "HT1080":
+ENSG00000264334    5.862800
+SSX3               5.857042
+CYP4F34P           5.810817
+MIR4527            5.809662
+RBMY2QP            5.739096
+MIR4527HG          5.732405
+NCOR1P4            5.725079
+LINC01029          5.717383
+ENSG00000232355    5.716671
+USP26              5.696341
+Name: HT1080, dtype: float64
+
+Gene descriptions for Column "HT1080":
+novel transcript
+SSX family member 3
+cytochrome P450 family 4 subfamily F member 34, pseudogene
+microRNA 4527
+RNA binding motif protein Y-linked family 2 member Q, pseudogene
+MIR4527 host gene
+NCOR1 pseudogene 4
+long intergenic non-protein coding RNA 1029
+pseudogene similar to part of a ficolin family protein
+ubiquitin specific peptidase 26
+
+Top 10 values in Column "NHDF":
+RNU2-40P           5.222334
+LNCPRESS2          5.167630
+ENSG00000226992    5.096714
+ENSG00000279956    4.880994
+ENSG00000237227    4.860543
+LNCPRESS1          4.787765
+LINC00445          4.746345
+ENSG00000260362    4.724377
+MTCO3P1            4.723502
+ENSG00000287398    4.624603
+Name: NHDF, dtype: float64
+
+Gene descriptions for Column "NHDF":
+RNA, U2 small nuclear 40, pseudogene
+lncRNA p53 regulated and ESC associated 2
+novel transcript
+novel transcript
+ribosomal protein L36 (RPL36) pseudogene
+lncRNA p53 regulated and ESC associated 1
+long intergenic non-protein coding RNA 445
+novel transcript
+MT-CO3 pseudogene 1
+novel transcript
+
+Top 10 values in Column "HCT116":
+GAPDHP20           5.272561
+OR51B3P            5.205637
+OR51B2             5.154740
+OR51A10P           5.024816
+ENSG00000250920    5.001729
+OR52D1             4.955489
+OR51B8P            4.948159
+OR51I1             4.933862
+OR51J1             4.912570
+OR51K1P            4.890891
+Name: HCT116, dtype: float64
+
+Gene descriptions for Column "HCT116":
+glyceraldehyde 3 phosphate dehydrogenase pseudogene 20
+olfactory receptor family 51 subfamily B member 3 pseudogene
+olfactory receptor family 51 subfamily B member 2
+olfactory receptor family 51 subfamily A member 10 pseudogene
+novel transcript
+olfactory receptor family 52 subfamily D member 1
+olfactory receptor family 51 subfamily B member 8 pseudogene
+olfactory receptor family 51 subfamily I member 1
+olfactory receptor family 51 subfamily J member 1
+olfactory receptor family 51 subfamily K member 1 pseudogene
+
+Top 10 values in Column "HT29":
+UGT1A8      5.677212
+NMUR2       5.083199
+UGT1A10     5.041513
+FGF19       4.757061
+KRT20       4.711821
+TRIM31      4.688346
+ACTG1P23    4.673280
+HOTTIP      4.610039
+UGT1A13P    4.419993
+CAPN8       4.360061
+Name: HT29, dtype: float64
+
+Gene descriptions for Column "HT29":
+UDP glucuronosyltransferase family 1 member A8
+neuromedin U receptor 2
+UDP glucuronosyltransferase family 1 member A10
+fibroblast growth factor 19
+keratin 20
+tripartite motif containing 31
+actin gamma 1 pseudogene 23
+HOXA distal transcript antisense RNA
+UDP glucuronosyltransferase family 1 member A13, pseudogene
+calpain 8
+
+Top 10 values in Column "RKO":
+ENSG00000249061    5.541289
+RPS26P4            5.396212
+ENSG00000288074    5.391985
+ENSG00000234450    5.197200
+ENSG00000233491    5.005899
+MAP1LC3C           4.810042
+ENSG00000255866    4.746487
+LINC01592          4.708490
+DDX43P3            4.690504
+ENSG00000255191    4.626519
+Name: RKO, dtype: float64
+
+Gene descriptions for Column "RKO":
+novel transcript
+ribosomal protein S26 pseudogene 4
+novel transcript
+ribosomal protein L26-like 1 (RPL26L1) pseudogene
+novel pseudogene containing cadherin repeats
+microtubule associated protein 1 light chain 3 gamma
+novel transcript
+long intergenic non-protein coding RNA 1592
+DEAD-box helicase 43 pseudogene 3
+novel transcript
+
+Top 10 values in Column "Colon":
+MS4A12       6.497643
+NXPE4        6.120494
+LYPD8        6.004681
+TMIGD1       5.906304
+CEACAM7      5.805048
+AQP8         5.804768
+GUCA2A       5.790479
+LINC02441    5.650959
+MUC12        5.565124
+RETNLB       5.535460
+Name: Colon, dtype: float64
+
+Gene descriptions for Column "Colon":
+membrane spanning 4-domains A12
+neurexophilin and PC-esterase domain family member 4
+LY6/PLAUR domain containing 8
+transmembrane and immunoglobulin domain containing 1
+CEA cell adhesion molecule 7
+aquaporin 8
+guanylate cyclase activator 2A
+long intergenic non-protein coding RNA 2441
+mucin 12, cell surface associated
+resistin like beta
+
+Top 10 values in Column "Colonic Muscosa":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Colonic Muscosa, dtype: float64
+
+Gene descriptions for Column "Colonic Muscosa":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "Intestinal Epithelial Cell":
+CEACAM18           6.486055
+ENSG00000258052    6.413453
+TMPRSS15           6.268908
+APOBEC1            6.090345
+MS4A18             6.070038
+OTOP3              6.068359
+ALPI               6.028180
+SI                 6.024467
+ZNF511-PRAP1       6.022596
+RPL6P23            6.020840
+Name: Intestinal Epithelial Cell, dtype: float64
+
+Gene descriptions for Column "Intestinal Epithelial Cell":
+CEA cell adhesion molecule 18
+novel protein
+transmembrane serine protease 15
+apolipoprotein B mRNA editing enzyme catalytic subunit 1
+membrane spanning 4-domains A18
+otopetrin 3
+alkaline phosphatase, intestinal
+sucrase-isomaltase
+ZNF511-PRAP1 readthrough
+ribosomal protein L6 pseudogene 23
+
+Top 10 values in Column "Small Intestine":
+IL21               6.477439
+DEFA5              6.125211
+IL3                5.820976
+LINC00892          5.610388
+IFNG               5.470746
+IL2                5.442169
+IL13               5.416961
+ENSG00000248790    5.394041
+CYP2C58P           5.354489
+ENSG00000234441    5.306467
+Name: Small Intestine, dtype: float64
+
+Gene descriptions for Column "Small Intestine":
+interleukin 21
+defensin alpha 5
+interleukin 3
+long intergenic non-protein coding RNA 892
+interferon gamma
+interleukin 2
+interleukin 13
+novel transcript
+cytochrome P450 family 2 subfamily C member 58, pseudogene
+pseudogene similar to part of alpha amylase
+
+Top 10 values in Column "Liver":
+CFHR5       6.293355
+F9          6.210528
+C9          6.138555
+MBL2        6.090283
+C3P1        6.085709
+GYS2        6.080329
+FCN2        6.078431
+CCND2P1     6.076318
+FAM99A      6.075884
+SLC25A47    6.029892
+Name: Liver, dtype: float64
+
+Gene descriptions for Column "Liver":
+complement factor H related 5
+coagulation factor IX
+complement C9
+mannose binding lectin 2
+complement component 3 precursor pseudogene
+glycogen synthase 2
+ficolin 2
+cyclin D2 pseudogene 1
+family with sequence similarity 99 member A
+solute carrier family 25 member 47
+
+Top 10 values in Column "Hepatic Stellate Cell":
+ENSG00000284695    4.560269
+MIR656             4.420706
+SULT1E1            4.237213
+MIR412             4.193240
+MIR369             4.036974
+MIR410             3.882497
+MIR409             3.805671
+MIR377             3.613549
+ENSG00000228707    3.472687
+COLEC11            3.446299
+Name: Hepatic Stellate Cell, dtype: float64
+
+Gene descriptions for Column "Hepatic Stellate Cell":
+novel protein
+microRNA 656
+sulfotransferase family 1E member 1
+microRNA 412
+microRNA 369
+microRNA 410
+microRNA 409
+microRNA 377
+novel transcript
+collectin subfamily member 11
+
+Top 10 values in Column "Hepatocyte":
+GAGE12C    5.609262
+GAGE12D    5.609262
+APCS       5.475839
+HPX        5.316595
+HAO1       5.274673
+HABP2      5.274520
+FGB        5.214161
+ANGPTL3    5.198160
+FGA        5.196592
+LBP        5.190555
+Name: Hepatocyte, dtype: float64
+
+Gene descriptions for Column "Hepatocyte":
+G antigen 12C
+G antigen 12D
+amyloid P component, serum
+hemopexin
+hydroxyacid oxidase 1
+hyaluronan binding protein 2
+fibrinogen beta chain
+angiopoietin like 3
+fibrinogen alpha chain
+lipopolysaccharide binding protein
+
+Top 10 values in Column "Primary Liver Cell":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Primary Liver Cell, dtype: float64
+
+Gene descriptions for Column "Primary Liver Cell":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "HEPG2":
+ENSG00000230952    6.503832
+BPIFB2             6.414090
+ENSG00000254054    6.120223
+AFP                5.880223
+ENSG00000260573    5.791957
+LINC02708          5.778944
+AHSG               5.602148
+SERPINA7           5.538107
+ITIH2              5.487230
+SERPINA11          5.445989
+Name: HEPG2, dtype: float64
+
+Gene descriptions for Column "HEPG2":
+novel transcript
+BPI fold containing family B member 2
+novel transcript
+alpha fetoprotein
+novel transcript
+long intergenic non-protein coding RNA 2708
+alpha 2-HS glycoprotein
+serpin family A member 7
+inter-alpha-trypsin inhibitor heavy chain 2
+serpin family A member 11
+
+Top 10 values in Column "Alpha Cell":
+RNA5SP148          6.422009
+RNU6ATAC6P         6.332581
+MIR595             6.262803
+RNA5SP205          6.251777
+RN7SKP100          6.172645
+DYNLT3P1           6.116036
+ENSG00000255207    6.108146
+ENSG00000287700    6.076793
+MIR1179            5.988373
+ENSG00000256085    5.978929
+Name: Alpha Cell, dtype: float64
+
+Gene descriptions for Column "Alpha Cell":
+RNA, 5S ribosomal pseudogene 148
+RNA, U6atac small nuclear 6, pseudogene
+microRNA 595
+RNA, 5S ribosomal pseudogene 205
+RN7SK pseudogene 100
+dynein light chain Tctex-type 3 pseudogene 1
+S100 calcium binding protein A11 (S100A11) pseudogene
+novel transcript
+microRNA 1179
+novel transcript
+
+Top 10 values in Column "Beta Cell":
+ENSG00000257729    6.209691
+PAX4               6.196860
+GPR142             5.620891
+KCNK16             5.549921
+SLC18A1            5.544480
+NKX2-2-AS1         5.490840
+INS                5.440504
+FEV                5.333369
+GLP1R              5.270356
+SDHCP4             5.210812
+Name: Beta Cell, dtype: float64
+
+Gene descriptions for Column "Beta Cell":
+novel transcript
+paired box 4
+G protein-coupled receptor 142
+potassium two pore domain channel subfamily K member 16
+solute carrier family 18 member A1
+NKX2-2 antisense RNA 1
+insulin
+FEV transcription factor, ETS family member
+glucagon like peptide 1 receptor
+succinate dehydrogenase complex subunit C pseudogene 4
+
+Top 10 values in Column "Pancreatic Islet":
+PNLIP              6.596986
+AMY2A              6.454902
+AMYP1              6.437376
+ENSG00000285959    6.432455
+CELA3A             6.166865
+REG1B              6.109008
+SYCN               6.097605
+CPA1               6.045642
+PLA2G1B            6.011656
+REG1CP             5.995120
+Name: Pancreatic Islet, dtype: float64
+
+Gene descriptions for Column "Pancreatic Islet":
+pancreatic lipase
+amylase alpha 2A
+amylase alpha pseudogene 1
+novel transcript
+chymotrypsin like elastase 3A
+regenerating family member 1 beta
+syncollin
+carboxypeptidase A1
+phospholipase A2 group IB
+regenerating family member 1 gamma, pseudogene
+
+Top 10 values in Column "GSE81547":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: GSE81547, dtype: float64
+
+Gene descriptions for Column "GSE81547":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "PANC1":
+KHSRPP1            5.164346
+ENSG00000232111    4.768588
+ENSG00000282306    4.601366
+ALPG               4.557140
+ENSG00000282222    4.443101
+ENSG00000282697    4.361859
+ENSG00000281941    4.354826
+ENSG00000282299    4.325629
+ENSG00000281955    4.291503
+ESX1               4.239996
+Name: PANC1, dtype: float64
+
+Gene descriptions for Column "PANC1":
+KH-type splicing regulatory protein pseudogene 1
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+alkaline phosphatase, germ cell
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+chromodomain protein, Y chromosome-like (CDYL) pseudogene
+ESX homeobox 1
+
+Top 10 values in Column "Gastric Epithelial Cell":
+RNA5SP162          6.231484
+MUCL3              6.206496
+ENSG00000274879    6.173585
+GKN2               5.995531
+ENSG00000227297    5.941088
+MRGPRX4            5.773616
+TFF2               5.772482
+ENSG00000234442    5.750783
+VCX3A              5.736274
+LINC00443          5.650441
+Name: Gastric Epithelial Cell, dtype: float64
+
+Gene descriptions for Column "Gastric Epithelial Cell":
+RNA, 5S ribosomal pseudogene 162
+mucin like 3
+zinc finger protein 717 (ZNF717) pseudogene
+gastrokine 2
+novel transcript
+MAS related GPR family member X4
+trefoil factor 2
+chromosome X open reading frame 49 (CXorf49) pseudogene
+variable charge X-linked 3A
+long intergenic non-protein coding RNA 443
+
+Top 10 values in Column "Esophagus":
+CRNN               6.143920
+IL36A              5.978665
+MUC21              5.934922
+ENSG00000234262    5.821301
+ENSG00000229732    5.719541
+SPINK7             5.696487
+TMPRSS11B          5.691193
+TMPRSS11A          5.607168
+KRT78              5.537412
+LINC02487          5.478691
+Name: Esophagus, dtype: float64
+
+Gene descriptions for Column "Esophagus":
+cornulin
+interleukin 36 alpha
+mucin 21, cell surface associated
+small proline-rich protein 3 (SPRR3) pseudogene
+novel transcript
+serine peptidase inhibitor Kazal type 7
+transmembrane serine protease 11B
+transmembrane serine protease 11A
+keratin 78
+long intergenic non-protein coding RNA 2487
+
+Top 10 values in Column "Granulocyte":
+RNU6-835P          6.083175
+MTND3P12           6.055052
+MTCO3P23           6.046560
+ENSG00000259600    6.015250
+LARP1BP2           6.014993
+ENSG00000229899    6.006647
+ENSG00000273644    6.003014
+MTCYBP23           5.974406
+MTND5P32           5.957081
+ENSG00000274256    5.926755
+Name: Granulocyte, dtype: float64
+
+Gene descriptions for Column "Granulocyte":
+RNA, U6 small nuclear 835, pseudogene
+MT-ND3 pseudogene 12
+MT-CO3 pseudogene 23
+mitochondrially encoded NADH 4L (MT-ND4L) pseudogene
+LARP1B pseudogene 2
+pseudogene similar to part of the cytochrome c oxidase subunit I (COX1)
+von Hippel-Lindau binding protein 1 (VBP1) pseudogene
+MT-CYB pseudogene 23
+MT-ND5 pseudogene 32
+natural cytotoxicity triggering receptor 2 (NCR2) pseudogene
+
+Top 10 values in Column "Neutrophil":
+CXCR1              5.530712
+ENSG00000254789    5.461188
+LINC02555          5.452821
+CEACAM3            5.429004
+FCGR3B             5.379058
+RPL9P33            5.345715
+CXCR2              5.328354
+TREML5P            5.317428
+ENSG00000259962    5.286903
+ADGRE3             5.267164
+Name: Neutrophil, dtype: float64
+
+Gene descriptions for Column "Neutrophil":
+C-X-C motif chemokine receptor 1
+novel transcript
+long intergenic non-protein coding RNA 2555
+CEA cell adhesion molecule 3
+Fc gamma receptor IIIb
+ribosomal protein L9 pseudogene 33
+C-X-C motif chemokine receptor 2
+triggering receptor expressed on myeloid cells like 5, pseudogene
+golgin A6 family-like 2 (GOLGA6L2) pseudogene
+adhesion G protein-coupled receptor E3
+
+Top 10 values in Column "Blymphocyte":
+ENSG00000236864    5.799310
+LINC01991          5.619831
+PSMA8              5.534764
+HTR3A              5.512625
+SERPINA9           5.459541
+SPATA48            5.439907
+LRRTM4-AS1         5.379305
+ENSG00000260030    5.351103
+PRAMENP            5.317960
+RGS13              5.287422
+Name: Blymphocyte, dtype: float64
+
+Gene descriptions for Column "Blymphocyte":
+novel transcript
+long intergenic non-protein coding RNA 1991
+proteasome 20S subunit alpha 8
+5-hydroxytryptamine receptor 3A
+serpin family A member 9
+spermatogenesis associated 48
+LRRTM4 antisense RNA 1
+novel transcript
+PRAME N-terminal like, pseudogene
+regulator of G protein signaling 13
+
+Top 10 values in Column "Plasma Cell":
+IGHV3OR16-11    6.368829
+IGHV3OR16-15    6.198383
+IGHV3OR16-13    6.158792
+IGHV3-60        6.157814
+IGHV3-62        6.073327
+IGHV3OR16-17    6.025883
+IGLV3-17        6.025233
+RNU6-1135P      6.022876
+IGHV3-22        5.998643
+IGHV3OR16-8     5.986083
+Name: Plasma Cell, dtype: float64
+
+Gene descriptions for Column "Plasma Cell":
+immunoglobulin heavy variable 3/OR16-11 (pseudogene)
+immunoglobulin heavy variable 3/OR16-15 (pseudogene)
+immunoglobulin heavy variable 3/OR16-13 (non-functional)
+immunoglobulin heavy variable 3-60 (pseudogene)
+immunoglobulin heavy variable 3-62 (pseudogene)
+immunoglobulin heavy variable 3/OR16-17 (non-functional)
+immunoglobulin lambda variable 3-17 (pseudogene)
+RNA, U6 small nuclear 1135, pseudogene
+immunoglobulin heavy variable 3-22 (pseudogene)
+immunoglobulin heavy variable 3/OR16-8 (non-functional)
+
+Top 10 values in Column "Plasmacytoid Dendritic Cell":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Plasmacytoid Dendritic Cell, dtype: float64
+
+Gene descriptions for Column "Plasmacytoid Dendritic Cell":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "Tlymphocyte":
+IL2                5.622489
+IL17A              5.257572
+IL22               5.000349
+TRAV24             4.975478
+RNA5SP350          4.935000
+TRAV9-2            4.898474
+TRAV3              4.895955
+TRBV2              4.846040
+TRAV23DV6          4.835652
+ENSG00000267554    4.822078
+Name: Tlymphocyte, dtype: float64
+
+Gene descriptions for Column "Tlymphocyte":
+interleukin 2
+interleukin 17A
+interleukin 22
+T cell receptor alpha variable 24
+RNA, 5S ribosomal pseudogene 350
+T cell receptor alpha variable 9-2
+T cell receptor alpha variable 3
+T cell receptor beta variable 2
+T cell receptor alpha variable 23/delta variable 6
+RAB32, member RAS oncogene family (RAB32) pseudogene
+
+Top 10 values in Column "GSM2679484":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: GSM2679484, dtype: float64
+
+Gene descriptions for Column "GSM2679484":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "JURKAT":
+TRBV12-3           5.862785
+TRAV8-4            5.777308
+LINC02706          5.654655
+SIX6               5.494991
+ENSG00000227459    5.450587
+ENSG00000285640    5.386058
+TRAV18             5.094572
+ENSG00000224400    5.080973
+BHLHE23            4.930265
+ENSG00000225632    4.874944
+Name: JURKAT, dtype: float64
+
+Gene descriptions for Column "JURKAT":
+T cell receptor beta variable 12-3
+T cell receptor alpha variable 8-4
+long intergenic non-protein coding RNA 2706
+SIX homeobox 6
+novel transcript
+novel transcript
+T cell receptor alpha variable 18
+novel transcript
+basic helix-loop-helix family member e23
+novel transcript
+
+Top 10 values in Column "MT4":
+RPL23AP41          6.792622
+TRBV10-2           6.563138
+LIM2               6.447616
+HNRNPA1P21         6.413918
+CCR8               6.323065
+LINC00184          6.318323
+MTND1P30           6.128050
+TXNP5              6.059995
+ENSG00000287167    5.994041
+LINC01526          5.982502
+Name: MT4, dtype: float64
+
+Gene descriptions for Column "MT4":
+ribosomal protein L23a pseudogene 41
+T cell receptor beta variable 10-2
+lens intrinsic membrane protein 2
+heterogeneous nuclear ribonucleoprotein A1 pseudogene 21
+C-C motif chemokine receptor 8
+long intergenic non-protein coding RNA 184
+MT-ND1 pseudogene 30
+thioredoxin pseudogene 5
+novel transcript, antisense to RAD51B
+long intergenic non-protein coding RNA 1526
+
+Top 10 values in Column "NALM6":
+IGLV4-3            6.595396
+IGHVII-60-1        6.538749
+DUX4L25            6.515338
+VPREB1             6.317547
+MARK2P11           6.131992
+IGLJ7              5.798837
+ENSG00000266213    5.789095
+IGLC7              5.759924
+SHROOM2P1          5.594989
+ENSG00000253792    5.468672
+Name: NALM6, dtype: float64
+
+Gene descriptions for Column "NALM6":
+immunoglobulin lambda variable 4-3
+immunoglobulin heavy variable (II)-60-1 (pseudogene)
+double homeobox 4 like 25 (pseudogene)
+V-set pre-B cell surrogate light chain 1
+microtubule affinity regulating kinase 2 pseudogene 11
+immunoglobulin lambda joining 7
+novel transcript
+immunoglobulin lambda constant 7
+shroom family member 2 pseudogene 1
+novel transcript
+
+Top 10 values in Column "REH":
+ENSG00000253134    6.606840
+ENSG00000288008    6.196425
+ENSG00000228167    6.178319
+ENSG00000233064    6.022046
+ENSG00000237299    5.887803
+ENSG00000228778    5.874938
+BLACE              5.741619
+MIR6722            5.672631
+ENSG00000285718    5.559346
+ACTG1P22           5.538967
+Name: REH, dtype: float64
+
+Gene descriptions for Column "REH":
+novel transcript
+novel transcript
+translocase of inner mitochondrial membrane 17 homolog A (yeast) (TIMM17A) pseudogene
+novel transcript
+male sterility domain containing 1 (MLSTD1) pseudogene
+novel transcript
+B cell acute lymphoblastic leukemia expressed
+microRNA 6722
+novel transcript
+actin gamma 1 pseudogene 22
+
+Top 10 values in Column "RPMI8226":
+ENSG00000232001    6.653417
+IGLV2-28           6.636748
+ENSG00000223679    6.554612
+ENSG00000259214    6.231303
+ENSG00000234768    6.182979
+LINC01229          6.166018
+CXADRP2            6.141698
+KLF2P3             6.099826
+CD8B2              6.081061
+LINC01432          6.069503
+Name: RPMI8226, dtype: float64
+
+Gene descriptions for Column "RPMI8226":
+novel transcript
+immunoglobulin lambda variable 2-28 (pseudogene)
+solute carrier family 5 (sodium/glucose cotransporter), member 1 (SLC5A1) pseudogene
+ankyrin repeat domain 18B (ANKRD18B) pseudogene
+novel transcript
+long intergenic non-protein coding RNA 1229
+CXADR pseudogene 2
+Kruppel like factor 2 pseudogene 3
+CD8b2 molecule
+long intergenic non-protein coding RNA 1432
+
+Top 10 values in Column "Alveolar":
+PARAL1             5.453014
+ENSG00000256948    5.365665
+MARCO              5.029073
+CCL18              4.943393
+ENSG00000259094    4.938281
+ITPR2-AS1          4.902536
+DNASE2B            4.867434
+OR6N1              4.800800
+DCSTAMP            4.680344
+IL36B              4.658836
+Name: Alveolar, dtype: float64
+
+Gene descriptions for Column "Alveolar":
+PPARG activating RBM14 associated lncRNA 1
+novel transcript
+macrophage receptor with collagenous structure
+C-C motif chemokine ligand 18
+novel transcript, antisense to MARCO
+ITPR2 and SSPN antisense RNA 1
+deoxyribonuclease 2 beta
+olfactory receptor family 6 subfamily N member 1
+dendrocyte expressed seven transmembrane protein
+interleukin 36 beta
+
+Top 10 values in Column "Dendritic":
+CCL17        6.112353
+IFNA4        6.073122
+IFNA16       6.069154
+IFNA17       6.031967
+IFNA10       6.009933
+IFNA14       5.907317
+IFNA21       5.888515
+LINC01724    5.715402
+IFNA8        5.681070
+IFNA6        5.638983
+Name: Dendritic, dtype: float64
+
+Gene descriptions for Column "Dendritic":
+C-C motif chemokine ligand 17
+interferon alpha 4
+interferon alpha 16
+interferon alpha 17
+interferon alpha 10
+interferon alpha 14
+interferon alpha 21
+long intergenic non-protein coding RNA 1724
+interferon alpha 8
+interferon alpha 6
+
+Top 10 values in Column "Kupffer":
+COLEC10            4.606866
+RXFP1              4.387975
+ATP5PDP3           4.185572
+EEF1A1P11          4.075586
+TSLP               3.928118
+ENSG00000288022    3.908943
+ACTA2-AS1          3.907126
+ENSG00000285218    3.902766
+RSU1P1             3.859643
+ENSG00000267328    3.850311
+Name: Kupffer, dtype: float64
+
+Gene descriptions for Column "Kupffer":
+collectin subfamily member 10
+relaxin family peptide receptor 1
+ATP synthase peripheral stalk subunit d pseudogene 3
+eukaryotic translation elongation factor 1 alpha 1 pseudogene 11
+thymic stromal lymphopoietin
+novel transcript
+ACTA2 antisense RNA 1
+novel protein
+Ras suppressor protein 1 pseudogene 1
+novel transcript
+
+Top 10 values in Column "Macrophage":
+ACOD1              5.879717
+ENSG00000225107    5.233440
+CHIT1              4.925902
+ADAMDEC1           4.880459
+LINC01181          4.797850
+ETV3L              4.769616
+DCSTAMP            4.650105
+GPR31              4.644675
+ENSG00000270980    4.641590
+LINC02244          4.629506
+Name: Macrophage, dtype: float64
+
+Gene descriptions for Column "Macrophage":
+aconitate decarboxylase 1
+novel transcript
+chitinase 1
+ADAM like decysin 1
+long intergenic non-protein coding RNA 1181
+ETS variant transcription factor 3 like
+dendrocyte expressed seven transmembrane protein
+G protein-coupled receptor 31
+coiled-coil-helix-coiled-coil-helix domain containing 2 (CHCHD2) pseudogene
+long intergenic non-protein coding RNA 2244
+
+Top 10 values in Column "Macroglia":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Macroglia, dtype: float64
+
+Gene descriptions for Column "Macroglia":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "THP1":
+LINC02169          6.173565
+ENSG00000253821    5.772564
+ENSG00000232197    5.772335
+ENSG00000257654    5.701457
+ENSG00000259759    5.546688
+ENSG00000257883    5.501520
+KNOP1P1            5.493901
+AZU1               5.370078
+FAM205C            5.364123
+LINC01388          5.358875
+Name: THP1, dtype: float64
+
+Gene descriptions for Column "THP1":
+long intergenic non-protein coding RNA 2169
+novel transcript
+novel transcript
+novel transcript
+novel transcript
+novel transcript
+lysine rich nucleolar protein 1 pseudogene 1
+azurocidin 1
+family with sequence similarity 205 member C
+long intergenic non-protein coding RNA 1388
+
+Top 10 values in Column "U937":
+LINC02470          6.181359
+CLEC2A             5.781809
+HMGB1P22           5.693301
+ENSG00000285254    5.516371
+SIGLEC12           5.440971
+TPSAB1             5.391659
+ENSG00000285722    5.378091
+ENSG00000231912    5.258912
+ENSG00000225365    5.256862
+BARX1-DT           5.251339
+Name: U937, dtype: float64
+
+Gene descriptions for Column "U937":
+long intergenic non-protein coding RNA 2470
+C-type lectin domain family 2 member A
+high mobility group box 1 pseudogene 22
+novel pseudogene
+sialic acid binding Ig like lectin 12
+tryptase alpha/beta 1
+novel transcript
+novel transcript
+novel transcript
+BARX1 divergent transcript
+
+Top 10 values in Column "JEG3":
+GPR32      6.674573
+LGALS16    6.563896
+RBMY1J     6.337510
+CGB5       6.173800
+MAGEA8     6.165526
+RBMY1B     6.155202
+XAGE2      6.145134
+CGB3       6.124971
+ERVV-1     5.964602
+ISM2       5.952352
+Name: JEG3, dtype: float64
+
+Gene descriptions for Column "JEG3":
+G protein-coupled receptor 32
+galectin 16
+RNA binding motif protein Y-linked family 1 member J
+chorionic gonadotropin subunit beta 5
+MAGE family member A8
+RNA binding motif protein Y-linked family 1 member B
+X antigen family member 2
+chorionic gonadotropin subunit beta 3
+endogenous retrovirus group V member 1, envelope
+isthmin 2
+
+Top 10 values in Column "Thymus":
+IGHV3-32           5.870222
+RNU1-133P          5.861061
+ENSG00000228586    5.835857
+ENSG00000236656    5.771091
+LDC1P              5.758073
+OR10R3P            5.755876
+ENSG00000259097    5.753259
+PSMB11             5.734934
+TRDJ3              5.620323
+TBATA              5.524737
+Name: Thymus, dtype: float64
+
+Gene descriptions for Column "Thymus":
+immunoglobulin heavy variable 3-32 (pseudogene)
+RNA, U1 small nuclear 133, pseudogene
+novel transcript
+novel transcript
+leucine decarboxylase 1, pseudogene
+olfactory receptor family 10 subfamily R member 3 pseudogene
+novel transcript
+proteasome subunit beta 11
+T cell receptor delta joining 3
+thymus, brain and testes associated
+
+Top 10 values in Column "Thymocyte":
+LINC02536          6.467762
+ELOCP2             6.251197
+RN7SL401P          6.128232
+ENSG00000232208    6.099643
+ENSG00000228173    5.963192
+OR10R2             5.927328
+ENSG00000271201    5.917829
+OR10T1P            5.909336
+ENSG00000287785    5.895640
+LINC02295          5.886376
+Name: Thymocyte, dtype: float64
+
+Gene descriptions for Column "Thymocyte":
+long intergenic non-protein coding RNA 2536
+elongin C pseudogene 2
+RNA, 7SL, cytoplasmic 401, pseudogene
+zinc finger protein 271 (ZNF) pseudogene
+novel transcript
+olfactory receptor family 10 subfamily R member 2
+novel transcript
+olfactory receptor family 10 subfamily T member 1 pseudogene
+novel transcript
+long intergenic non-protein coding RNA 2295
+
+Top 10 values in Column "Spleen":
+NCR2               5.990088
+ENSG00000237011    5.343548
+OR5AK2             5.126290
+CD5L               5.010454
+IGLV3-24           4.963507
+SPIC               4.911076
+IGLV7-35           4.899828
+IGLJ6              4.879933
+ENSG00000286030    4.796999
+ENSG00000245869    4.764710
+Name: Spleen, dtype: float64
+
+Gene descriptions for Column "Spleen":
+natural cytotoxicity triggering receptor 2
+novel transcript
+olfactory receptor family 5 subfamily AK member 2
+CD5 molecule like
+immunoglobulin lambda variable 3-24 (pseudogene)
+Spi-C transcription factor
+immunoglobulin lambda variable 7-35 (pseudogene)
+immunoglobulin lambda joining 6
+schlafen family member pseudogene
+novel transcript, antisense to CXCR5
+
+Top 10 values in Column "Skin":
+KRT2     6.410596
+LCE1A    6.349695
+LCE2B    6.342192
+LCE2D    6.338621
+LCE5A    6.338157
+LCE1B    6.215627
+LCE2C    6.212258
+LCEP3    6.193089
+LCE1D    6.174474
+LCE6A    6.158516
+Name: Skin, dtype: float64
+
+Gene descriptions for Column "Skin":
+keratin 2
+late cornified envelope 1A
+late cornified envelope 2B
+late cornified envelope 2D
+late cornified envelope 5A
+late cornified envelope 1B
+late cornified envelope 2C
+late cornified envelope pseudogene 3
+late cornified envelope 1D
+late cornified envelope 6A
+
+Top 10 values in Column "Basal Cell":
+KRT17P3            4.796174
+ENSG00000220326    4.524112
+SPRR2A             4.362175
+TRBV24OR9-2        4.354486
+ENSG00000226032    4.335671
+SPRR2E             4.328130
+TRAV9-1            4.313321
+TRBV12-2           4.281294
+KRT16P4            4.205341
+TMPRSS11D          4.201908
+Name: Basal Cell, dtype: float64
+
+Gene descriptions for Column "Basal Cell":
+keratin 17 pseudogene 3
+cytochrome c oxidase subunit VIc (COX6C) pseudogene
+small proline rich protein 2A
+T cell receptor beta variable 24/OR9-2 (pseudogene)
+novel transcript
+small proline rich protein 2E
+T cell receptor alpha variable 9-1
+T cell receptor beta variable 12-2 (pseudogene)
+keratin 16 pseudogene 4
+transmembrane serine protease 11D
+
+Top 10 values in Column "Fibroblast":
+ENSG00000265964    4.037341
+ENSG00000255455    4.016678
+VDAC2P4            4.000165
+PSG5               3.971769
+TRBVA              3.940194
+ENSG00000226992    3.704569
+ENSG00000228098    3.699646
+EIF4EBP2P3         3.571801
+ENSG00000262372    3.551284
+ENSG00000237262    3.536772
+Name: Fibroblast, dtype: float64
+
+Gene descriptions for Column "Fibroblast":
+novel transcript
+novel transcript
+VDAC2 pseudogene 4
+pregnancy specific beta-1-glycoprotein 5
+T cell receptor beta variable A (pseudogene)
+novel transcript
+ribosomal protein L17 pseudogene
+eukaryotic translation initiation factor 4E binding protein 2 pseudogene 3
+novel transcript, antisense to a novel protein
+novel transcript
+
+Top 10 values in Column "Hair Follicle":
+KRT35        6.583661
+KRTAP11-1    6.565697
+KRT28        6.525530
+KRTAP9-8     6.495735
+KRTAP8-1     6.445340
+KRTAP9-2     6.430765
+KRT82        6.426957
+KRT25        6.419171
+KRTAP1-3     6.415779
+KRT71        6.415374
+Name: Hair Follicle, dtype: float64
+
+Gene descriptions for Column "Hair Follicle":
+keratin 35
+keratin associated protein 11-1
+keratin 28
+keratin associated protein 9-8
+keratin associated protein 8-1
+keratin associated protein 9-2
+keratin 82
+keratin 25
+keratin associated protein 1-3
+keratin 71
+
+Top 10 values in Column "Keratinocyte":
+KRT16P5            5.386320
+KRT16P4            5.245148
+KRT16P6            5.182184
+IFNK               5.121870
+YWHAEP3            5.041753
+ENSG00000250532    5.031938
+LCE3C              4.976416
+HEPHL1             4.824609
+IGFL3              4.756602
+MIR4260            4.749387
+Name: Keratinocyte, dtype: float64
+
+Gene descriptions for Column "Keratinocyte":
+keratin 16 pseudogene 5
+keratin 16 pseudogene 4
+keratin 16 pseudogene 6
+interferon kappa
+tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein epsilon pseudogene 3
+novel transcript
+late cornified envelope 3C
+hephaestin like 1
+IGF like family member 3
+microRNA 4260
+
+Top 10 values in Column "Melanocyte":
+TYR                6.335532
+CBX3P7             6.153214
+LINC00518          6.086513
+SLC24A5            5.975346
+ENSG00000205444    5.959971
+MLANA              5.937464
+SLC45A2            5.907429
+OCA2               5.841336
+DCT                5.776696
+TYRP1              5.763841
+Name: Melanocyte, dtype: float64
+
+Gene descriptions for Column "Melanocyte":
+tyrosinase
+chromobox 3 pseudogene 7
+long intergenic non-protein coding RNA 518
+solute carrier family 24 member 5
+uncharacterized LOC497048
+melan-A
+solute carrier family 45 member 2
+OCA2 melanosomal transmembrane protein
+dopachrome tautomerase
+tyrosinase related protein 1
+
+Top 10 values in Column "A431":
+ENSG00000275877    5.490886
+ENSG00000258665    5.195241
+MAGEA4             5.030076
+MAGEA4-AS1         5.012111
+RNA5SP62           4.874046
+RNA5SP444          4.834523
+RNA5SP191          4.754591
+ENSG00000283178    4.714745
+RNA5SP215          4.699927
+RNA5SP366          4.617433
+Name: A431, dtype: float64
+
+Gene descriptions for Column "A431":
+5.8S ribosomal RNA
+golgin A5 (GOLGA5) pseudogene
+MAGE family member A4
+MAGEA4 antisense RNA 1
+RNA, 5S ribosomal pseudogene 62
+RNA, 5S ribosomal pseudogene 444
+RNA, 5S ribosomal pseudogene 191
+chromosome X open reading frame 49 (CXorf49) pseudogene
+RNA, 5S ribosomal pseudogene 215
+RNA, 5S ribosomal pseudogene 366
+
+Top 10 values in Column "HACAT":
+ENSG00000255191    5.398857
+ENSG00000225867    4.924629
+SERPINB13          4.769048
+MIR6510            4.686614
+ENSG00000251508    4.619976
+ENSG00000288108    4.607584
+KRT13              4.584366
+DSG4               4.517029
+OR4C6              4.430665
+SCGB1A1            4.369951
+Name: HACAT, dtype: float64
+
+Gene descriptions for Column "HACAT":
+novel transcript
+novel transcript
+serpin family B member 13
+microRNA 6510
+pecanex homolog (Drosophila) (PCNX) pseudogene
+novel transcript
+keratin 13
+desmoglein 4
+olfactory receptor family 4 subfamily C member 6
+secretoglobin family 1A member 1
+
+Top 10 values in Column "HNSCC":
+RNA5-8SP6          4.359529
+ENSG00000277852    4.299482
+RNA5SP370          4.283288
+SNORD45A           4.261477
+RNU6-451P          4.250545
+IGKV1D-33          4.223418
+MTCO3P45           4.148561
+RNA5SP429          4.070900
+RNA5SP145          4.067911
+RNA5SP149          4.052567
+Name: HNSCC, dtype: float64
+
+Gene descriptions for Column "HNSCC":
+RNA, 5.8S ribosomal pseudogene 6
+Ig kappa chain V-I region Lay pseudogene
+RNA, 5S ribosomal pseudogene 370
+small nucleolar RNA, C/D box 45A
+RNA, U6 small nuclear 451, pseudogene
+immunoglobulin kappa variable 1D-33
+MT-CO3 pseudogene 45
+RNA, 5S ribosomal pseudogene 429
+RNA, 5S ribosomal pseudogene 145
+RNA, 5S ribosomal pseudogene 149
+
+Top 10 values in Column "Skeletal Muscle":
+ENSG00000265751    6.642019
+MYH2               6.633087
+MYH1               6.629346
+ENSG00000278445    6.601711
+DUSP29             6.551905
+LRRC30             6.520835
+PPDPFL             6.438272
+AMPD1              6.423910
+LINC01854          6.404030
+KLHL40             6.403689
+Name: Skeletal Muscle, dtype: float64
+
+Gene descriptions for Column "Skeletal Muscle":
+novel transcript, antisense to GREB1L
+myosin heavy chain 2
+myosin heavy chain 1
+novel transcript
+dual specificity phosphatase 29
+leucine rich repeat containing 30
+pancreatic progenitor cell differentiation and proliferation factor like
+adenosine monophosphate deaminase 1
+long intergenic non-protein coding RNA 1854
+kelch like family member 40
+
+Top 10 values in Column "Myoblast":
+MYF5         6.611248
+LEUTX        6.440514
+PRAMEF36P    6.420473
+PRAMEF28P    6.364337
+PRAMEF12     6.295803
+SSU72P4      6.292207
+PRAMEF2      6.269026
+MBD3L2       6.264079
+TRIM43B      6.263716
+PRAMEF14     6.246398
+Name: Myoblast, dtype: float64
+
+Gene descriptions for Column "Myoblast":
+myogenic factor 5
+leucine twenty homeobox
+PRAME family member 36, pseudogene
+PRAME family member 28, pseudogene
+PRAME family member 12
+SSU72 pseudogene 4
+PRAME family member 2
+methyl-CpG binding domain protein 3 like 2
+tripartite motif containing 43B
+PRAME family member 14
+
+Top 10 values in Column "Airway Smooth Muscle":
+CCL11              5.194980
+ADAMTS8            4.957911
+SMIM41             4.947595
+GDF10              4.938029
+LINC00578          4.463522
+LINC00968          4.421583
+LINC01394          4.363492
+CCKAR              4.355743
+ENSG00000253838    4.312644
+LINC01436          4.296383
+Name: Airway Smooth Muscle, dtype: float64
+
+Gene descriptions for Column "Airway Smooth Muscle":
+C-C motif chemokine ligand 11
+ADAM metallopeptidase with thrombospondin type 1 motif 8
+small integral membrane protein 41
+growth differentiation factor 10
+long intergenic non-protein coding RNA 578
+long intergenic non-protein coding RNA 968
+long intergenic non-protein coding RNA 1394
+cholecystokinin A receptor
+novel transcript
+long intergenic non-protein coding RNA 1436
+
+Top 10 values in Column "Respiratory Smooth Muscle":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Respiratory Smooth Muscle, dtype: float64
+
+Gene descriptions for Column "Respiratory Smooth Muscle":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "Vascular Smooth Muscle":
+ENSG00000253308    5.361874
+LCN9               5.305324
+STATH              4.937458
+EVX1-AS            4.535436
+NBPF7P             4.419099
+ENSG00000274702    4.210476
+EGFL6              4.195786
+EVX1               4.187787
+OSTN               4.043792
+SLC39A2            4.017922
+Name: Vascular Smooth Muscle, dtype: float64
+
+Gene descriptions for Column "Vascular Smooth Muscle":
+novel transcript
+lipocalin 9
+statherin
+EVX1 antisense RNA
+NBPF member 7, pseudogene
+neuroepithelial cell transforming 1 (NET1) pseudogene
+EGF like domain multiple 6
+even-skipped homeobox 1
+osteocrin
+solute carrier family 39 member 2
+
+Top 10 values in Column "LHCNM2":
+ENSG00000258073    5.658640
+FDCSP              5.216901
+GAPDHP36           5.212028
+TECTB              5.088243
+ASB5               4.879417
+RN7SL547P          4.534974
+ZNF736P9Y          4.350335
+ENSG00000229855    4.341789
+CTAGE1             4.332291
+ENSG00000205300    4.311702
+Name: LHCNM2, dtype: float64
+
+Gene descriptions for Column "LHCNM2":
+small nuclear ribonucleoprotein D2 polypeptide 16.5kDa (SNRPD2) pseudogene
+follicular dendritic cell secreted protein
+glyceraldehyde 3 phosphate dehydrogenase pseudogene 36
+tectorin beta
+ankyrin repeat and SOCS box containing 5
+RNA, 7SL, cytoplasmic 547, pseudogene
+zinc finger protein 736 pseudogene 9, Y-linked
+novel transcript
+cutaneous T cell lymphoma-associated antigen 1
+novel transcript
+
+Top 10 values in Column "Brain":
+LINC01007      5.294614
+SNORD115-5     5.256947
+KHDRBS2-OT1    5.142065
+CACNG3         5.022227
+SNORD115-42    4.933820
+RNU6-682P      4.893513
+SNORD115-10    4.878230
+RNU6-290P      4.823950
+SNORD115-12    4.816247
+SNORD115-9     4.816247
+Name: Brain, dtype: float64
+
+Gene descriptions for Column "Brain":
+long intergenic non-protein coding RNA 1007
+small nucleolar RNA, C/D box 115-5
+KHDRBS2 3'UTR overlapping transcript 1
+calcium voltage-gated channel auxiliary subunit gamma 3
+small nucleolar RNA, C/D box 115-42
+RNA, U6 small nuclear 682, pseudogene
+small nucleolar RNA, C/D box 115-10
+RNA, U6 small nuclear 290, pseudogene
+small nucleolar RNA, C/D box 115-12
+small nucleolar RNA, C/D box 115-9
+
+Top 10 values in Column "DAOY":
+ENSG00000233887    6.569105
+CT47A1             6.373856
+DAZ4               6.336465
+CT47A11            6.308736
+CT47A6             6.259546
+ENSG00000278646    6.081961
+DAZ1               6.052257
+DAZ3               5.809056
+FMR1NB             5.702992
+TEX13C             5.619672
+Name: DAOY, dtype: float64
+
+Gene descriptions for Column "DAOY":
+endogenous retroviral family W, env(C7), member 2
+cancer/testis antigen family 47 member A1
+deleted in azoospermia 4
+cancer/testis antigen family 47 member A11
+cancer/testis antigen family 47 member A6
+novel protein similar to cancer/testis antigen family 47, member A12 (CT47A12)
+deleted in azoospermia 1
+deleted in azoospermia 3
+FMR1 neighbor
+TEX13 family member C
+
+Top 10 values in Column "IMR32":
+ENSG00000228505    6.822299
+ENSG00000236605    6.454343
+PHOX2B-AS1         6.394942
+PLSCR5             6.263635
+LINC01797          6.225391
+LINC00682          6.209801
+ENSG00000249122    6.199984
+PHOX2B             6.143843
+LINC01829          6.060220
+ENSG00000251213    6.039332
+Name: IMR32, dtype: float64
+
+Gene descriptions for Column "IMR32":
+novel transcript
+novel transcript
+PHOX2B antisense RNA 1
+phospholipid scramblase family member 5
+long intergenic non-protein coding RNA 1797
+long intergenic non-protein coding RNA 682
+novel transcript
+paired like homeobox 2B
+long intergenic non-protein coding RNA 1829
+novel transcript
+
+Top 10 values in Column "SKNSH":
+ENSG00000213328    5.986353
+PCDHA8             5.799188
+TP53TG3HP          5.752449
+PHOX2A             5.684476
+MFFP3              5.630189
+ENSG00000278009    5.564927
+ENSG00000279239    5.454876
+DBH                5.448904
+RN7SL390P          5.401693
+LINC02382          5.396672
+Name: SKNSH, dtype: float64
+
+Gene descriptions for Column "SKNSH":
+DCN1, defective in cullin neddylation 1, domain containing 3 (S. cerevisiae) (DCUN1D3) pseudogene
+protocadherin alpha 8
+TP53 target 3 family member H, pseudogene
+paired like homeobox 2A
+MFF pseudogene 3
+phosphatidylinositol glycan anchor biosynthesis, class F (PIGF) pseudogene
+par-3 family cell polarity regulator (PARD3) pseudogene
+dopamine beta-hydroxylase
+RNA, 7SL, cytoplasmic 390, pseudogene
+long intergenic non-protein coding RNA 2382
+
+Top 10 values in Column "Astrocyte":
+ENSG00000231827    4.638202
+PI15               4.073611
+GSX1               4.043107
+PAX7               4.032854
+LINC00404          3.888687
+SOX3               3.837782
+ENSG00000276074    3.699432
+FAM181A            3.513536
+LINC01159          3.444200
+POU3F4             3.435200
+Name: Astrocyte, dtype: float64
+
+Gene descriptions for Column "Astrocyte":
+immunoglobulin superfamily, DCC subclass, member 3 (IGDCC3) pseudogene
+peptidase inhibitor 15
+GS homeobox 1
+paired box 7
+long intergenic non-protein coding RNA 404
+SRY-box transcription factor 3
+None
+family with sequence similarity 181 member A
+long intergenic non-protein coding RNA 1159
+POU class 3 homeobox 4
+
+Top 10 values in Column "Cerebellum":
+GABRA6             6.624199
+MIR4705            6.607841
+RPL39P29           6.599495
+MTND1P19           6.566038
+MIR2681            6.552198
+ENSG00000248627    6.511627
+ENSG00000250092    6.457323
+ZNF385D-AS2        6.456985
+ENSG00000248766    6.447615
+LIPT1P1            6.431875
+Name: Cerebellum, dtype: float64
+
+Gene descriptions for Column "Cerebellum":
+gamma-aminobutyric acid type A receptor subunit alpha6
+microRNA 4705
+ribosomal protein L39 pseudogene 29
+MT-ND1 pseudogene 19
+microRNA 2681
+novel transcript
+novel transcript
+ZNF385D antisense RNA 2
+novel pseudogene
+lipoyltransferase 1 pseudogene 1
+
+Top 10 values in Column "Cerebral Cortex":
+SLCO1C1            5.828939
+SLC1A2-AS1         5.772001
+ENSG00000255542    5.685933
+HEPN1              5.675249
+SLC39A12           5.608348
+GRM3               5.381256
+MMD2               5.239407
+ENSG00000248725    5.232279
+ENSG00000248249    5.186309
+NEUROD6            5.127960
+Name: Cerebral Cortex, dtype: float64
+
+Gene descriptions for Column "Cerebral Cortex":
+solute carrier organic anion transporter family member 1C1
+SLC1A2 antisense RNA 1
+novel transcript
+hepatocellular carcinoma, down-regulated 1
+solute carrier family 39 member 12
+glutamate metabotropic receptor 3
+monocyte to macrophage differentiation associated 2
+novel pseudogene
+Rac GTPase activating protein 1 (RACGAP1) pseudogene
+neuronal differentiation 6
+
+Top 10 values in Column "Hypothalamus":
+SNORD115-48        5.791317
+SNORD113-4         5.666597
+PMCH               5.660365
+AVP                5.646109
+ENSG00000222185    5.549448
+ENSG00000285629    5.381658
+ENSG00000258663    5.327118
+SNORD116-29        5.323006
+ENSG00000260878    5.315414
+ENSG00000288661    5.298956
+Name: Hypothalamus, dtype: float64
+
+Gene descriptions for Column "Hypothalamus":
+small nucleolar RNA, C/D box 115-48
+small nucleolar RNA, C/D box 113-4
+pro-melanin concentrating hormone
+arginine vasopressin
+None
+novel transcript
+novel transcript, antisense to MEG3
+small nucleolar RNA, C/D box 116-29
+novel transcript, overlapping GABRA2
+novel protein
+
+Top 10 values in Column "Medula":
+A1BG        NaN
+A1BG-AS1    NaN
+A1CF        NaN
+A2M         NaN
+A2M-AS1     NaN
+A2ML1       NaN
+A2ML1-AS1   NaN
+A2ML1-AS2   NaN
+A2MP1       NaN
+A3GALT2     NaN
+Name: Medula, dtype: float64
+
+Gene descriptions for Column "Medula":
+alpha-1-B glycoprotein
+A1BG antisense RNA 1
+APOBEC1 complementation factor
+alpha-2-macroglobulin
+A2M antisense RNA 1
+alpha-2-macroglobulin like 1
+A2ML1 antisense RNA 1
+A2ML1 antisense RNA 2
+alpha-2-macroglobulin pseudogene 1
+alpha 1,3-galactosyltransferase 2
+
+Top 10 values in Column "Midbrain":
+ENSG00000229533    6.107368
+DBX1               5.937140
+FERD3L             5.911798
+VTRNA2-2P          5.690165
+GPHB5              5.684106
+LMX1A-AS2          5.658122
+LMX1A              5.618963
+RNU6-1204P         5.569481
+ENSG00000233721    5.328428
+BARHL1             5.238490
+Name: Midbrain, dtype: float64
+
+Gene descriptions for Column "Midbrain":
+novel transcript, antisense to FERD3L
+developing brain homeobox 1
+Fer3 like bHLH transcription factor
+vault RNA 2-2, pseudogene
+glycoprotein hormone subunit beta 5
+LMX1A antisense RNA 2
+LIM homeobox transcription factor 1 alpha
+RNA, U6 small nuclear 1204, pseudogene
+novel transcript
+BarH like homeobox 1
+
+Top 10 values in Column "Neuron":
+MIR124-2           5.493575
+MIR9-3             5.253341
+ENSG00000237875    5.077575
+DCX                4.261746
+TRAPPC13P1         4.169051
+UNCX               4.088796
+ENSG00000277081    3.964911
+MRPL9P1            3.932122
+LINC01201          3.925818
+RNA5SP508          3.916717
+Name: Neuron, dtype: float64
+
+Gene descriptions for Column "Neuron":
+microRNA 124-2
+microRNA 9-3
+pseudogene similar to part of ribosomal protein S3A (RPS3A)
+doublecortin
+trafficking protein particle complex 13 pseudogene 1
+UNC homeobox
+None
+mitochondrial ribosomal protein L9 pseudogene 1
+long intergenic non-protein coding RNA 1201
+RNA, 5S ribosomal pseudogene 508
+
+Top 10 values in Column "Oligodendrocyte":
+COL20A1            5.946069
+MREGP1             5.930056
+MTND2P13           5.713000
+ENSG00000254626    5.342477
+OLIG2              5.119543
+RNU6-1028P         5.037062
+MTFR2P2            5.027931
+LHFPL3             4.900840
+RN7SKP210          4.865103
+LINC02283          4.812454
+Name: Oligodendrocyte, dtype: float64
+
+Gene descriptions for Column "Oligodendrocyte":
+collagen type XX alpha 1 chain
+melanoregulin pseudogene 1
+MT-ND2 pseudogene 13
+novel transcript
+oligodendrocyte transcription factor 2
+RNA, U6 small nuclear 1028, pseudogene
+MTFR2 pseudogene 2
+LHFPL tetraspan subfamily member 3
+RN7SK pseudogene 210
+long intergenic non-protein coding RNA 2283
+
+Top 10 values in Column "Pons":
+MUC7               5.940243
+ENSG00000287510    4.989051
+LINC02648          4.893494
+SMR3B              4.805771
+TRBJ1-1            4.737732
+CD300E             4.670190
+ENSG00000260496    4.647611
+TRAJ8              4.627660
+GIMAP3P            4.608001
+FCN1               4.590805
+Name: Pons, dtype: float64
+
+Gene descriptions for Column "Pons":
+mucin 7, secreted
+novel transcript, antisense to LAPTM5
+long intergenic non-protein coding RNA 2648
+submaxillary gland androgen regulated protein 3B
+T cell receptor beta joining 1-1
+CD300e molecule
+novel transcript
+T cell receptor alpha joining 8
+GTPase, IMAP family member 3 pseudogene
+ficolin 1
+
+Top 10 values in Column "Spinal Cord":
+OR5AO1P            6.047052
+RPL34P17           5.872986
+LINC00609          5.855077
+HIGD1AP13          5.787252
+MIR7158            5.743552
+ENSG00000228408    5.644899
+HAPLN2             5.573320
+DPP10-AS2          5.567950
+ENSG00000270477    5.540566
+BECN1P2            5.448398
+Name: Spinal Cord, dtype: float64
+
+Gene descriptions for Column "Spinal Cord":
+olfactory receptor family 5 subfamily AO member 1 pseudogene
+ribosomal protein L34 pseudogene 17
+long intergenic non-protein coding RNA 609
+HIG1 hypoxia inducible domain family member 1A pseudogene 13
+microRNA 7158
+novel transcript
+hyaluronan and proteoglycan link protein 2
+DPP10 antisense RNA 2
+translocase of outer mitochondrial membrane 5 homolog (yeast) (TOMM5) pseudogene
+beclin 1 pseudogene 2
+
+Top 10 values in Column "Thalamus":
+SNORD115-48        5.560021
+AVP                5.452828
+SNORD113-4         5.435316
+PMCH               5.430110
+ENSG00000222185    5.318228
+RTP5               5.188886
+ENSG00000260878    5.186015
+ENSG00000285629    5.151430
+ENSG00000258663    5.096831
+SNORD116-29        5.091704
+Name: Thalamus, dtype: float64
+
+Gene descriptions for Column "Thalamus":
+small nucleolar RNA, C/D box 115-48
+arginine vasopressin
+small nucleolar RNA, C/D box 113-4
+pro-melanin concentrating hormone
+None
+receptor transporter protein 5 (putative)
+novel transcript, overlapping GABRA2
+novel transcript
+novel transcript, antisense to MEG3
+small nucleolar RNA, C/D box 116-29
+
+Top 10 values in Column "Retina":
+RHO                6.785694
+OPN1LW             6.699377
+RCVRN              6.620857
+PDE6H              6.618168
+EVA1CP4            6.582962
+ENSG00000269736    6.571039
+SMIM40             6.564792
+ENSG00000250543    6.548085
+PDC                6.509042
+SAMD7              6.495371
+Name: Retina, dtype: float64
+
+Gene descriptions for Column "Retina":
+rhodopsin
+opsin 1, long wave sensitive
+recoverin
+phosphodiesterase 6H
+EVA1C pseudogene 4
+novel transcript
+small integral membrane protein 40
+novel transcript
+phosducin
+sterile alpha motif domain containing 7
+
+Top 10 values in Column "Motor Neuron":
+HOXB1              5.972667
+SLC5A7             5.722384
+LINC01201          5.383872
+ENSG00000265174    5.186414
+SLC18A3            5.184248
+LHX3               5.049094
+ENSG00000253832    4.875891
+NUTM2F             4.825778
+ENSG00000277704    4.754033
+ENSG00000261675    4.747088
+Name: Motor Neuron, dtype: float64
+
+Gene descriptions for Column "Motor Neuron":
+homeobox B1
+solute carrier family 5 member 7
+long intergenic non-protein coding RNA 1201
+novel transcript
+solute carrier family 18 member A3
+LIM homeobox 3
+novel transcript
+NUT family member 2F
+chromosome 2 open reading frame 27B (C2orf27B) pseudogene
+novel transcript
+
+Top 10 values in Column "Sensory Neuron":
+DRGX               6.360979
+LINC02735          6.259592
+MRGPRE             6.201197
+PIRT               6.142538
+ENSG00000232529    6.140377
+CHRNB3             5.876489
+SKOR2              5.670651
+PRPH               5.568038
+KIRREL3-AS3        5.561637
+P2RX3              5.523908
+Name: Sensory Neuron, dtype: float64
+
+Gene descriptions for Column "Sensory Neuron":
+dorsal root ganglia homeobox
+long intergenic non-protein coding RNA 2735
+MAS related GPR family member E
+phosphoinositide interacting regulator of transient receptor potential channels
+novel transcript
+cholinergic receptor nicotinic beta 3 subunit
+SKI family transcriptional corepressor 2
+peripherin
+KIRREL3 antisense RNA 3
+purinergic receptor P2X 3
+
+Top 10 values in Column "Lung":
+SFTPA1    6.099622
+SFTPA2    5.892909
+SFTPC     5.690812
+SFTPB     5.395191
+SFTPD     5.059105
+GGTLC1    4.930139
+MS4A15    4.612552
+SFTA2     4.575947
+AMY1C     4.403370
+SFTA3     4.285598
+Name: Lung, dtype: float64
+
+Gene descriptions for Column "Lung":
+surfactant protein A1
+surfactant protein A2
+surfactant protein C
+surfactant protein B
+surfactant protein D
+gamma-glutamyltransferase light chain 1
+membrane spanning 4-domains A15
+surfactant associated 2
+amylase alpha 1C
+surfactant associated 3
+
+Top 10 values in Column "Lung Epithelial":
+MIR4426            5.596710
+AKR1B10P1          5.571096
+ATP5F1EP2          5.362791
+PRYP1              5.279256
+ENSG00000277967    5.229719
+ENSG00000274760    5.014287
+MIR3198-2          5.009055
+KRTAP9-12P         4.895790
+MIR614             4.745076
+ELOCP26            4.742111
+Name: Lung Epithelial, dtype: float64
+
+Gene descriptions for Column "Lung Epithelial":
+microRNA 4426
+aldo-keto reductase family 1 member B10 pseudogene 1
+ATP synthase F1 subunit epsilon pseudogene 2
+PTPN13 like Y-linked pseudogene 1
+None
+None
+microRNA 3198-2
+keratin associated protein 9-12, pseudogene
+microRNA 614
+elongin C pseudogene 26
+
+Top 10 values in Column "A549":
+NPY4R2             5.198640
+NPY4R              5.187064
+ENSG00000275578    4.969645
+ENSG00000264785    4.547093
+PRYP1              4.538912
+ENSG00000236921    4.529416
+PRY                4.493218
+CYP24A1            4.370838
+EEF1DP5            4.361726
+GABRA5             4.345169
+Name: A549, dtype: float64
+
+Gene descriptions for Column "A549":
+neuropeptide Y receptor Y4-2
+neuropeptide Y receptor Y4
+ubiquitin specific peptidase 9, Y-linked (USP9Y) pseudogene
+novel transcript, antisense to ALDH3A1
+PTPN13 like Y-linked pseudogene 1
+novel transcript
+PTPN13 like Y-linked
+cytochrome P450 family 24 subfamily A member 1
+eukaryotic translation elongation factor 1 delta pseudogene 5
+gamma-aminobutyric acid type A receptor subunit alpha5
+
+Top 10 values in Column "H1299":
+CTAG1B        6.082459
+TDRD12        5.819534
+MAGEA4-AS1    5.428428
+CTAG1A        5.380490
+MAGEA4        5.348499
+H2AB2         5.336288
+H2AB3         5.336288
+RHOXF2B       5.314445
+GAGE12B       5.197478
+NF1P5         5.194565
+Name: H1299, dtype: float64
+
+Gene descriptions for Column "H1299":
+cancer/testis antigen 1B
+tudor domain containing 12
+MAGEA4 antisense RNA 1
+cancer/testis antigen 1A
+MAGE family member A4
+H2A.B variant histone 2
+H2A.B variant histone 3
+Rhox homeobox family member 2B
+G antigen 12B
+neurofibromin 1 pseudogene 5
+
+Top 10 values in Column "IMR90":
+OC90               4.892532
+RIPOR3-AS1         4.701795
+ENSG00000258417    4.558107
+ENSG00000276919    4.273463
+RPL4P1             4.141830
+ENSG00000254645    3.979411
+LCE2A              3.974571
+LCE1F              3.973890
+SERPINE3           3.961544
+TRPA1              3.897530
+Name: IMR90, dtype: float64
+
+Gene descriptions for Column "IMR90":
+otoconin 90
+RIPOR3 antisense RNA 1
+novel protein
+None
+ribosomal protein L4 pseudogene 1
+novel transcript
+late cornified envelope 2A
+late cornified envelope 1F
+serpin family E member 3
+transient receptor potential cation channel subfamily A member 1
+
+Top 10 values in Column "MRC5":
+ENSG00000285703    6.001819
+KATNBL1P5          5.996957
+ZBED9-AS1          5.796832
+WDR95P             5.560727
+ENSG00000255496    5.492159
+PAFAH1B1P1         5.485770
+PTPN2P2            5.406900
+NDUFB11P1          5.401329
+RPL23AP33          5.398035
+PAFAH1B1P2         5.266569
+Name: MRC5, dtype: float64
+
+Gene descriptions for Column "MRC5":
+novel transcript
+katanin regulatory subunit B1 like 1 pseudogene 5
+ZBED9 antisense RNA 1
+WD repeat domain 95, pseudogene
+novel transcript, sense overlapping BDNF
+platelet activating factor acetylhydrolase 1b regulatory subunit 1 pseudogene 1
+PTPN2 pseudogene 2
+NADH:ubiquinone oxidoreductase subunit B11 pseudogene 1
+ribosomal protein L23a pseudogene 33
+platelet activating factor acetylhydrolase 1b regulatory subunit 1 pseudogene 2
+
+Top 10 values in Column "NCIH460":
+TBXT               6.664343
+ENSG00000238054    6.641566
+LINC01035          6.366181
+LCN1               6.266389
+LNCDAT             6.163266
+SNORD3P1           6.046940
+LINC00824          5.926530
+ENSG00000243296    5.898531
+RN7SKP294          5.891732
+CLPTM1LP1          5.827412
+Name: NCIH460, dtype: float64
+
+Gene descriptions for Column "NCIH460":
+T-box transcription factor T
+novel transcript
+long intergenic non-protein coding RNA 1035
+lipocalin 1
+lncRNA divergent activator of TBXT
+small nucleolar RNA, C/D box 3 pseudogene 1
+long intergenic non-protein coding RNA 824
+novel transcript
+RN7SK pseudogene 294
+CLPTM1L pseudogene 1
+
+Top 10 values in Column "NHBE":
+BPIFA1             6.086508
+BPIFA2             5.888089
+ENSG00000253339    5.617979
+MSMB               5.389458
+ENSG00000286225    5.310217
+BPIFB1             5.225584
+ATP12A             5.164898
+ENSG00000251076    5.077920
+CXCL17             4.994080
+SCGB3A1            4.849893
+Name: NHBE, dtype: float64
+
+Gene descriptions for Column "NHBE":
+BPI fold containing family A member 1
+BPI fold containing family A member 2
+novel transcript
+microseminoprotein beta
+novel transcript
+BPI fold containing family B member 1
+ATPase H+/K+ transporting non-gastric alpha2 subunit
+novel transcript
+C-X-C motif chemokine ligand 17
+secretoglobin family 3A member 1
+
+Top 10 values in Column "Trachea":
+SRGAP3-AS2         5.816048
+RNU6-955P          5.801810
+CD200R1L-AS1       5.779149
+RNA5SP442          5.740271
+STOML3             5.600977
+ANKRD66            5.443879
+SCGB3A1            5.319649
+WFDC6              5.318418
+ENSG00000236164    5.311615
+ENSG00000261583    5.309733
+Name: Trachea, dtype: float64
+
+Gene descriptions for Column "Trachea":
+SRGAP3 antisense RNA 2
+RNA, U6 small nuclear 955, pseudogene
+CD200R1L antisense RNA 1
+RNA, 5S ribosomal pseudogene 442
+stomatin like 3
+ankyrin repeat domain 66
+secretoglobin family 3A member 1
+WAP four-disulfide core domain 6
+novel transcript
+novel transcript
+
+Top 10 values in Column "Breast":
+ENSG00000255627    5.654848
+ENSG00000288671    5.382896
+ENSG00000234918    5.189157
+ANKRD30A           5.112342
+ENSG00000254609    5.098320
+IFNA7              5.083951
+TMEM161BP1         5.023304
+OR10J3             4.990392
+VN1R53P            4.985729
+RN7SL314P          4.902773
+Name: Breast, dtype: float64
+
+Gene descriptions for Column "Breast":
+thioesterase superfamily member 4 (THEM4) pseudogene
+novel protein
+novel transcript
+ankyrin repeat domain 30A
+phospholipase A2, group X (PLA2G10) pseudogene
+interferon alpha 7
+transmembrane protein 161B pseudogene 1
+olfactory receptor family 10 subfamily J member 3
+vomeronasal 1 receptor 53 pseudogene
+RNA, 7SL, cytoplasmic 314, pseudogene
+
+Top 10 values in Column "Mammary Gland":
+ENSG00000265664    6.061632
+ENSG00000223808    5.248013
+DSCAM-AS1          5.121506
+MIR1244-1          4.927655
+MIR1244-2          4.927655
+MIR1244-3          4.927655
+MIR1244-4          4.766823
+GATA3-AS1          4.744162
+ENSG00000232638    4.629857
+LINC00943          4.606638
+Name: Mammary Gland, dtype: float64
+
+Gene descriptions for Column "Mammary Gland":
+novel transcript
+novel transcript
+DSCAM antisense RNA 1
+microRNA 1244-1
+microRNA 1244-2
+microRNA 1244-3
+microRNA 1244-4
+GATA3 antisense RNA 1
+novel transcript
+long intergenic non-protein coding RNA 943
+
+Top 10 values in Column "MCF7":
+PRPF4BP1           5.902857
+RNU6-813P          5.650989
+RPS20P21           5.458991
+UBE2NP1            5.457872
+PSMD10P3           5.434358
+ENSG00000257199    5.434026
+ERP29P1            5.428296
+HNRNPCL2           5.385558
+HMGB3P6            5.371724
+ENSG00000223808    5.351756
+Name: MCF7, dtype: float64
+
+Gene descriptions for Column "MCF7":
+PRPF4B pseudogene 1
+RNA, U6 small nuclear 813, pseudogene
+ribosomal protein S20 pseudogene 21
+ubiquitin conjugating enzyme E2 N pseudogene 1
+proteasome 26S subunit, non-ATPase, 10 pseudogene 3
+RAN binding protein 1 (RANBP1) pseudogene
+endoplasmic reticulum lumenal protein 29 pseudogene 1
+heterogeneous nuclear ribonucleoprotein C like 2
+high mobility group box 3 pseudogene 6
+novel transcript
+
+Top 10 values in Column "MCF10":
+ENSG00000287902    4.858923
+SYT8               4.822110
+SCNN1G             4.456742
+LONRF2P4           4.442059
+MIR4680            4.357140
+ROS1               4.280880
+ENSG00000227292    4.229353
+EPGN               4.122489
+NANOGP9            4.097172
+CCAT2              4.094699
+Name: MCF10, dtype: float64
+
+Gene descriptions for Column "MCF10":
+novel transcript
+synaptotagmin 8
+sodium channel epithelial 1 subunit gamma
+LONRF2 pseudogene 4
+microRNA 4680
+ROS proto-oncogene 1, receptor tyrosine kinase
+novel transcript
+epithelial mitogen
+Nanog homeobox pseudogene 9
+colon cancer associated transcript 2
+
+Top 10 values in Column "MDAMB231":
+CST4               5.419339
+CST1               4.553209
+SPANXB1            4.506950
+ENSG00000260761    4.500616
+ENSG00000287484    3.944429
+KISS1              3.929685
+SPANXA2            3.922026
+DUX4L33            3.873868
+LINC01929          3.861453
+ADGRD1-AS1         3.856230
+Name: MDAMB231, dtype: float64
+
+Gene descriptions for Column "MDAMB231":
+cystatin S
+cystatin SN
+SPANX family member B1
+novel transcript
+novel transcript
+KiSS-1 metastasis suppressor
+SPANX family member A2
+double homeobox 4 like 33 (pseudogene)
+long intergenic non-protein coding RNA 1929
+ADGRD1 antisense RNA 1
+
+Top 10 values in Column "MDAMB468":
+RNU6-1125P         5.712134
+FOXI1              5.531384
+CASP14             5.477647
+ENSG00000269495    5.267994
+ENSG00000233028    5.265943
+OBP2B              5.203220
+OAZ1P1             5.153378
+ENSG00000253774    5.121637
+RNF5P1             5.068335
+ENSG00000253130    4.921852
+Name: MDAMB468, dtype: float64
+
+Gene descriptions for Column "MDAMB468":
+RNA, U6 small nuclear 1125, pseudogene
+forkhead box I1
+caspase 14
+novel transcript, antisense to KLK5 and KLK6
+ribonuclease T2 (RNASET2) pseudogene
+odorant binding protein 2B
+OAZ1 pseudogene 1
+novel transcript
+ring finger protein 5 pseudogene 1
+novel transcript
+
+Top 10 values in Column "SKBR3":
+REXO1L3P           6.507699
+OTOR               5.316868
+OAZ1P1             5.192642
+ENSG00000286407    5.146349
+GPC1-AS1           5.140638
+REXO1L1P           5.072726
+ENSG00000254180    4.877671
+ENSG00000233078    4.875531
+ENSG00000285714    4.826274
+ENSG00000233052    4.801063
+Name: SKBR3, dtype: float64
+
+Gene descriptions for Column "SKBR3":
+REXO1 like 3, pseudogene
+otoraplin
+OAZ1 pseudogene 1
+novel transcript
+GPC1 antisense RNA 1
+REXO1 like 1, pseudogene
+novel transcript
+novel transcript
+novel transcript
+novel transcript
+
+Top 10 values in Column "T47D":
+ENSG00000286345    5.854864
+ENSG00000255065    5.731570
+PGAM4P2            5.423703
+PIP                5.367290
+ELF5               5.162161
+ENSG00000235939    5.044342
+CYP4Z2P            5.003020
+SERPINA6           4.990740
+ENSG00000261538    4.982679
+PGR                4.974203
+Name: T47D, dtype: float64
+
+Gene descriptions for Column "T47D":
+novel transcript
+G1 to S phase transition 1 (GSPT1) pseudogene
+phosphoglycerate mutase family member 4 pseudogene 2
+prolactin induced protein
+E74 like ETS transcription factor 5
+novel transcript
+cytochrome P450 family 4 subfamily Z member 2, pseudogene
+serpin family A member 6
+novel transcript, sense overlapping ABCC11
+progesterone receptor
+
+Top 10 values in Column "HELA":
+MARCOL             6.149416
+PRSS56             5.956755
+SPINK6             5.358014
+ENSG00000276122    4.930633
+ENSG00000286134    4.637874
+ENSG00000287974    4.548756
+PRSS21             4.529988
+SPINK13            4.506014
+GAGE12H            4.440038
+GLP2R              4.412972
+Name: HELA, dtype: float64
+
+Gene descriptions for Column "HELA":
+MARCO like
+serine protease 56
+serine peptidase inhibitor Kazal type 6
+novel transcript
+novel transcript
+novel transcript
+serine protease 21
+serine peptidase inhibitor Kazal type 13
+G antigen 12H
+glucagon like peptide 2 receptor
+
+Top 10 values in Column "Kidney":
+LINC02121    5.044086
+LINC02294    4.568717
+ATP6V1G3     4.522475
+TMEM174      4.453135
+NPHS2        4.433253
+TMEM207      4.403540
+LINC02061    4.208533
+FXYD4        4.208331
+SLC7A13      4.188309
+SLC22A8      4.184220
+Name: Kidney, dtype: float64
+
+Gene descriptions for Column "Kidney":
+long intergenic non-protein coding RNA 2121
+long intergenic non-protein coding RNA 2294
+ATPase H+ transporting V1 subunit G3
+transmembrane protein 174
+NPHS2 stomatin family member, podocin
+transmembrane protein 207
+long intergenic non-protein coding RNA 2061
+FXYD domain containing ion transport regulator 4
+solute carrier family 7 member 13
+solute carrier family 22 member 8
+
+Top 10 values in Column "Podocyte":
+OR12D2             5.592075
+DCAF12L1           4.687778
+LRRN4              4.548477
+RNU4-66P           4.409631
+OR2G1P             4.321238
+ENSG00000267509    3.932931
+GDF5               3.922411
+ACTBL2             3.917705
+PAX8               3.906463
+LINC01173          3.728246
+Name: Podocyte, dtype: float64
+
+Gene descriptions for Column "Podocyte":
+olfactory receptor family 12 subfamily D member 2
+DDB1 and CUL4 associated factor 12 like 1
+leucine rich repeat neuronal 4
+RNA, U4 small nuclear 66, pseudogene
+olfactory receptor family 2 subfamily G member 1 pseudogene
+novel transcript
+growth differentiation factor 5
+actin beta like 2
+paired box 8
+long intergenic non-protein coding RNA 1173
+
+Top 10 values in Column "Renal Cortex":
+UMOD         6.631720
+SLC22A12     6.584165
+SLC22A6      6.517108
+TMEM174      6.397713
+SLC34A1      6.395207
+AQP2         6.356677
+SLC13A1      6.327264
+LINC01874    6.258668
+SLC22A8      6.256292
+CDH16        6.217288
+Name: Renal Cortex, dtype: float64
+
+Gene descriptions for Column "Renal Cortex":
+uromodulin
+solute carrier family 22 member 12
+solute carrier family 22 member 6
+transmembrane protein 174
+solute carrier family 34 member 1
+aquaporin 2
+solute carrier family 13 member 1
+long intergenic non-protein coding RNA 1874
+solute carrier family 22 member 8
+cadherin 16
+
+Top 10 values in Column "293F":
+IRS4               5.037777
+MIR4652            4.716655
+MIR924             4.696849
+RNVU1-34           4.584133
+IRS4-AS1           4.583948
+RNU6-800P          4.487419
+HOXD13             4.446249
+RNU6-1242P         4.201699
+ENSG00000221300    4.155279
+CALCB              3.993301
+Name: 293F, dtype: float64
+
+Gene descriptions for Column "293F":
+insulin receptor substrate 4
+microRNA 4652
+microRNA 924
+RNA, variant U1 small nuclear 34
+IRS4 antisense RNA 1
+RNA, U6 small nuclear 800, pseudogene
+homeobox D13
+RNA, U6 small nuclear 1242, pseudogene
+None
+calcitonin related polypeptide beta
+
+Top 10 values in Column "FLPIN TREX 293":
+LINC02226    5.739955
+MIR17        5.530388
+MIR18A       5.527773
+MIR125B2     5.461656
+MIR20A       5.423515
+RNU5E-5P     5.296383
+MIR504       5.169514
+RNA5SP112    5.116829
+MIR421       5.075462
+MIR125A      5.048799
+Name: FLPIN TREX 293, dtype: float64
+
+Gene descriptions for Column "FLPIN TREX 293":
+long intergenic non-protein coding RNA 2226
+microRNA 17
+microRNA 18a
+microRNA 125b-2
+microRNA 20a
+RNA, U5E small nuclear 5, pseudogene
+microRNA 504
+RNA, 5S ribosomal pseudogene 112
+microRNA 421
+microRNA 125a
+
+Top 10 values in Column "HEK293":
+IRS4               4.632556
+HOXD13             4.365263
+IRS4-AS1           4.046146
+LINC02226          3.999334
+KRTAP19-1          3.709836
+HOXD11             3.648789
+MTCO2P25           3.632964
+RNU1-83P           3.563407
+HOXD10             3.562468
+ENSG00000278039    3.527703
+Name: HEK293, dtype: float64
+
+Gene descriptions for Column "HEK293":
+insulin receptor substrate 4
+homeobox D13
+IRS4 antisense RNA 1
+long intergenic non-protein coding RNA 2226
+keratin associated protein 19-1
+homeobox D11
+MT-CO2 pseudogene 25
+RNA, U1 small nuclear 83, pseudogene
+homeobox D10
+None
+
+Top 10 values in Column "C42":
+KLK3               5.969728
+KLK2               5.771855
+MIR1279            5.629779
+PAGE1              5.260559
+ENSG00000252798    5.184733
+ENSG00000288678    5.024416
+KLKP1              4.966244
+KLK15              4.935248
+KLK4               4.869512
+ENSG00000252691    4.856113
+Name: C42, dtype: float64
+
+Gene descriptions for Column "C42":
+kallikrein related peptidase 3
+kallikrein related peptidase 2
+microRNA 1279
+PAGE family member 1
+None
+novel protein
+kallikrein pseudogene 1
+kallikrein related peptidase 15
+kallikrein related peptidase 4
+None
+
+Top 10 values in Column "DU145":
+RPL31P11           5.758768
+SFTA3              4.739680
+NKX2-1-AS1         4.131222
+ENSG00000218048    4.038429
+RPL36AP15          4.007387
+CDRT15P12          3.985190
+CT83               3.928010
+ENSG00000288101    3.851713
+RPSAP71            3.644813
+LINC00707          3.644012
+Name: DU145, dtype: float64
+
+Gene descriptions for Column "DU145":
+ribosomal protein L31 pseudogene 11
+surfactant associated 3
+NKX2-1 antisense RNA 1
+leucine rich repeat containing 59 (LRRC59) pseudogene
+ribosomal protein L36a pseudogene 15
+CDRT15 pseudogene 12
+cancer/testis antigen 83
+novel transcript
+ribosomal protein SA pseudogene 71
+long intergenic non-protein coding RNA 707
+
+Top 10 values in Column "LNCAP":
+PRAC1              5.566249
+LINC02726          5.533092
+KLK3               5.497121
+ENSG00000280881    5.199476
+ADAM7              5.139111
+FOLH1              5.075309
+ENSG00000242407    4.990321
+ENSG00000287915    4.976453
+KLK2               4.948526
+ENSG00000237553    4.933351
+Name: LNCAP, dtype: float64
+
+Gene descriptions for Column "LNCAP":
+PRAC1 small nuclear protein
+long intergenic non-protein coding RNA 2726
+kallikrein related peptidase 3
+novel transcript
+ADAM metallopeptidase domain 7
+folate hydrolase 1
+novel transcript
+novel transcript
+kallikrein related peptidase 2
+insulin-like 4 (placenta) (INSL4) pseudogene
+
+Top 10 values in Column "PC3":
+MSMP               5.728755
+PCDH9-AS1          4.983887
+ENSG00000228683    4.783537
+PRAC1              4.609367
+RNU6-869P          4.561070
+LINC02582          4.403539
+KRT75              4.382049
+ENSG00000271985    4.367144
+ENSG00000236151    4.201611
+HOXB13             4.125336
+Name: PC3, dtype: float64
+
+Gene descriptions for Column "PC3":
+microseminoprotein, prostate associated
+PCDH9 antisense RNA 1
+novel transcript
+PRAC1 small nuclear protein
+RNA, U6 small nuclear 869, pseudogene
+long intergenic non-protein coding RNA 2582
+keratin 75
+acyl-CoA synthetase medium-chain family member 1 (ACSM1) pseudogene
+novel transcript
+homeobox B13
+
+Top 10 values in Column "Ovary":
+LY6G6F             5.777392
+ENSG00000238201    5.756168
+SLC18A2-AS1        5.731457
+SCGB1C2            5.680424
+ANHX               5.673667
+GP9                5.631356
+SCGB1C1            5.589955
+ENSG00000237419    5.496890
+LINC01218          5.495003
+ENSG00000270380    5.287074
+Name: Ovary, dtype: float64
+
+Gene descriptions for Column "Ovary":
+lymphocyte antigen 6 family member G6F
+novel transcript
+SLC18A2 antisense RNA 1
+secretoglobin family 1C member 2
+anomalous homeobox
+glycoprotein IX platelet
+secretoglobin family 1C member 1
+novel transcript
+long intergenic non-protein coding RNA 1218
+novel transcript, antisense to PROK1
+
+Top 10 values in Column "Granulosa":
+HSD3B2             6.385087
+HSD3BP2            6.333811
+ENSG00000286410    5.751769
+RPL17P46           5.740087
+ENSG00000228739    5.701145
+HSD3BP1            5.661768
+ADORA2BP1          5.628038
+RPL21P133          5.606629
+ENSG00000278035    5.596144
+LHCGR              5.575353
+Name: Granulosa, dtype: float64
+
+Gene descriptions for Column "Granulosa":
+hydroxy-delta-5-steroid dehydrogenase, 3 beta- and steroid delta-isomerase 2
+hydroxy-delta-5-steroid dehydrogenase, 3 beta, pseudogene 2
+novel transcript, antisense to SLC41A2
+ribosomal protein L17 pseudogene 46
+novel transcript
+hydroxy-delta-5-steroid dehydrogenase, 3 beta, pseudogene 1
+adenosine A2b receptor pseudogene 1
+ribosomal protein L21 pseudogene 133
+novel transcript
+luteinizing hormone/choriogonadotropin receptor
+
+Top 10 values in Column "Oocyte":
+BMP15              6.816345
+NLRP13             6.812150
+H1-8               6.807764
+TUBB8P4            6.806120
+OOSP4A             6.803405
+ENSG00000218561    6.800698
+TRIM77             6.796440
+OOSP2              6.794184
+LINC02105          6.791283
+WEE2               6.786455
+Name: Oocyte, dtype: float64
+
+Gene descriptions for Column "Oocyte":
+bone morphogenetic protein 15
+NLR family pyrin domain containing 13
+H1.8 linker histone
+tubulin beta 8 class VIII pseudogene 4
+oocyte secreted protein family member 4A
+ribosomal protein L29 (RPL29) pseudogene
+tripartite motif containing 77
+oocyte secreted protein 2
+long intergenic non-protein coding RNA 2105
+WEE2 oocyte meiosis inhibiting kinase
+
+Top 10 values in Column "ES2":
+ENSG00000251460    5.580810
+LNCPRESS1          5.002081
+ENSG00000274652    4.906275
+ZSCAN10            4.868596
+OR7E43P            4.799125
+ENSG00000282048    4.666903
+LNCPRESS2          4.465245
+ENSG00000254277    4.456527
+ENSG00000260362    4.390330
+ENSG00000204368    4.355068
+Name: ES2, dtype: float64
+
+Gene descriptions for Column "ES2":
+novel transcript
+lncRNA p53 regulated and ESC associated 1
+novel transcript
+zinc finger and SCAN domain containing 10
+olfactory receptor family 7 subfamily E member 43 pseudogene
+novel transcript, sense intronic to OLFML3
+lncRNA p53 regulated and ESC associated 2
+novel transcript
+novel transcript
+SSX2 pseudogene (psiSSX2)
+
+Top 10 values in Column "SKOV3":
+RNA5SP414    6.191455
+SNORD18C     6.153318
+RNA5SP413    6.137534
+LINC02167    6.135197
+VTRNA3-1P    6.071112
+MIR10A       6.058941
+SNORD138     6.009658
+CTXND2       6.003936
+SNORD63B     5.952476
+SNORD36B     5.950378
+Name: SKOV3, dtype: float64
+
+Gene descriptions for Column "SKOV3":
+RNA, 5S ribosomal pseudogene 414
+small nucleolar RNA, C/D box 18C
+RNA, 5S ribosomal pseudogene 413
+long intergenic non-protein coding RNA 2167
+vault RNA 3-1, pseudogene
+microRNA 10a
+small nucleolar RNA, C/D box 138
+cortexin domain containing 2
+small nucleolar RNA, C/D box 63B
+small nucleolar RNA, C/D box 36B
+
+Top 10 values in Column "Testis":
+PRM1      6.799715
+PRM2      6.794656
+HMGB4     6.769358
+SMCP      6.765310
+BOD1L2    6.756035
+AKAP4     6.738914
+CETN1     6.738792
+LELP1     6.734238
+ACTRT2    6.710186
+SCP2D1    6.705805
+Name: Testis, dtype: float64
+
+Gene descriptions for Column "Testis":
+protamine 1
+protamine 2
+high mobility group box 4
+sperm mitochondria associated cysteine rich protein
+biorientation of chromosomes in cell division 1 like 2
+A-kinase anchoring protein 4
+centrin 1
+late cornified envelope like proline rich 1
+actin related protein T2
+SCP2 sterol binding domain containing 1

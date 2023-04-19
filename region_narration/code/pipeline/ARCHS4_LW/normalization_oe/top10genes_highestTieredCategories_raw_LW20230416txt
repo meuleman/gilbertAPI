@@ -1,0 +1,224 @@
+Top 10 values in Column "Cardiovascular System":
+MYBPC3             8.470539
+ENSG00000236958    8.351298
+MYL7               8.236753
+ENSG00000286800    8.219700
+ENSG00000287891    8.186218
+NPPA               8.147898
+LINC02502          8.103888
+ENSG00000286820    8.073964
+TNNI3K             7.764016
+ENSG00000286598    7.692011
+Name: Cardiovascular System, dtype: float64
+
+Gene descriptions for Column "Cardiovascular System":
+myosin binding protein C3
+novel transcript
+myosin light chain 7
+novel transcript
+novel transcript
+natriuretic peptide A
+long intergenic non-protein coding RNA 2502
+novel transcript
+TNNI3 interacting kinase
+novel transcript
+
+Top 10 values in Column "Connective Tissue":
+LINC02573          8.243832
+ENSG00000287973    8.194014
+ENSG00000237311    8.117703
+RHAG               8.083788
+ABCB10P4           8.006390
+HBBP1              7.996683
+HBZ                7.980091
+GATA1              7.937128
+ENSG00000264334    7.889233
+LINC01029          7.878699
+Name: Connective Tissue, dtype: float64
+
+Gene descriptions for Column "Connective Tissue":
+long intergenic non-protein coding RNA 2573
+novel transcript
+novel transcript
+Rh associated glycoprotein
+ABCB10 pseudogene 4
+hemoglobin subunit beta pseudogene 1
+hemoglobin subunit zeta
+GATA binding protein 1
+novel transcript
+long intergenic non-protein coding RNA 1029
+
+Top 10 values in Column "Digestive System":
+SERPINA7     8.856079
+F9           8.770093
+AHSG         8.759333
+GC           8.742705
+APOA5        8.715692
+C8A          8.688707
+APCS         8.672126
+SERPINA11    8.669550
+SERPINA4     8.647785
+HAO1         8.634613
+Name: Digestive System, dtype: float64
+
+Gene descriptions for Column "Digestive System":
+serpin family A member 7
+coagulation factor IX
+alpha 2-HS glycoprotein
+GC vitamin D binding protein
+apolipoprotein A5
+complement C8 alpha chain
+amyloid P component, serum
+serpin family A member 11
+serpin family A member 4
+hydroxyacid oxidase 1
+
+Top 10 values in Column "Immune System":
+ACOD1              8.370575
+OCSTAMP            8.030648
+LINC01283          7.812420
+DCSTAMP            7.788770
+FAM205C            7.166311
+TIFAB              7.156926
+LINC01181          7.078782
+ENSG00000225107    7.035909
+LINC02244          7.028670
+CCL1               6.986073
+Name: Immune System, dtype: float64
+
+Gene descriptions for Column "Immune System":
+aconitate decarboxylase 1
+osteoclast stimulatory transmembrane protein
+long intergenic non-protein coding RNA 1283
+dendrocyte expressed seven transmembrane protein
+family with sequence similarity 205 member C
+TIFA inhibitor
+long intergenic non-protein coding RNA 1181
+novel transcript
+long intergenic non-protein coding RNA 2244
+C-C motif chemokine ligand 1
+
+Top 10 values in Column "Integumentary System":
+LCE1A       8.824883
+KRT2        8.761461
+LCE6A       8.743861
+LCE2B       8.733256
+LCE2D       8.663328
+LCE1B       8.646598
+LCE1C       8.617368
+LORICRIN    8.593303
+KRT77       8.539800
+LCE2C       8.497785
+Name: Integumentary System, dtype: float64
+
+Gene descriptions for Column "Integumentary System":
+late cornified envelope 1A
+keratin 2
+late cornified envelope 6A
+late cornified envelope 2B
+late cornified envelope 2D
+late cornified envelope 1B
+late cornified envelope 1C
+loricrin cornified envelope precursor protein
+keratin 77
+late cornified envelope 2C
+
+Top 10 values in Column "Muscular System":
+MYF5               8.865507
+MYH2               8.834827
+MYH1               8.800325
+ENSG00000265751    8.775172
+MYL1               8.752403
+MYF6               8.751103
+MYBPC2             8.702936
+CACNA1S            8.692369
+KLHL40             8.652309
+LINCMD1            8.643024
+Name: Muscular System, dtype: float64
+
+Gene descriptions for Column "Muscular System":
+myogenic factor 5
+myosin heavy chain 2
+myosin heavy chain 1
+novel transcript, antisense to GREB1L
+myosin light chain 1
+myogenic factor 6
+myosin binding protein C2
+calcium voltage-gated channel subunit alpha1 S
+kelch like family member 40
+long intergenic non-protein coding RNA, muscle differentiation 1
+
+Top 10 values in Column "Nervous System":
+RHO                8.658795
+MIR124-2HG         8.628610
+NPVF               8.527001
+PMP2               8.474624
+CACNG3             8.412349
+ENSG00000242768    8.391707
+MIR124-1HG         8.341446
+OPN1LW             8.335272
+RNU7-99P           8.302233
+ENSG00000250092    8.284243
+Name: Nervous System, dtype: float64
+
+Gene descriptions for Column "Nervous System":
+rhodopsin
+MIR124-2 host gene
+neuropeptide VF precursor
+peripheral myelin protein 2
+calcium voltage-gated channel auxiliary subunit gamma 3
+ribosomal protein L31 (RPL31) pseudogene
+MIR124-1 host gene
+opsin 1, long wave sensitive
+RNA, U7 small nuclear 99 pseudogene
+novel transcript
+
+Top 10 values in Column "Respiratory System":
+SFTPA1     8.550688
+SFTPA2     8.354578
+SFTPC      8.236067
+BPIFA1     7.943651
+SFTPB      7.808281
+SCGB1A1    7.522084
+GGTLC1     7.295904
+SCGB3A1    7.171414
+GKN2       7.009569
+SFTA2      6.995929
+Name: Respiratory System, dtype: float64
+
+Gene descriptions for Column "Respiratory System":
+surfactant protein A1
+surfactant protein A2
+surfactant protein C
+BPI fold containing family A member 1
+surfactant protein B
+secretoglobin family 1A member 1
+gamma-glutamyltransferase light chain 1
+secretoglobin family 3A member 1
+gastrokine 2
+surfactant associated 2
+
+Top 10 values in Column "Urogenital System":
+UMOD               8.280226
+DSCAM-AS1          7.920397
+ENSG00000223808    7.725272
+NPHS2              7.556434
+OOSP2              7.489673
+DPPA5              7.243911
+TMEM174            7.165569
+H1-8               7.070261
+RNU6-813P          7.068622
+NLRP13             6.927864
+Name: Urogenital System, dtype: float64
+
+Gene descriptions for Column "Urogenital System":
+uromodulin
+DSCAM antisense RNA 1
+novel transcript
+NPHS2 stomatin family member, podocin
+oocyte secreted protein 2
+developmental pluripotency associated 5
+transmembrane protein 174
+H1.8 linker histone
+RNA, U6 small nuclear 813, pseudogene
+NLR family pyrin domain containing 13
