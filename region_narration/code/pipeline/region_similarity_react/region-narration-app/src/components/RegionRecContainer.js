@@ -360,7 +360,7 @@ class RegionRecContainer extends React.Component {
             detailLevel: this.state.detailLevel,
             maxDetailLevel: this.state.maxDetailLevel
           }}/>
-          <SelectFactors factorProps={{
+          {/* <SelectFactors factorProps={{
             possibleFactors: this.state.possibleFactors, 
             setSelectedFactors: this.setSelectedFactors,
             data: this.state.regionalVals,
@@ -368,7 +368,7 @@ class RegionRecContainer extends React.Component {
             setAutoFactorSelection: this.setAutoFactorSelection,
             setIncluded: this.setIncluded,
             included: this.state.included
-          }}/>
+          }}/> */}
           <Spinner spinnerProps={this.state.spinner}/>
           <DisplaySentence sentenceProps={{
             // sentence: this.state.sentence, 

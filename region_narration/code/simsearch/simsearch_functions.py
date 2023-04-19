@@ -31,6 +31,56 @@ def factor_prod_ranks(roi_percents, percents, target_factors, top_regions):
     return prod_ranks
 
 
+def factor_fusion_ranks(roi_percents, percents, target_factors, top_regions):
+    # init array
+    fusion_ranks = np.zeros(top_regions.shape)
+    # rank values for each of the similar regions at each detail level
+    sim_percents = percents[top_regions[:, 1:]]
+
+    for dl in range(1, len(target_factors) + 1):
+        # fusion of factor ranks for query at detail level
+        query_fusion = 1 - np.prod(1 - (roi_percents[target_factors[:dl]] * 2 - 1))
+        # fusion of factor ranks for similar regions at detail level
+        sim_fusion = 1 - np.prod(1 - (sim_percents[dl-1][:, target_factors[:dl]] * 2 - 1), axis=1)
+        # fusion of factor ranks for search space at detail level
+        search_space_fusion = 1 - np.prod(1 - (percents[:, target_factors[:dl]] * 2 - 1), axis=1)
+
+        # rank query
+        query_fusion_rank = stats.percentileofscore(search_space_fusion, query_fusion, kind='strict')
+        # rank similar regions
+        sim_fusion_ranks = stats.percentileofscore(search_space_fusion, sim_fusion, kind='strict')
+
+        # add ranks to array
+        fusion_ranks[dl - 1][0] = query_fusion_rank
+        fusion_ranks[dl - 1][1:] = sim_fusion_ranks
+    return fusion_ranks
+
+
+def factor_sum_ranks(roi_percents, percents, target_factors, top_regions):
+    # init array
+    sum_ranks = np.zeros(top_regions.shape)
+    # rank values for each of the similar regions at each detail level
+    sim_percents = percents[top_regions[:, 1:]]
+
+    for dl in range(1, len(target_factors) + 1):
+        # fusion of factor ranks for query at detail level
+        query_sum = np.sum(roi_percents[target_factors[:dl]])
+        # fusion of factor ranks for similar regions at detail level
+        sim_sum = np.sum(sim_percents[dl-1][:, target_factors[:dl]], axis=1)
+        # fusion of factor ranks for search space at detail level
+        search_space_sum = np.sum(percents[:, target_factors[:dl]], axis=1)
+
+        # rank query
+        query_sum_rank = stats.percentileofscore(search_space_sum, query_sum, kind='strict')
+        # rank similar regions
+        sim_sum_ranks = stats.percentileofscore(search_space_sum, sim_sum, kind='strict')
+
+        # add ranks to array
+        sum_ranks[dl - 1][0] = query_sum_rank
+        sum_ranks[dl - 1][1:] = sim_sum_ranks
+    return sum_ranks
+
+
 def roiURL(roi, top_regions, detail_level, target_factors_str,
            link_type='dual'):
     today = date.today()
@@ -96,7 +146,10 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
 
     # convolution
     roi_percents_targeted = roi_percents[target_factors]
-    roi_conv_all = percents[:, target_factors] * roi_percents_targeted
+    # normal convolution
+    # roi_conv_all = percents[:, target_factors] * roi_percents_targeted
+    # penalized convolution
+    roi_conv_all = ((percents[:, target_factors] * 2) - 1) * ((roi_percents_targeted * 2) - 1)
 
     # fusion
     roi_sim_all = []
@@ -155,7 +208,9 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
                 break
 
     # rank of query factor products for each detail level
-    query_sim_prod_ranks = factor_prod_ranks(roi_percents, percents, target_factors, top_regions)
+    # query_sim_prod_ranks = factor_prod_ranks(roi_percents, percents, target_factors, top_regions)
+    # query_sim_prod_ranks = factor_fusion_ranks(roi_percents, percents, target_factors, top_regions)
+    query_sim_prod_ranks = factor_sum_ranks(roi_percents, percents, target_factors, top_regions)
 
     # factor percentile significance
     pval, Z = top_region_sig(percents, top_regions)

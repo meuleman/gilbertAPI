@@ -8,9 +8,9 @@ function FactorHeatmap (props) {
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
 
-            const margin = { top: 100, right: 325, left: 200, bottom: 100 }
+            const margin = { top: 100, right: 275, left: 150, bottom: 100 }
             const height = 700
-            const width = 1300
+            const width = 1200
             const sigHeight = 60
             const zMax = 20
             const zMin = -10
@@ -19,7 +19,7 @@ function FactorHeatmap (props) {
             const gap1 = 50
             const gap2 = 25
             const browserButtonWidth = 25
-            const indexButtonX = 0
+            const indexButtonX = -50
             const epilogosButtonX = indexButtonX + browserButtonWidth + 5
             const queryButtonX = margin.left - 60
             
@@ -193,7 +193,7 @@ function FactorHeatmap (props) {
 
             heatmapsvg.append('g')
                 .style('font', '10px sans-serif')
-                .attr("transform", "translate(-10, 0)")
+                .attr("transform", "translate(-60, 0)")
                 .call(d3.axisLeft(y).tickSize(0))
                 .call((g) => {return g.select(".domain").remove()})
 
@@ -849,7 +849,7 @@ function FactorHeatmap (props) {
         }
     })
     return (
-        <div id='factorHeatmap' />
+        <div className='factor-heatmap' id='factorHeatmap' />
     )
 };
 

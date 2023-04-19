@@ -10,6 +10,7 @@ body {
   color: #444;
   background: #fff;
   height: 100vh;
+  min-width: 1350px;
 }
 
 .container {

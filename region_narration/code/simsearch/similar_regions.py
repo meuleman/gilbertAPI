@@ -42,15 +42,26 @@ def load_ranks(query_path, search_space_path):
     coords = search_space['coordinates']
 
 
+# find the factors we want to search over
 def setup_included_factors(included_factors_str, query_factor_thresh):
     global included_factors
-    included_factors = np.int_(
+
+    included_factors_from_str = np.int_(
         included_factors_str.strip('[').strip(']').split(',')
     )
     query_factors_above_thresh = np.where(roi_percents > query_factor_thresh)[0]
-    included_factors = included_factors[
-        np.isin(included_factors, query_factors_above_thresh)
-    ]
+
+    # if no factors above threshold, search best one
+    if len(query_factors_above_thresh) == 0:
+        sort_order = np.argsort(-roi_percents)
+        included_factors = sort_order[
+            np.isin(sort_order, included_factors_from_str)
+        ][:1]
+    else:
+        included_factors = included_factors_from_str[
+            np.isin(included_factors_from_str, query_factors_above_thresh)
+        ]
+
 
 
 def find_most_similar_region_indices(num_similar_regions):
