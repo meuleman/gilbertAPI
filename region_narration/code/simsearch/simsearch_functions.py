@@ -3,6 +3,32 @@ from datetime import date
 import h5py
 import os
 import scipy.stats as stats
+# from scipy.stats import percentileofscore
+
+
+def factor_prod_ranks(roi_percents, percents, target_factors, top_regions):
+    # init array
+    prod_ranks = np.zeros(top_regions.shape)
+    # rank values for each of the similar regions at each detail level
+    sim_percents = percents[top_regions[:, 1:]]
+
+    for dl in range(1, len(target_factors) + 1):
+        # product of factor ranks for query at detail level
+        query_prod = np.prod(roi_percents[target_factors[:dl]])
+        # product of factor ranks for similar regions at detail level
+        sim_prod = np.prod(sim_percents[dl-1][:, target_factors[:dl]], axis=1)
+        # product of factor ranks for search space at detail level
+        search_space_prod = np.prod(percents[:, target_factors[:dl]], axis=1)
+
+        # rank query
+        query_prod_rank = stats.percentileofscore(search_space_prod, query_prod, kind='strict')
+        # rank similar regions
+        sim_prod_ranks = stats.percentileofscore(search_space_prod, sim_prod, kind='strict')
+
+        # add ranks to array
+        prod_ranks[dl - 1][0] = query_prod_rank
+        prod_ranks[dl - 1][1:] = sim_prod_ranks
+    return prod_ranks
 
 
 def roiURL(roi, top_regions, detail_level, target_factors_str,
@@ -128,6 +154,9 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
             if regions_added == num_similar_regions:
                 break
 
+    # rank of query factor products for each detail level
+    query_sim_prod_ranks = factor_prod_ranks(roi_percents, percents, target_factors, top_regions)
+
     # factor percentile significance
     pval, Z = top_region_sig(percents, top_regions)
 
@@ -146,7 +175,7 @@ def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors,
     ))
 
     return (top_regions, top_region_coords, return_sim, return_per,
-            query_factor_order, target_factors, pval, Z)
+            query_factor_order, target_factors, pval, Z, query_sim_prod_ranks)
 
 def narrate_detail_level(top_regions, roi_per, factor_order, metric_order, included_factors, detail_level, conversion_dict, metriccolors, thresh=0.9):
     query = top_regions[0]

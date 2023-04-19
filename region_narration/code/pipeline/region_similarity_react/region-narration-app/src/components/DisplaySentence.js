@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import factorsArr from '../factors.json'
 
 function DisplaySentence (props) {
+  // useEffect(() => {
   if (props.sentenceProps.data !== '') {
     const queryRegion = props.sentenceProps.data[0]
+
+    // const queryProdRank = queryRegion.prod_rank
     const targetFactors = queryRegion.target_factors
     const queryFactorOrder = queryRegion.query_factor_order
     const metrics = queryFactorOrder.map((ind) => {
@@ -15,6 +18,7 @@ function DisplaySentence (props) {
     const percentiles = queryRegion.percentiles
     const detailLevel = props.sentenceProps.detailLevel
     const thresh = Math.sqrt(0.9)
+    const maxHeight = 110
     let sentence = "This region is characterized by "
     const conversion = {
       'EnhA1': 'active enhancer 1',
@@ -81,15 +85,54 @@ function DisplaySentence (props) {
       return null
     })
     sentence += "."
+
+    // add query product rank for detail level
+    // sentence += " (" + String(Math.round(queryProdRank * 100) / 100) + "%)"
     
+    
+    // console.log(sentence.length)
+    let sentenceFontSize = 20
+    if (sentence.length > 290) {
+      sentenceFontSize = 18
+    }
+
+    // const getSentenceHeight = () => {
+    //   return new Promise((resolve) => {
+    //     let height = ""
+    //     height = document.getElementById('sentence-div').offsetHeight
+    //     if (height !== "") {
+    //       resolve(height)
+    //     }
+    //   })
+    // }
+
+    // async function changeFontSize() {
+    //   let needToChange = true
+    //   while (needToChange) {
+    //     const height = await getSentenceHeight()
+    //     if (height > maxHeight) {
+    //       sentenceFontSize -= 1
+    //       console.log("yes", height, sentenceFontSize)
+    //       needToChange = false
+    //     } else {
+    //       needToChange = false
+    //       console.log("no", height)
+    //     }
+    //   }
+    // }
+
+    // changeFontSize()
+  // }
+  // })
     return (
       <div className='sentence-box'>
         <div className='sentence-header'><b>Region Summary</b></div>
         {/* <div className='sentence-body' dangerouslySetInnerHTML={{__html: props.sentenceProps.sentence}} /> */}
-        <div className='sentence-body'>{sentence}</div>
+        <div className='sentence-body' id='sentence-div' style={{'fontSize': String(sentenceFontSize) + 'px'}}>{sentence}</div>
       </div>
     )
-  } else {
+  } 
+  else {
     return (
       <div />
     )

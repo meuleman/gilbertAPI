@@ -8,7 +8,7 @@ function FactorHeatmap (props) {
     useEffect(() => {
         if (props.heatmapProps.data !== "") {
 
-            const margin = { top: 75, right: 325, left: 200, bottom: 100 }
+            const margin = { top: 100, right: 325, left: 200, bottom: 100 }
             const height = 700
             const width = 1300
             const sigHeight = 60
@@ -16,7 +16,8 @@ function FactorHeatmap (props) {
             const zMin = -10
             const queryHeight = 60
             const colorHeight = 5
-            const gap = 50
+            const gap1 = 50
+            const gap2 = 25
             const browserButtonWidth = 25
             const indexButtonX = 0
             const epilogosButtonX = indexButtonX + browserButtonWidth + 5
@@ -24,14 +25,12 @@ function FactorHeatmap (props) {
             
             const legendX = width - margin.right + 10
             const legendWidth = 20
-            const searchButtonX = legendX + legendWidth + 50
+            const prodFactorRankX = legendX + legendWidth + 50
+            const searchButtonX = prodFactorRankX + 50
             const searchButtonWidth = 25
             const simFactorXStart = searchButtonX + searchButtonWidth + 10
             const simFactorXWidth = colorHeight * 34
             const simThresh = 0.9
-
-
-
 
             // data
             const data = props.heatmapProps.data
@@ -72,9 +71,6 @@ function FactorHeatmap (props) {
                 )
             }))
 
-            
-            
-
             const queryDataFlat = dataFlat.slice(0,34)
             const heatmapData = dataFlat.slice(34)
 
@@ -113,11 +109,19 @@ function FactorHeatmap (props) {
                 })
             })
 
+            const prodFactorRanks = data.map((d) => {
+                return {
+                    rank: d.rank,
+                    prodFactorRank: d.prod_rank
+                }
+            })
+
+
+
             // clear document
             if (document.getElementById('factorHeatmap').getElementsByTagName('*').length !== 0) {
                 d3.select('svg').remove()
                 d3.selectAll("div.tooltip").remove()
-                // document.getElementById('factorHeatmap').removeChild(document.getElementById('factorHeatmap').lastElementChild)
             }
 
             // container
@@ -147,10 +151,6 @@ function FactorHeatmap (props) {
             const simFactorX = d3.scaleBand()
                 .domain([...Array(colLabels.length).keys()])
                 .range([simFactorXStart, simFactorXStart + simFactorXWidth])
-            // heatmapsvg.append('g')
-            //     .attr('class', 'x axis')
-            //     .attr('transform', `translate(0, ${queryHeight + gap})`)
-            //     .call(d3.axisTop(simFactorX).tickValues([]).tickSize(0))
 
             // colors for each factor
             const topColorY = d3.scaleBand()
@@ -173,7 +173,7 @@ function FactorHeatmap (props) {
             // colors for each factor
             const botColorY = d3.scaleBand()
                 .domain(["Factor Colors"])
-                .range([queryHeight + gap - colorHeight, queryHeight + gap])
+                .range([queryHeight + gap1 - colorHeight, queryHeight + gap1])
                 .padding(0.1)
             heatmapsvg.append('g')
 
@@ -181,7 +181,7 @@ function FactorHeatmap (props) {
             // heatmap y axis
             const y = d3.scaleBand()
                 .domain(heatmapData.map(d => d.rank))
-                .range([queryHeight + gap, height - margin.bottom - sigHeight])
+                .range([queryHeight + gap1, height - margin.bottom - sigHeight])
                 .padding(0.1)
             heatmapsvg.append('g')
                 .style('font', '10px sans-serif')
@@ -197,22 +197,17 @@ function FactorHeatmap (props) {
                 .call(d3.axisLeft(y).tickSize(0))
                 .call((g) => {return g.select(".domain").remove()})
 
-
             // z score y axis
             const sigTicks = [...Array(((zMax - zMin) / 10) + 1).keys()].map((val) => {
                 return val * 10 - 10
             })
             const sigY = d3.scaleLinear()
                 .domain([zMax, zMin])
-                .range([height - margin.bottom - sigHeight, height - margin.bottom])
+                .range([height - margin.bottom - sigHeight + gap2, height - margin.bottom + gap2])
             heatmapsvg.append('g')
                 .style('font', '8px sans-serif')
                 .attr("transform", "translate(" + margin.left + ", 0)")
                 .call(d3.axisLeft(sigY).tickValues(sigTicks))
-
-            
-
-            // console.log(height - margin.bottom - sigHeight, height - margin.bottom)
             
             // colors for each factor
             const color = d3.scaleOrdinal()
@@ -243,13 +238,13 @@ function FactorHeatmap (props) {
             // heatmap legend y axis
             const legendY = d3.scaleLinear()
                 .domain([1, 0])
-                .range([queryHeight + gap, height - margin.bottom - sigHeight])
+                .range([queryHeight + gap1, height - margin.bottom - sigHeight])
             heatmapsvg.append('g')
                 .style('font', '8px sans-serif')
                 .attr("transform", "translate(" + (legendX + legendWidth) + ", 0)")
                 .call(d3.axisRight(legendY).tickValues([0, 0.25, 0.50, 0.75, 1.0]).tickFormat(d3.format(".0%")))
 
-            // tool tip
+            // tooltip
             const tooltip = heatmapContainer
                 .append('div')
                 .style('opacity', 0)
@@ -264,119 +259,72 @@ function FactorHeatmap (props) {
                 .style('z-index', -1)
                 .style('max-width', '500px')
 
-            // click tracker
-            // let clicked = false
-            // const mouseclick = function () {
-            //     clicked = !clicked
-            //     if (!clicked) {
-            //         heatmapsvg.selectAll("rect")
-            //             .style("stroke", "none")
-            //     }
-            // }
-            // const [clicked, setClicked] = useState(
-            //     false
-            // );
-            // const mouseclick = function () {
-            //     setClicked(!clicked)
-            // }
-
             // mouseover for heatmap 
             const mouseover = function (d, cellData) {
-                // if (!(clicked)) {
-                    const factor = cellData.factor
-                    // const rank = cellData.rank
-                    const percentile = Math.round((cellData.percentile * 100) * 10) / 10
-                    // const coords = cellData.coords
-                    // const regionInd = cellData.regionInd
-                    // const regionChr = coords.split(':')[0]
-                    // const regionStart = coords.split(':')[1].split('-')[0]
-                    // const regionEnd = coords.split(':')[1].split('-')[1]
-                    // const sentence = cellData.sentence
-                    const score = Math.round(cellData.score * 10000) / 10000
-                    // var searchFromSim = () => props.heatmapProps.search(regionInd)
-                    // const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
-                    // const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
-                    // if (roiURL != "roiURL not available") {
-                    //     var roiURLTag = "<br><a href=" + roiURL + " target=_blank rel=noopener noreferrer>roiURL</a>"
-                    // } else {
-                    //     var roiURLTag = ""
-                    // }
-                    tooltip
-                        .html("Similarity Score: " + score +
-                        "<br>" + factor + ": " + percentile + "%" //+ "<br>" + sentence +
-                        // "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
-                        // "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>" +
-                        // roiURLTag +
-                        // "<br><button id='tooltipButton'>Search From This Region</button>"
-                        )
-                        .style('opacity', 1)
-                        .style('z-index', 1)
-                    // document.getElementById("tooltipButton").addEventListener("click", searchFromSim)
-                    d3.select(this)
-                        .style("stroke", "black")
-                        .style("stroke-width", "1")
-                // }
+                const factor = cellData.factor
+                const percentile = Math.round((cellData.percentile * 100) * 10) / 10
+                const score = Math.round(cellData.score * 10000) / 10000
+                tooltip
+                    .html("Similarity Score: " + score +
+                    "<br>" + factor + ": " + percentile + "%")
+                    .style('opacity', 1)
+                    .style('z-index', 1)
+                d3.select(this)
+                    .style("stroke", "black")
+                    .style("stroke-width", "1")
             }
 
             // mouseover for z score bar plot
             const mouseoverSig = function (d, cellData) {
-                // if (!(clicked)) {
-                    const Zscore = Math.round(cellData.zscore * 10000) / 10000
-                    const factor = cellData.factor
-                    tooltip
-                        .html(factor + " Z-score: " + Zscore)
-                        .style('opacity', 1)
-                        .style('z-index', 1)
-                    d3.select(this)
-                        .style("stroke", "black")
-                        .style("stroke-width", "1")
-                // }
+                const Zscore = Math.round(cellData.zscore * 10000) / 10000
+                const factor = cellData.factor
+                tooltip
+                    .html(factor + " Z-score: " + Zscore)
+                    .style('opacity', 1)
+                    .style('z-index', 1)
+                d3.select(this)
+                    .style("stroke", "black")
+                    .style("stroke-width", "1")
             }
 
             // mouseover for query region bar chart
             const mouseoverQuery = function (d, cellData) {
-                // if (!(clicked)) {
-                    const factor = cellData.factor
-                    // const rank = cellData.rank
-                    const percentile = Math.round((cellData.percentile * 100) * 10) / 10
-                    // const coords = cellData.coords
-                    // const regionChr = coords.split(':')[0]
-                    // const regionStart = coords.split(':')[1].split('-')[0]
-                    // const regionEnd = coords.split(':')[1].split('-')[1]
-                    // const sentence = cellData.sentence
-        
-                    // const indexPath = 'https://index.altius.org:1234/?application=viewer&mode=pd&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&dtt=200000&dtc=av3&gatt=cv&gac=off'
-                    // const epilogosPath = 'https://epilogos.altius.org:1234/?application=viewer&sampleSet=vC&mode=single&genome=hg38&model=18&complexity=KL&group=all&chrLeft=' + regionChr + '&chrRight=' + regionChr + '&start=' + regionStart + '&stop=' + regionEnd + '&gatt=cv'
-                    tooltip
-                        .html(factor + ": " + percentile + "%" // + "<br>" + //sentence +
-                        // "<br><a href=" + indexPath + " target=_blank rel=noopener noreferrer>Index Browser</a>" +
-                        // "<br><a href=" + epilogosPath + " target=_blank rel=noopener noreferrer>Epilogos Browser</a>")
-                        )
-                        .style('opacity', 1)
-                        .style('z-index', 1)
-                    d3.select(this)
-                        .style("stroke", "black")
-                        .style("stroke-width", "1")
-                // }
+                const factor = cellData.factor
+                const percentile = Math.round((cellData.percentile * 100) * 10) / 10
+                tooltip
+                    .html(factor + ": " + percentile + "%")
+                    .style('opacity', 1)
+                    .style('z-index', 1)
+                d3.select(this)
+                    .style("stroke", "black")
+                    .style("stroke-width", "1")
+            }
+
+            // mouseover for convolution bars
+            const mouseoverConv = function (d, cellData) {
+                const factor = cellData.factor
+                tooltip
+                    .html(factor)
+                    .style('opacity', 1)
+                    .style('z-index', 1)
+                d3.select(this)
+                    .style("stroke", "black")
+                    .style("stroke-width", "1")
             }
 
             // mousemove
             const mousemove = function (e) {
-                // if (!(clicked)) {
-                    tooltip.style('left', (e.pageX + 20) + 'px')
-                    tooltip.style('top', (e.pageY) + 'px')
-                // };
+                tooltip.style('left', (e.pageX + 20) + 'px')
+                tooltip.style('top', (e.pageY) + 'px')
             }
 
             // mouseleave
-            const mouseleave = function (d) {
-                // if (!(clicked)) {
-                    tooltip
-                        .style('opacity', 0)
-                        .style('z-index', -1)
-                    d3.select(this)
-                        .style("stroke", "none")
-                // }
+            const mouseleave = function () {
+                tooltip
+                    .style('opacity', 0)
+                    .style('z-index', -1)
+                d3.select(this)
+                    .style("stroke", "none")
             }
 
             const labelTooltip = heatmapContainer
@@ -392,93 +340,52 @@ function FactorHeatmap (props) {
                 .style('z-index', -1)
                 .style('max-width', '500px')
 
-
-            // // mouseover for query region bar chart label
-            // const mouseoverQueryLabel = function () {
-            //     labelTooltip
-            //         .html("<div style= font-size:10px; >Ranks for factors in the query region</div>")
-            //         .style('opacity', 1)
-            //         .style('z-index', 1)
-            // }
-
-            // // mouseover for heatmap label
-            // const mouseoverHeatmapLabel = function () {
-            //     labelTooltip
-            //         .html("<div style= font-size:10px; >Ranks for factors in similar regions</div>")
-            //         .style('opacity', 1)
-            //         .style('z-index', 1)
-            // }
-
-            // // mouseover for z score label
-            // const mouseoverSigLabel = function () {
-            //     labelTooltip
-            //         .html("<div style= font-size:10px; >Significance of factor ranks in similar regions</div>")
-            //         .style('opacity', 1)
-            //         .style('z-index', 1)
-            // }
-
-            // mouseover for scale max line
-            const mouseoverMax = function () {
+            // mouseover for labels
+            const mouseoverLabel = function (label) {
                 labelTooltip
-                    .html("<div style= font-size:10px; >Max Rank in Similar Regions</div>")
+                    .html("<div style= font-size:10px; >" + label + "</div>")
                     .style('opacity', 1)
                     .style('z-index', 1)
             }
 
-            // mouseover for scale min line
-            const mouseoverMin = function () {
-                labelTooltip
-                    .html("<div style= font-size:10px; >Min Rank in Similar Regions</div>")
-                    .style('opacity', 1)
-                    .style('z-index', 1)
-            }
-
-            // mouseover for scale mean line
-            const mouseoverMean = function () {
-                labelTooltip
-                    .html("<div style= font-size:10px; >Mean Rank in Similar Regions</div>")
-                    .style('opacity', 1)
-                    .style('z-index', 1)
-            }
-
-            // mousemove
+            // mousemove for labels
             const mousemoveLabel = function (e) {
                 labelTooltip.style('left', (e.pageX + 20) + 'px')
                 labelTooltip.style('top', (e.pageY) + 'px')
             }
 
-            // mouseleave
+            // mouseleave for labels
             const mouseleaveLabel = function () {
                 labelTooltip
                     .style('opacity', 0)
                     .style('z-index', -1)
             }
 
-            // // query region bar chart label
-            // heatmapsvg.append("text")
-            //     .attr("class", "y label")
-            //     .attr("text-anchor", "middle")
-            //     .attr("x", -30)
-            //     .attr("y", -10)
-            //     .attr("transform", "rotate(-90)")
-            //     .style('font', '13px sans-serif')
-            //     .text("Query Region")
-            //     .on('mouseover', mouseoverQueryLabel)
-            //     .on('mousemove', mousemoveLabel)
-            //     .on('mouseleave', mouseleaveLabel)
+            // query region bar chart label
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "end")
+                .attr("y", -10)
+                .attr("x", margin.left - 20)
+                // .attr("transform", "rotate(-90)")
+                .style('font', '13px sans-serif')
+                .text("Query Region")
+                .on('mouseover', () => mouseoverLabel("Ranks for factors in the query region"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
 
-            // // add similar regions label
-            // heatmapsvg.append("text")
-            //     .attr("class", "y label")
-            //     .attr("text-anchor", "middle")
-            //     .attr("x", -(height) / 3 - 65)
-            //     .attr("y", -10)
-            //     .attr("transform", "rotate(-90)")
-            //     .style('font', '13px sans-serif')
-            //     .text("Similar Regions")
-            //     .on('mouseover', mouseoverHeatmapLabel)
-            //     .on('mousemove', mousemoveLabel)
-            //     .on('mouseleave', mouseleaveLabel)
+            // add similar regions label
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "end")
+                .attr("y", 100)
+                .attr("x", margin.left - 20)
+                // .attr("transform", "rotate(-90)")
+                .style('font', '13px sans-serif')
+                .text("Similar Regions")
+                .on('mouseover', () => mouseoverLabel("Ranks for factors in similar regions"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
             
             // // add colorbar label
             // heatmapsvg.append("text")
@@ -490,18 +397,18 @@ function FactorHeatmap (props) {
             //     .style('font', '13px sans-serif')
             //     .text("Rank")
 
-            // // add z score bar chart label
-            // heatmapsvg.append("text")
-            //     .attr("class", "y label")
-            //     .attr("text-anchor", "middle")
-            //     .attr("x", -(height - margin.bottom) + 30)
-            //     .attr("y", -10)
-            //     .attr("transform", "rotate(-90)")
-            //     .style('font', '13px sans-serif')
-            //     .text("Rank Enrichment")
-            //     .on('mouseover', mouseoverSigLabel)
-            //     .on('mousemove', mousemoveLabel)
-            //     .on('mouseleave', mouseleaveLabel)
+            // add z score bar chart label
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "end")
+                .attr("y", 560)
+                .attr("x", margin.left - 20)
+                // .attr("transform", "rotate(-90)")
+                .style('font', '13px sans-serif')
+                .text("Rank Enrichment")
+                .on('mouseover', () => mouseoverLabel("Z-score of factor ranks in similar regions"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
         
             // add factor heatmap
             heatmapsvg.selectAll()
@@ -517,7 +424,6 @@ function FactorHeatmap (props) {
                     .on('mouseover', mouseover)
                     .on('mousemove', mousemove)
                     .on('mouseleave', mouseleave)
-                    // .on('click', mouseclick)
 
             
             const simFactorData = heatmapData.filter((d) => {
@@ -546,6 +452,10 @@ function FactorHeatmap (props) {
                     .style("fill", function(d) {return color(d.factor)})
                     .style("stroke-width", 0.1)
                     .style("stroke", "black")
+                    .on('mouseover', mouseoverConv)
+                    .on("mousemove", mousemove)
+                    .on("mouseleave", mouseleave)
+
             
             const linkClick = (d) => {
                 const buttonData = d.srcElement.__data__
@@ -688,7 +598,6 @@ function FactorHeatmap (props) {
                         "browser": "epilogos"
                     }})
                     .on("click", (d) => {linkClick(d)})
-
             heatmapsvg.selectAll()
                 .data(data.slice(0, 1))
                 .join("text")
@@ -739,6 +648,50 @@ function FactorHeatmap (props) {
                     .on("click", (d) => {linkClick(d)})
 
 
+            // Product of factor ranks
+            heatmapsvg.selectAll()
+                .data(prodFactorRanks)
+                    .join("text")
+                        .attr("x", prodFactorRankX)
+                        .attr("y", function(d) {
+                            if (d.rank === 0) {
+                                return queryY(0.5) + 4
+                            } else {
+                                return y(d.rank) + y.bandwidth() - 5
+                            }
+                            
+                        })
+                        .attr("text-anchor", "start")
+                        .style('font', '12px sans-serif')
+                        .text(function(d) {
+                            return String(
+                                Math.round(d.prodFactorRank * 100) / 100
+                            ) + "%"
+                        })
+
+            // Product of Factor Ranks Label
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "middle")
+                .attr("y", queryY(1))
+                .attr("x", prodFactorRankX + 18)
+                .style('font', '13px sans-serif')
+                .text("Factor Combination")
+                .on('mouseover', () => mouseoverLabel("Regional ranks for factors used in similarity search"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "middle")
+                .attr("y", queryY(0.75))
+                .attr("x", prodFactorRankX + 18)
+                .style('font', '13px sans-serif')
+                .text("Ranks")
+                .on('mouseover', () => mouseoverLabel("Regional ranks for factors used in similarity search"))
+                .on('mousemove', mousemoveLabel)
+                .on('mouseleave', mouseleaveLabel)
+
+            // search from here button
             heatmapsvg.selectAll()
                 .data(data.slice(1))
                 .join("rect")
@@ -790,7 +743,7 @@ function FactorHeatmap (props) {
                 .attr("y1", legendY(maxRank))
                 .attr("x2", legendX + legendWidth)
                 .attr("y2", legendY(maxRank))
-                .on('mouseover', mouseoverMax)
+                .on('mouseover', () => mouseoverLabel("Max Rank in Similar Regions"))
                 .on('mousemove', mousemoveLabel)
                 .on('mouseleave', mouseleaveLabel)
 
@@ -802,7 +755,7 @@ function FactorHeatmap (props) {
                 .attr("y1", legendY(meanRank))
                 .attr("x2", legendX + legendWidth)
                 .attr("y2", legendY(meanRank))
-                .on('mouseover', mouseoverMean)
+                .on('mouseover', () => mouseoverLabel("Mean Rank in Similar Regions"))
                 .on('mousemove', mousemoveLabel)
                 .on('mouseleave', mouseleaveLabel)
             
@@ -814,7 +767,7 @@ function FactorHeatmap (props) {
                 .attr("y1", legendY(minRank))
                 .attr("x2", legendX + legendWidth)
                 .attr("y2", legendY(minRank))
-                .on('mouseover', mouseoverMin)
+                .on('mouseover', () => mouseoverLabel("Min Rank in Similar Regions"))
                 .on('mousemove', mousemoveLabel)
                 .on('mouseleave', mouseleaveLabel)
 

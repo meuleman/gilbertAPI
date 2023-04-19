@@ -16,6 +16,10 @@ body {
   margin: 0 auto;
 }
 
+.genomic-narration-header {
+  cursor: pointer;
+}
+
 .region {
   display: flex;
   flex-direction: column;
