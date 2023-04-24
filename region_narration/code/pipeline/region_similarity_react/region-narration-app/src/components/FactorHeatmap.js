@@ -326,12 +326,18 @@ function FactorHeatmap (props) {
             }
 
             // mouseleave
-            const mouseleave = function () {
+            const mouseleave = function (strokeWidth="none") {
                 tooltip
                     .style('opacity', 0)
                     .style('z-index', -1)
-                d3.select(this)
-                    .style("stroke", "none")
+                if (strokeWidth !== "none") {
+                    d3.select(this)
+                        .style("stroke", 'black')
+                        .style("stroke-width",strokeWidth)
+                } else {
+                    d3.select(this)
+                        .style("stroke", "none")
+                }
             }
 
             const labelTooltip = heatmapContainer
@@ -430,7 +436,8 @@ function FactorHeatmap (props) {
                     .style("stroke", "none")
                     .on('mouseover', mouseover)
                     .on('mousemove', mousemove)
-                    .on('mouseleave', mouseleave)
+                    // .on('mouseleave', mouseleave)
+                    .on('mouseleave', function() {mouseleave.bind(this)("none")})
 
             
             // const simFactorData = heatmapData.filter((d) => {
@@ -474,7 +481,7 @@ function FactorHeatmap (props) {
                     .style("stroke", "black")
                     .on('mouseover', mouseoverConv)
                     .on("mousemove", mousemove)
-                    .on("mouseleave", mouseleave)
+                    .on('mouseleave', function() {mouseleave.bind(this)(0.1)})
 
             
             const linkClick = (d) => {
@@ -804,7 +811,8 @@ function FactorHeatmap (props) {
                     .style("stroke", "none")
                     .on('mouseover', mouseoverSig)
                     .on('mousemove', mousemove)
-                    .on('mouseleave', mouseleave)
+                    // .on('mouseleave', mouseleave)
+                    .on('mouseleave', function() {mouseleave.bind(this)("none")})
                     // .on('click', mouseclick)
 
             // add line at 0 for z score bar chart
@@ -854,7 +862,8 @@ function FactorHeatmap (props) {
                     .style("stroke", "none")
                     .on('mouseover', mouseoverQuery)
                     .on('mousemove', mousemove)
-                    .on('mouseleave', mouseleave)
+                    // .on('mouseleave', mouseleave)
+                    .on('mouseleave', function() {mouseleave.bind(this)("none")})
                     // .on('click', mouseclick)
 
             // line at 50% in query region bar chart
