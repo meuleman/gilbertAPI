@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.0.0-alpha.8",
-    "yarn": "^1.22.19"
-  }
-}
