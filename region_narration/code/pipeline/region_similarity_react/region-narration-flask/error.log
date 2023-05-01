@@ -1,0 +1,32 @@
+[2023-04-26 11:42:25 -0700] [81952] [INFO] Starting gunicorn 20.1.0
+[2023-04-26 11:42:25 -0700] [81952] [INFO] Listening at: http://0.0.0.0:5435 (81952)
+[2023-04-26 11:42:25 -0700] [81952] [INFO] Using worker: sync
+[2023-04-26 11:42:25 -0700] [81954] [INFO] Booting worker with pid: 81954
+[2023-04-26 11:42:32 -0700] [81952] [INFO] Handling signal: int
+[2023-04-26 11:42:32 -0700] [81954] [INFO] Worker exiting (pid: 81954)
+[2023-04-26 11:42:32 -0700] [81952] [INFO] Shutting down: Master
+[2023-04-26 11:42:54 -0700] [81957] [INFO] Starting gunicorn 20.1.0
+[2023-04-26 11:42:54 -0700] [81957] [INFO] Listening at: http://127.0.0.1:5435 (81957)
+[2023-04-26 11:42:54 -0700] [81957] [INFO] Using worker: sync
+[2023-04-26 11:42:54 -0700] [81959] [INFO] Booting worker with pid: 81959
+[2023-04-26 11:44:07 -0700] [81957] [INFO] Handling signal: int
+[2023-04-26 11:44:07 -0700] [81959] [INFO] Worker exiting (pid: 81959)
+[2023-04-26 11:44:07 -0700] [81957] [INFO] Shutting down: Master
+[2023-04-26 11:44:14 -0700] [81965] [INFO] Starting gunicorn 20.1.0
+[2023-04-26 11:44:14 -0700] [81965] [INFO] Listening at: http://127.0.0.1:5435 (81965)
+[2023-04-26 11:44:14 -0700] [81965] [INFO] Using worker: sync
+[2023-04-26 11:44:14 -0700] [81967] [INFO] Booting worker with pid: 81967
+[2023-04-26 12:04:28 -0700] [81965] [INFO] Handling signal: winch
+[2023-04-26 12:09:24 -0700] [81965] [INFO] Handling signal: winch
+[2023-04-26 17:07:03 -0700] [81965] [CRITICAL] WORKER TIMEOUT (pid:81967)
+[2023-04-26 17:07:04 -0700] [81967] [INFO] Worker exiting (pid: 81967)
+[2023-04-26 17:07:04 -0700] [84477] [INFO] Booting worker with pid: 84477
+[2023-04-26 17:42:41 -0700] [81965] [CRITICAL] WORKER TIMEOUT (pid:84477)
+[2023-04-26 17:42:41 -0700] [84477] [INFO] Worker exiting (pid: 84477)
+[2023-04-26 17:42:42 -0700] [84499] [INFO] Booting worker with pid: 84499
+[2023-04-26 17:48:51 -0700] [81965] [CRITICAL] WORKER TIMEOUT (pid:84499)
+[2023-04-26 17:48:52 -0700] [84499] [INFO] Worker exiting (pid: 84499)
+[2023-04-26 17:48:53 -0700] [84546] [INFO] Booting worker with pid: 84546
+[2023-04-26 18:03:07 -0700] [81965] [INFO] Handling signal: int
+[2023-04-26 18:03:07 -0700] [84546] [INFO] Worker exiting (pid: 84546)
+[2023-04-26 18:03:07 -0700] [81965] [INFO] Shutting down: Master
