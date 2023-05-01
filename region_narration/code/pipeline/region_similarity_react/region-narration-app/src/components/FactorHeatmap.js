@@ -459,11 +459,11 @@ function FactorHeatmap (props) {
                             factorNum = 0
                             simRank = d.rank
                         }
-                        if (d.rank === 0) {
-                            return topQueryFactorX(factorNum)
-                        } else {
-                            return simFactorX(factorNum)
-                        }
+                        // if (d.rank === 0) {
+                        //     return topQueryFactorX(factorNum)
+                        // } else {
+                        return simFactorX(factorNum)
+                        // }
                         
                     })
                     .attr("y", function(d) {

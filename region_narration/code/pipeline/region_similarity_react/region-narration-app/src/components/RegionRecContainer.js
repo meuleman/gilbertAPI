@@ -88,6 +88,8 @@ class RegionRecContainer extends React.Component {
     let hostname = "https://tools.altiusinstitute.org/ng/region-narration-app/"
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         hostname = "http://localhost:3000/"
+    } else if (window.location.hostname === "region-narration-app.vercel.app") {
+        hostname = "https://region-narration-app.vercel.app/"
     }
 
     const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end
@@ -178,73 +180,19 @@ class RegionRecContainer extends React.Component {
             // console.log(`location: ${location}`)
             // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
 
-            // Express.js server
-            Axios({
-                method: 'GET',
-                url: queryURL,
-                headers: {
-                    reqState: location,
-                    purpose: 'getRegions',
-                    factors: JSON.stringify(this.state.selectedFactors),
-                    roiURL: roiURL,
-                    scale: scale / 1000
-                }
-            }).then((response) => {
-                const fullData = response.data.findRegionValsObject
-                console.log(fullData)
-
-                // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
-                //     return rank > Math.sqrt(0.9)
-                // }).length, 1)
-                
-                const queryProdRanks = fullData.map((d) => {
-                    return d[0].prod_rank
-                })
-                let startDetailLevel = 1
-                let maxProdRank = 0
-                queryProdRanks.map((value, index) => {
-                    if (Math.max(maxProdRank, value) !== maxProdRank) {
-                        maxProdRank = value
-                        startDetailLevel = index + 1
-                    }
-                    return null
-                })
-                
-                const data = fullData[startDetailLevel - 1]
-                const queryRegion = data[0]
-
-                const queryCoordinates = queryRegion.coordinates
-                
-                // push state on new query and update tab title
-                this.updateURL(queryCoordinates, popped)
-
-                this.setState({
-                    genomicLocation: queryCoordinates, // so we get the actual queried location
-                    regionalVals: data,
-                    fullData: fullData,
-                    spinner: false,
-                    maxDetailLevel: fullData.length,
-                    detailLevel: startDetailLevel,
-                    currentScale: scale
-                }, () => {
-                    console.log(this.state.regionalVals)
-                })
-            })
-            // // Flask Server
+            // // Express.js server
             // Axios({
-            //     method: 'POST',
-            //     url: "http://127.0.0.1:5435/narration",
-            //     data: {
-            //         location: location,
+            //     method: 'GET',
+            //     url: queryURL,
+            //     headers: {
+            //         reqState: location,
+            //         purpose: 'getRegions',
             //         factors: JSON.stringify(this.state.selectedFactors),
             //         roiURL: roiURL,
-            //         scale: scale / 1000,
-            //         queryFactorThresh: 0.5,
-            //         numSimilarRegions: 20
+            //         scale: scale / 1000
             //     }
-
             // }).then((response) => {
-            //     const fullData = response.data
+            //     const fullData = response.data.findRegionValsObject
             //     console.log(fullData)
 
             //     // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
@@ -284,6 +232,60 @@ class RegionRecContainer extends React.Component {
             //         console.log(this.state.regionalVals)
             //     })
             // })
+            // Flask Server
+            Axios({
+                method: 'POST',
+                url: "http://127.0.0.1:5435/narration",
+                data: {
+                    location: location,
+                    factors: JSON.stringify(this.state.selectedFactors),
+                    roiURL: roiURL,
+                    scale: scale / 1000,
+                    queryFactorThresh: 0.5,
+                    numSimilarRegions: 20
+                }
+
+            }).then((response) => {
+                const fullData = response.data
+                console.log(fullData)
+
+                // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
+                //     return rank > Math.sqrt(0.9)
+                // }).length, 1)
+                
+                const queryProdRanks = fullData.map((d) => {
+                    return d[0].prod_rank
+                })
+                let startDetailLevel = 1
+                let maxProdRank = 0
+                queryProdRanks.map((value, index) => {
+                    if (Math.max(maxProdRank, value) !== maxProdRank) {
+                        maxProdRank = value
+                        startDetailLevel = index + 1
+                    }
+                    return null
+                })
+                
+                const data = fullData[startDetailLevel - 1]
+                const queryRegion = data[0]
+
+                const queryCoordinates = queryRegion.coordinates
+                
+                // push state on new query and update tab title
+                this.updateURL(queryCoordinates, popped)
+
+                this.setState({
+                    genomicLocation: queryCoordinates, // so we get the actual queried location
+                    regionalVals: data,
+                    fullData: fullData,
+                    spinner: false,
+                    maxDetailLevel: fullData.length,
+                    detailLevel: startDetailLevel,
+                    currentScale: scale
+                }, () => {
+                    console.log(this.state.regionalVals)
+                })
+            })
         }
     }
   }
