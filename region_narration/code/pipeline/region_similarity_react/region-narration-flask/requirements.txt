@@ -3,7 +3,6 @@
 # platform: osx-64
 appdirs=1.4.4=pyhd3eb1b0_0
 blas=1.0=mkl
-bottle=0.12.25=pypi_0
 brotlipy=0.7.0=py38h9ed2024_1003
 c-ares=1.19.0=h6c40b1e_0
 ca-certificates=2023.01.10=hecd8cb5_0
@@ -53,7 +52,6 @@ pysocks=1.7.1=py38_1
 python=3.8.15=h218abb5_2
 readline=8.2=hca72f7f_0
 requests=2.29.0=py38hecd8cb5_0
-samtools=1.4.1=0
 scipy=1.10.0=py38h91c6ef4_1
 setuptools=65.6.3=py38hecd8cb5_0
 six=1.16.0=pyhd3eb1b0_1
