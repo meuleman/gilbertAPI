@@ -1,4 +1,4 @@
-To run the development version:
+To run the local development version:
 1) npm install (if needed)
 2) conda create -n genomic_narration_env python=3.8 --no-default-packages --yes (if needed)
 3) conda activate genomic_narration_env
