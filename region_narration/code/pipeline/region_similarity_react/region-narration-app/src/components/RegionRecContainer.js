@@ -88,7 +88,8 @@ class RegionRecContainer extends React.Component {
 
     let hostname = "https://tools.altiusinstitute.org/ng/region-narration-app/"
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        hostname = "http://localhost:3000/"
+        const localPort = window.location.port
+        hostname = "http://localhost:" + localPort + "/"
     } else if (window.location.hostname === "region-narration-app.vercel.app") {
         hostname = "https://region-narration-app.vercel.app/"
     }
