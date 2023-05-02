@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import factorsArr from '../factors.json'
 
 function DisplaySentence (props) {

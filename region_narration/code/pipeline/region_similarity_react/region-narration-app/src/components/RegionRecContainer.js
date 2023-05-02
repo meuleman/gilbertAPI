@@ -6,7 +6,7 @@ import Axios from 'axios'
 // import DisplayTabs from './DisplayTabs'
 import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 // import devModeObj from '../devmode.json'
-import SelectFactors from './SelectFactors'
+// import SelectFactors from './SelectFactors'
 import factors from '../factors.json'
 import FactorHeatmap from './FactorHeatmap'
 import QueryRegion from './QueryRegion'
@@ -40,6 +40,7 @@ class RegionRecContainer extends React.Component {
     devQueryPort: 3001,
     prodQueryHost: 'tools.altiusinstitute.org',
     prodQueryPort: 9877,
+    flaskURL: "http://127.0.0.1:5435/narration",
     scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
     currentScale: 1000,
     requiredURLParams: ['chr', 'start', 'stop']
@@ -164,13 +165,11 @@ class RegionRecContainer extends React.Component {
         }, () => {
         })
         } else {
-            // console.log(this.state.detailLevel)
-            //   console.log(window.location.hostname)
             // const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-            let queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+            // let queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
             let roiURL = "True"
             if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
+                // queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
                 roiURL = "False"
             } //else {
             //     queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
@@ -235,7 +234,7 @@ class RegionRecContainer extends React.Component {
             // Flask Server
             Axios({
                 method: 'POST',
-                url: "http://127.0.0.1:5435/narration",
+                url: this.state.flaskURL,
                 data: {
                     location: location,
                     factors: JSON.stringify(this.state.selectedFactors),

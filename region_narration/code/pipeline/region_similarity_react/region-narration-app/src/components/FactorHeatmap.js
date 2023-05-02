@@ -155,9 +155,9 @@ function FactorHeatmap (props) {
                 .range([simFactorXStart, simFactorXStart + simFactorXWidth])
 
 
-            const topQueryFactorX = d3.scaleBand()
-                .domain([...Array(colLabels.length).keys()])
-                .range([topQueryFactorXStart, topQueryFactorXStart + topQueryFactorXWidth])
+            // const topQueryFactorX = d3.scaleBand()
+            //     .domain([...Array(colLabels.length).keys()])
+            //     .range([topQueryFactorXStart, topQueryFactorXStart + topQueryFactorXWidth])
 
             // colors for each factor
             const topColorY = d3.scaleBand()
