@@ -30,8 +30,8 @@ function FactorHeatmap (props) {
             const searchButtonWidth = 25
             const simFactorXStart = searchButtonX + searchButtonWidth + 10
             const simFactorXWidth = colorHeight * 34
-            const topQueryFactorXStart = legendX
-            const topQueryFactorXWidth = colorHeight * 34
+            // const topQueryFactorXStart = legendX
+            // const topQueryFactorXWidth = colorHeight * 34
             const simThresh = 0.9
 
             // data
