@@ -93,7 +93,6 @@ function FactorHeatmap (props) {
             const meanRank = allSimRanks.reduce((rankSum, val) => rankSum + val, 0) / allSimRanks.length
 
             const factorSig = queryData.top_region_factor_Z_score
-            
             const factorSigData = factorSig.map((value, index) => {
                 var barValue = 0
                 if (value < zMin) {
@@ -109,6 +108,19 @@ function FactorHeatmap (props) {
                     factor: colLabels[index],
                     originalFactorInd: queryData.query_factor_order[index]
                 })
+            })
+
+            // const factorMean
+            let factorSums = new Array(colLabels.length).fill(0)
+            heatmapData.forEach((d) => {
+                factorSums[d.factorInd] += d.percentile
+            })
+            const factorMeans = factorSums.map((value, index) => {
+                return {
+                    mean: value / heatmapData[heatmapData.length - 1].rank,
+                    factor: colLabels[index],
+                    originalFactorInd: queryData.query_factor_order[index]
+                }
             })
 
             const prodFactorRanks = data.map((d) => {
@@ -204,17 +216,26 @@ function FactorHeatmap (props) {
                 .call(d3.axisLeft(y).tickSize(0))
                 .call((g) => {return g.select(".domain").remove()})
 
-            // z score y axis
-            const sigTicks = [...Array(((zMax - zMin) / 10) + 1).keys()].map((val) => {
-                return val * 10 - 10
-            })
-            const sigY = d3.scaleLinear()
-                .domain([zMax, zMin])
+            // // z score y axis
+            // const sigTicks = [...Array(((zMax - zMin) / 10) + 1).keys()].map((val) => {
+            //     return val * 10 - 10
+            // })
+            // const sigY = d3.scaleLinear()
+            //     .domain([zMax, zMin])
+            //     .range([height - margin.bottom - sigHeight + gap2, height - margin.bottom + gap2])
+            // heatmapsvg.append('g')
+            //     .style('font', '8px sans-serif')
+            //     .attr("transform", "translate(" + margin.left + ", 0)")
+            //     .call(d3.axisLeft(sigY).tickValues(sigTicks))
+
+            // query region bar chart y axis
+            const factorMeanY = d3.scaleLinear()
+                .domain([1, 0])
                 .range([height - margin.bottom - sigHeight + gap2, height - margin.bottom + gap2])
             heatmapsvg.append('g')
                 .style('font', '8px sans-serif')
                 .attr("transform", "translate(" + margin.left + ", 0)")
-                .call(d3.axisLeft(sigY).tickValues(sigTicks))
+                .call(d3.axisLeft(factorMeanY).tickValues([1.0, 0.5, 0]).tickFormat(d3.format(".0%")))
             
             // colors for each factor
             const color = d3.scaleOrdinal()
@@ -281,12 +302,25 @@ function FactorHeatmap (props) {
                     .style("stroke-width", "1")
             }
 
-            // mouseover for z score bar plot
-            const mouseoverSig = function (d, cellData) {
-                const Zscore = Math.round(cellData.zscore * 10000) / 10000
+            // // mouseover for z score bar plot
+            // const mouseoverSig = function (d, cellData) {
+            //     const Zscore = Math.round(cellData.zscore * 10000) / 10000
+            //     const factor = cellData.factor
+            //     tooltip
+            //         .html(factor + " Z-score: " + Zscore)
+            //         .style('opacity', 1)
+            //         .style('z-index', 1)
+            //     d3.select(this)
+            //         .style("stroke", "black")
+            //         .style("stroke-width", "1")
+            // }
+
+            // mouseover for factor mean bar plot
+            const mouseoverMean = function (d, cellData) {
+                const mean = Math.round((cellData.mean * 100) * 10) / 10
                 const factor = cellData.factor
                 tooltip
-                    .html(factor + " Z-score: " + Zscore)
+                    .html(factor + " Mean: " + mean + "%")
                     .style('opacity', 1)
                     .style('z-index', 1)
                 d3.select(this)
@@ -798,32 +832,49 @@ function FactorHeatmap (props) {
                 .on('mousemove', mousemoveLabel)
                 .on('mouseleave', mouseleaveLabel)
 
-            // add z score bar chart
+            // // add z score bar chart
+            // heatmapsvg.selectAll()
+            //     .data(factorSigData)
+            //     .join("rect")
+            //         .attr("x", function(d) {return x(d.factor)})
+            //         .attr("y", function(d) {if (d.sig > 0) {return sigY(d.sig)} else {return sigY(0)}})
+            //         .attr("width", x.bandwidth())
+            //         .attr("height", function(d) {if (d.sig > 0) {return sigY(0) - sigY(d.sig)} else {return sigY(d.sig) - sigY(0)}})
+            //         .style("fill", function(d) {if (detailTargetFactors.includes(d.originalFactorInd)) {return "#555555"} else {return "#999999"}})
+            //         .style("stroke-width", 4)
+            //         .style("stroke", "none")
+            //         .on('mouseover', mouseoverSig)
+            //         .on('mousemove', mousemove)
+            //         // .on('mouseleave', mouseleave)
+            //         .on('mouseleave', function() {mouseleave.bind(this)("none")})
+            //         // .on('click', mouseclick)
+
+            // // add line at 0 for z score bar chart
+            // heatmapsvg
+            //     .append("line")
+            //         .style("stroke", "black")
+            //         .style("stroke-width", 0.5)
+            //         .attr("x1", margin.left)
+            //         .attr("y1", sigY(0))
+            //         .attr("x2", width - margin.right)
+            //         .attr("y2", sigY(0))
+
+            // factor mean bar chart
             heatmapsvg.selectAll()
-                .data(factorSigData)
+                .data(factorMeans)
                 .join("rect")
                     .attr("x", function(d) {return x(d.factor)})
-                    .attr("y", function(d) {if (d.sig > 0) {return sigY(d.sig)} else {return sigY(0)}})
+                    .attr("y", function(d) {if (d.mean > 0.5) {return factorMeanY(d.mean)} else {return factorMeanY(0.5)}})
                     .attr("width", x.bandwidth())
-                    .attr("height", function(d) {if (d.sig > 0) {return sigY(0) - sigY(d.sig)} else {return sigY(d.sig) - sigY(0)}})
+                    .attr("height", function(d) {if (d.mean > 0.5) {return factorMeanY(0.5) - factorMeanY(d.mean)} else {return factorMeanY(d.mean) - factorMeanY(0.5)}})
                     .style("fill", function(d) {if (detailTargetFactors.includes(d.originalFactorInd)) {return "#555555"} else {return "#999999"}})
                     .style("stroke-width", 4)
                     .style("stroke", "none")
-                    .on('mouseover', mouseoverSig)
+                    .on('mouseover', mouseoverMean)
                     .on('mousemove', mousemove)
                     // .on('mouseleave', mouseleave)
                     .on('mouseleave', function() {mouseleave.bind(this)("none")})
                     // .on('click', mouseclick)
-
-            // add line at 0 for z score bar chart
-            heatmapsvg
-                .append("line")
-                    .style("stroke", "black")
-                    .style("stroke-width", 0.5)
-                    .attr("x1", margin.left)
-                    .attr("y1", sigY(0))
-                    .attr("x2", width - margin.right)
-                    .attr("y2", sigY(0))
 
             // top factor color row
             heatmapsvg.selectAll()
