@@ -40,7 +40,7 @@ class RegionRecContainer extends React.Component {
     devQueryPort: 3001,
     prodQueryHost: 'tools.altiusinstitute.org',
     prodQueryPort: 9877,
-    flaskURL: "http://127.0.0.1:5435/narration",
+    flaskURL: "https://explore.altius.org:5001/narration",
     scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
     currentScale: 1000,
     requiredURLParams: ['chr', 'start', 'stop']
@@ -86,7 +86,7 @@ class RegionRecContainer extends React.Component {
     const start = coordinates.split(":")[1].split("-")[0]
     const end = coordinates.split(":")[1].split("-")[1]
 
-    let hostname = "https://tools.altiusinstitute.org/ng/region-narration-app/"
+    let hostname = "https://explore.altius.org/ng/"
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         const localPort = window.location.port
         hostname = "http://localhost:" + localPort + "/"
@@ -96,9 +96,14 @@ class RegionRecContainer extends React.Component {
 
     const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end
     const historyTitle = "Genomic Narration - " + coordinates
-    if (!popped) {
-        window.history.pushState(newUrl, historyTitle, newUrl)
-    }
+      if (!popped) {
+	  try {
+              window.history.pushState(newUrl, historyTitle, newUrl)
+	  }
+	  catch (err) {
+	      console.log(`Error: ${JSON.stringify(err)}`);
+	  }
+      }
     document.title = historyTitle;
   }
   
@@ -233,18 +238,19 @@ class RegionRecContainer extends React.Component {
             //     })
             // })
             // Flask Server
+	    const postBody = {
+                location: location,
+                factors: JSON.stringify(this.state.selectedFactors),
+                roiURL: roiURL,
+                scale: scale / 1000,
+                queryFactorThresh: 0.5,
+                numSimilarRegions: 20
+            };
+	    console.log(`flaskURL: ${this.state.flaskURL}`);
             Axios({
                 method: 'POST',
                 url: this.state.flaskURL,
-                data: {
-                    location: location,
-                    factors: JSON.stringify(this.state.selectedFactors),
-                    roiURL: roiURL,
-                    scale: scale / 1000,
-                    queryFactorThresh: 0.5,
-                    numSimilarRegions: 20
-                }
-
+                data: postBody
             }).then((response) => {
                 const fullData = response.data
                 console.log(fullData)
@@ -286,6 +292,10 @@ class RegionRecContainer extends React.Component {
                     console.log(this.state.regionalVals)
                 })
             })
+		.catch((err) => {
+		    console.error(`error:     ${JSON.stringify(err)}`);
+		    console.error(`post body: ${JSON.stringify(postBody)}`);
+		});
         }
     }
   }

@@ -1,0 +1,36 @@
+2023-05-04 19:43:59,817 CRIT Supervisor running as root (no user in config file)
+2023-05-04 19:43:59,822 INFO supervisord started with pid 1927
+2023-05-04 19:44:00,824 INFO spawned: 'nginx' with pid 1930
+2023-05-04 19:44:00,826 INFO spawned: 'uwsgi' with pid 1931
+2023-05-04 19:44:02,794 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 19:44:02,794 INFO success: uwsgi entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 19:46:30,042 WARN received SIGINT indicating exit request
+2023-05-04 19:46:30,042 INFO waiting for nginx, uwsgi to die
+2023-05-04 19:46:31,057 INFO stopped: uwsgi (exit status 0)
+2023-05-04 19:46:31,059 INFO stopped: nginx (exit status 0)
+2023-05-04 19:47:28,937 CRIT Supervisor running as root (no user in config file)
+2023-05-04 19:47:28,940 INFO supervisord started with pid 2052
+2023-05-04 19:47:29,943 INFO spawned: 'nginx' with pid 2057
+2023-05-04 19:47:29,945 INFO spawned: 'uwsgi' with pid 2058
+2023-05-04 19:47:31,923 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 19:47:31,923 INFO success: uwsgi entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 21:41:26,652 WARN received SIGQUIT indicating exit request
+2023-05-04 21:41:26,654 INFO waiting for nginx, uwsgi to die
+2023-05-04 21:41:26,654 INFO exited: nginx (exit status 0; expected)
+2023-05-04 21:41:27,715 INFO stopped: uwsgi (exit status 0)
+2023-05-04 21:41:27,872 CRIT Supervisor running as root (no user in config file)
+2023-05-04 21:41:27,876 INFO supervisord started with pid 26628
+2023-05-04 21:41:28,878 INFO spawned: 'nginx' with pid 26634
+2023-05-04 21:41:28,880 INFO spawned: 'uwsgi' with pid 26635
+2023-05-04 21:41:29,930 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 21:41:29,931 INFO success: uwsgi entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 22:54:38,074 INFO exited: nginx (exit status 0; expected)
+2023-05-04 22:54:38,075 WARN received SIGQUIT indicating exit request
+2023-05-04 22:54:38,076 INFO waiting for uwsgi to die
+2023-05-04 22:54:39,133 INFO stopped: uwsgi (exit status 0)
+2023-05-04 22:54:39,309 CRIT Supervisor running as root (no user in config file)
+2023-05-04 22:54:39,312 INFO supervisord started with pid 27249
+2023-05-04 22:54:40,314 INFO spawned: 'nginx' with pid 27256
+2023-05-04 22:54:40,316 INFO spawned: 'uwsgi' with pid 27257
+2023-05-04 22:54:41,363 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2023-05-04 22:54:41,363 INFO success: uwsgi entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
