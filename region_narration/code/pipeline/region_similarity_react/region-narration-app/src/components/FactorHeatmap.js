@@ -93,22 +93,22 @@ function FactorHeatmap (props) {
             const meanRank = allSimRanks.reduce((rankSum, val) => rankSum + val, 0) / allSimRanks.length
 
             const factorSig = queryData.top_region_factor_Z_score
-            const factorSigData = factorSig.map((value, index) => {
-                var barValue = 0
-                if (value < zMin) {
-                    barValue = zMin
-                } else if (value > zMax) {
-                    barValue = zMax
-                } else {
-                    barValue = value
-                }
-                return ({
-                    zscore: value,
-                    sig: barValue,
-                    factor: colLabels[index],
-                    originalFactorInd: queryData.query_factor_order[index]
-                })
-            })
+            // const factorSigData = factorSig.map((value, index) => {
+            //     var barValue = 0
+            //     if (value < zMin) {
+            //         barValue = zMin
+            //     } else if (value > zMax) {
+            //         barValue = zMax
+            //     } else {
+            //         barValue = value
+            //     }
+            //     return ({
+            //         zscore: value,
+            //         sig: barValue,
+            //         factor: colLabels[index],
+            //         originalFactorInd: queryData.query_factor_order[index]
+            //     })
+            // })
 
             // const factorMean
             let factorSums = new Array(colLabels.length).fill(0)
@@ -122,6 +122,19 @@ function FactorHeatmap (props) {
                     originalFactorInd: queryData.query_factor_order[index]
                 }
             })
+
+            // console.log(factorMeans, queryData)
+            // if (detailTargetFactors.includes(d.originalFactorInd)
+            let errSum = 0
+            factorMeans.forEach((d, index) => {
+                const queryOFI = queryData.query_factor_order[index]
+                const simOFI = d.originalFactorInd
+                if (detailTargetFactors.includes(queryOFI) && detailTargetFactors.includes(simOFI)) {
+                    errSum += Math.pow(queryData.percentiles[index] - d.mean, 2)
+                }
+            })
+            const MSE = errSum / detailTargetFactors.length
+
 
             const prodFactorRanks = data.map((d) => {
                 return {
@@ -444,7 +457,7 @@ function FactorHeatmap (props) {
             //     .style('font', '13px sans-serif')
             //     .text("Rank")
 
-            // add z score bar chart label
+            // add significance bar chart label
             heatmapsvg.append("text")
                 .attr("class", "y label")
                 .attr("text-anchor", "end")
@@ -456,6 +469,15 @@ function FactorHeatmap (props) {
                 .on('mouseover', () => mouseoverLabel("Z-score of factor ranks in similar regions"))
                 .on('mousemove', mousemoveLabel)
                 .on('mouseleave', mouseleaveLabel)
+
+            // add MSE
+            heatmapsvg.append("text")
+                .attr("class", "y label")
+                .attr("text-anchor", "start")
+                .attr("y", 580)
+                .attr("x", margin.left - 120)
+                .style('font', '13px sans-serif')
+                .text("MSE=" + String(MSE.toExponential(3)))
         
             // add factor heatmap
             heatmapsvg.selectAll()
