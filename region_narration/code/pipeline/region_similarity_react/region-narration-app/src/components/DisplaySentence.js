@@ -19,7 +19,7 @@ function DisplaySentence (props) {
     const detailLevel = props.sentenceProps.detailLevel
     const thresh = Math.sqrt(0.9)
     const maxHeight = 110
-    let defaultSentenceFontSize = 10
+    let defaultSentenceFontSize = 20
     let sentence = "This region is characterized by "
     const conversion = {
       'EnhA1': 'active enhancer 1',
