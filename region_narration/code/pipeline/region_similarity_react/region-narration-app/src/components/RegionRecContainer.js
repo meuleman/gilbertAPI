@@ -40,7 +40,9 @@ class RegionRecContainer extends React.Component {
     devQueryPort: 3001,
     prodQueryHost: 'tools.altiusinstitute.org',
     prodQueryPort: 9877,
-    flaskURL: "https://explore.altius.org:5001/narration",
+    productionFlaskURL: "https://explore.altius.org:5001/narration",
+    // developmentFlaskURL: "http://127.0.0.1:5435/narration",
+    developmentFlaskURL: "http://127.0.0.1:5000/narration",
     scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
     currentScale: 1000,
     requiredURLParams: ['chr', 'start', 'stop']
@@ -246,10 +248,14 @@ class RegionRecContainer extends React.Component {
                 queryFactorThresh: 0.5,
                 numSimilarRegions: 20
             };
-	    console.log(`flaskURL: ${this.state.flaskURL}`);
+	    console.log(`flaskURL: ${this.state.productionFlaskURL}`);
+      let flaskURL = this.state.productionFlaskURL
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        flaskURL = this.state.developmentFlaskURL
+      }
             Axios({
                 method: 'POST',
-                url: this.state.flaskURL,
+                url: flaskURL,
                 data: postBody
             }).then((response) => {
                 const fullData = response.data

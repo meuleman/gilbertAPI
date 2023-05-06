@@ -10,18 +10,26 @@ import json
 from subprocess import Popen, PIPE
 from simsearch_functions import simsearch, roiURL  # , load_per
 
-server_root_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration'
-
-RN_VERSION = '0.0.1'
-RN_VERSION_STR = "{}/{}".format(Repo(server_root_dir, search_parent_directories=True).head.ref.name, RN_VERSION)
-
 app = Flask(__name__)
 CORS(app)
 
 
-# load search spaces for each scale
-data_dir = os.path.join(server_root_dir, 'data')
+current_name = (__file__)
+prod_name = '/data/narrativeGenomics/NarrativeGenomics/region_narration/code/pipeline/region_similarity_react/region-narration-flask/region_narration.py'
 
+if current_name == prod_name:
+    server_root_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration'
+
+    RN_VERSION = '0.0.1'
+    RN_VERSION_STR = "{}/{}".format(Repo(server_root_dir, search_parent_directories=True).head.ref.name, RN_VERSION)
+
+    # load search spaces for each scale
+    data_dir = os.path.join(server_root_dir, 'data')
+
+else:
+    RN_VERSION_STR = ''
+    # load search spaces for each scale
+    data_dir = '../../../../data/'
 
 # Given a scale, build a path name for the search space
 def build_search_space_path(scale):
@@ -271,4 +279,3 @@ def narration():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-

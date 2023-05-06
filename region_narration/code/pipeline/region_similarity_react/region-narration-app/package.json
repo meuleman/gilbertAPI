@@ -20,7 +20,7 @@
     "build": "PUBLIC_URL=/ng react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "localdev": "concurrently \"npm start\" \"cd ../region-narration-flask/ && pwd && python app.py\""
+    "localdev": "concurrently \"npm start\" \"cd ../region-narration-flask/ && pwd && python region_narration.py\""
   },
   "eslintConfig": {
     "extends": [
