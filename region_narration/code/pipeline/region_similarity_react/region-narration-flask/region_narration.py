@@ -2,38 +2,53 @@ from flask import Flask, request
 from flask_cors import CORS
 import numpy as np
 # import tabix
+import sys
+import os
+from git import Repo
 import json
 # import h5py
 from subprocess import Popen, PIPE
 from simsearch_functions import simsearch, roiURL  # , load_per
 
-
 app = Flask(__name__)
 CORS(app)
 
 
-# load search spaces for each scale
-datadir = '../../../../data/'
+current_name = (__file__)
+prod_name = '/data/narrativeGenomics/NarrativeGenomics/region_narration/code/pipeline/region_similarity_react/region-narration-flask/region_narration.py'
 
+if current_name == prod_name:
+    server_root_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration'
+
+    RN_VERSION = '0.0.1'
+    RN_VERSION_STR = "{}/{}".format(Repo(server_root_dir, search_parent_directories=True).head.ref.name, RN_VERSION)
+
+    # load search spaces for each scale
+    data_dir = os.path.join(server_root_dir, 'data')
+
+else:
+    RN_VERSION_STR = ''
+    # load search spaces for each scale
+    data_dir = '../../../../data/'
 
 # Given a scale, build a path name for the search space
 def build_search_space_path(scale):
-    path = datadir + 'regions_' + str(scale) + 'kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'
+    path = os.path.join(data_dir, 'regions_{}kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
     return path
 
 
 """
 # Given a scale, build a path name for the query region
 def build_query_path(scale):
-    path = datadir + 'regions_' + str(scale) + 'kb_CT20230412.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.hdf5'
+    path = os.path.join(data_dir, 'regions_{}kb_CT20230412.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.hdf5'.format(scale))
     return path
 """
 
 
 # Given a scale, build a path name for the tabix query
 def build_tabix_path(scale):
-    # path = datadir + 'hg38.' + str(scale) + 'kb.regions.CT20230412.sorted.rownum4.bed.gz'
-    path = 'https://resources.altius.org/~ctrader/public/genomic_narration/indexed/hg38.' + str(scale) + 'kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'
+    # path = os.path.join(data_dir, 'hg38.{}kb.regions.CT20230412.sorted.rownum4.bed.gz'.format(scale))
+    path = 'https://resources.altius.org/~ctrader/public/genomic_narration/indexed/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
     return path
 
 
@@ -216,6 +231,12 @@ def generate_result_array(num_similar_regions):
         return_arr_full.append(return_arr)
 
 
+@app.route('/', methods=['GET'])
+def about():
+    python_version = sys.version
+    return "<html><body><div>region-narration ({})</div><div>Python {}</div></body></html>".format(RN_VERSION_STR, python_version)
+
+
 @app.route('/narration', methods=['POST'])
 def narration():
     request_info = request.get_json()
@@ -257,7 +278,4 @@ def narration():
 
 
 if __name__ == '__main__':
-    app.run(port=5435)
-
-
-# wsgi_app = app.wsgi_app
+    app.run(host='0.0.0.0')

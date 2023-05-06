@@ -3,3 +3,6 @@ __pycache__/
 archive/
 node_modules
 package-lock.json
+*~
+supervisord.pid
+supervisord.log
