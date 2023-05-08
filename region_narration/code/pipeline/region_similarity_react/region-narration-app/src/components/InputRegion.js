@@ -3,7 +3,10 @@ import React from 'react'
 
 class InputRegion extends React.Component {
   state = {
-    location: ''
+    location: '',
+    chrValList: Array.from(
+      {length: 22}, (value, index) => (index + 1).toString()
+    ).concat(['X', 'Y'])
   }
 
   onChange = (e) => {
@@ -12,13 +15,23 @@ class InputRegion extends React.Component {
     })
   }
 
+  
+
   handleSubmit = (e) => {
     e.preventDefault()
-    if (true
-      // (this.state.location.trim()) &&
-      //       (this.state.location.split(':')[0].split('chr')[1].length > 0) &&
-      //       (!isNaN(this.state.location.split(':')[1].split('-')[0])) &&
-      //       (!isNaN(this.state.location.split(':')[1].split('-')[1]))
+    const coordinates = this.state.location.trim()
+    const chrVal = coordinates.split(':')[0].split('chr')[1]
+    const start = coordinates.split(':')[1].split('-')[0]
+    const end = coordinates.split(':')[1].split('-')[1]
+    console.log()
+    if (
+      (coordinates) &&
+      (chrVal.length > 0) &&
+      (!isNaN(start)) &&
+      (!isNaN(end)) && 
+      (coordinates.slice(0, 3) === 'chr') && 
+      (end > start) &&
+      (this.state.chrValList.includes(chrVal))
     ) {
       this.props.setGenomicLocationProps(this.state.location)
       this.setState({

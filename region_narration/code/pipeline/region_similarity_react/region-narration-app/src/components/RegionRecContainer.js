@@ -59,7 +59,7 @@ class RegionRecContainer extends React.Component {
           regionalVals: this.state.fullData[this.state.detailLevel - 1],
         //   sentence: this.state.fullData[this.state.detailLevel - 1][0].sentence
         }, () => {
-        //   console.log(this.state.regionalVals)
+        //   console.log(this.state.regionalVals);
         })
 
       }
@@ -71,36 +71,36 @@ class RegionRecContainer extends React.Component {
       selectedFactors: factorInds
     }, () => {
       if (this.state.regionalVals) {
-        this.setGenomicLocation(this.state.regionalVals[0].region_ind)
-      }
-    })
-  }
+        this.setGenomicLocation(this.state.regionalVals[0].region_ind);
+      };
+    });
+  };
 
   
   setIncluded = (newIncluded) => {
     this.setState({
       included: newIncluded
-    })
-  }
+    });
+  };
 
   updateURL = (coordinates, popped) => {
-    const chrm = coordinates.split(":")[0]
-    const start = coordinates.split(":")[1].split("-")[0]
-    const end = coordinates.split(":")[1].split("-")[1]
+    const chrm = coordinates.split(":")[0];
+    const start = coordinates.split(":")[1].split("-")[0];
+    const end = coordinates.split(":")[1].split("-")[1];
 
     let hostname = "https://explore.altius.org/ng/"
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        const localPort = window.location.port
-        hostname = "http://localhost:" + localPort + "/"
+        const localPort = window.location.port;
+        hostname = "http://localhost:" + localPort + "/";
     } else if (window.location.hostname === "region-narration-app.vercel.app") {
-        hostname = "https://region-narration-app.vercel.app/"
+        hostname = "https://region-narration-app.vercel.app/";
     }
 
-    const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end
-    const historyTitle = "Genomic Narration - " + coordinates
+    const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end;
+    const historyTitle = "Genomic Narration - " + coordinates;
       if (!popped) {
 	  try {
-              window.history.pushState(newUrl, historyTitle, newUrl)
+              window.history.pushState(newUrl, historyTitle, newUrl);
 	  }
 	  catch (err) {
 	      console.log(`Error: ${JSON.stringify(err)}`);
@@ -129,32 +129,32 @@ class RegionRecContainer extends React.Component {
   // }
 
   setAutoFactorSelection = (value) => {
-    console.log(value)
-    // console.log(this.state.selectedFactors)
+    console.log(value);
+    // console.log(this.state.selectedFactors);
     this.setState({
       autoFactorSelection: value
-    })
-  }
+    });
+  };
   
   
   setGenomicLocation = (location, popped=false) => {
     if (this.state.selectedFactors.length > 0) {
-        console.log(location)
-        const startToEnd = location.split(':')[1]
-        const startbp = startToEnd.split('-')[0]
-        const endbp = startToEnd.split('-')[1]
-        const queryLength = endbp - startbp
+        console.log(location);
+        const startToEnd = location.split(':')[1];
+        const startbp = startToEnd.split('-')[0];
+        const endbp = startToEnd.split('-')[1];
+        const queryLength = endbp - startbp;
 
-        let minDistance = this.state.scales.slice(-1)[0]
-        let bestScaleInd = this.state.scales.length - 1
+        let minDistance = this.state.scales.slice(-1)[0];
+        let bestScaleInd = this.state.scales.length - 1;
         this.state.scales.map((s, i) => {
             if (Math.min(Math.abs(s - queryLength), minDistance) !== minDistance) {
                 minDistance = Math.abs(s - queryLength)
                 bestScaleInd = i
             }
             return null
-        })
-        const scale = this.state.scales[bestScaleInd]
+        });
+        const scale = this.state.scales[bestScaleInd];
 
         this.setState({
             spectrum: '',
@@ -164,7 +164,7 @@ class RegionRecContainer extends React.Component {
             barCluster: '',
             barReduced: '',
             spinner: true
-        })
+        });
         if (this.devMode) {
             const data = sampleData
             // const queryRegion = data[0]
@@ -249,7 +249,7 @@ class RegionRecContainer extends React.Component {
                 numSimilarRegions: 20
             };
 	    console.log(`flaskURL: ${this.state.productionFlaskURL}`);
-      let flaskURL = this.state.productionFlaskURL
+      let flaskURL = this.state.productionFlaskURL;
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         flaskURL = this.state.developmentFlaskURL
       }
@@ -258,8 +258,8 @@ class RegionRecContainer extends React.Component {
                 url: flaskURL,
                 data: postBody
             }).then((response) => {
-                const fullData = response.data
-                console.log(fullData)
+                const fullData = response.data;
+                console.log(fullData);
 
                 // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
                 //     return rank > Math.sqrt(0.9)
@@ -267,24 +267,24 @@ class RegionRecContainer extends React.Component {
                 
                 const queryProdRanks = fullData.map((d) => {
                     return d[0].prod_rank
-                })
-                let startDetailLevel = 1
-                let maxProdRank = 0
+                });
+                let startDetailLevel = 1;
+                let maxProdRank = 0;
                 queryProdRanks.map((value, index) => {
                     if (Math.max(maxProdRank, value) !== maxProdRank) {
                         maxProdRank = value
                         startDetailLevel = index + 1
                     }
                     return null
-                })
+                });
                 
-                const data = fullData[startDetailLevel - 1]
-                const queryRegion = data[0]
+                const data = fullData[startDetailLevel - 1];
+                const queryRegion = data[0];
 
-                const queryCoordinates = queryRegion.coordinates
+                const queryCoordinates = queryRegion.coordinates;
                 
                 // push state on new query and update tab title
-                this.updateURL(queryCoordinates, popped)
+                this.updateURL(queryCoordinates, popped);
 
                 this.setState({
                     genomicLocation: queryCoordinates, // so we get the actual queried location
@@ -295,12 +295,16 @@ class RegionRecContainer extends React.Component {
                     detailLevel: startDetailLevel,
                     currentScale: scale
                 }, () => {
-                    console.log(this.state.regionalVals)
+                    console.log(this.state.regionalVals);
                 })
             })
 		.catch((err) => {
 		    console.error(`error:     ${JSON.stringify(err)}`);
 		    console.error(`post body: ${JSON.stringify(postBody)}`);
+        alert('Query Failed: Try another region.');
+        this.setState({
+          spinner: false
+        })
 		});
         }
     }
