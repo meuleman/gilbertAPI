@@ -102,7 +102,7 @@ def load_roi(genomic_location, tabix_file_path):
     return
 """
 
-
+"""
 # determine roi from query coordinates
 def load_roi(genomic_location, link_path):
     global roi, roi_percents, roi_coords
@@ -119,6 +119,34 @@ def load_roi(genomic_location, link_path):
     start_dist = np.abs(possible_coords[:, 1].astype(int) - query_start)
     end_dist = np.abs(possible_coords[:, 2].astype(int) - query_end)
     query_region = possible_coords[np.argmin(start_dist + end_dist)]
+
+    roi = int(query_region[3])
+    roi_percents = query_region[4:].astype('float32')
+    roi_coords = query_region[:3]
+
+    return
+"""
+
+# determine roi from query coordinates
+def load_roi(genomic_location, link_path):
+    global roi, roi_percents, roi_coords
+
+    # determine chromosome, start, and end from query
+    query_start_end = genomic_location.split(':')[1].split('-')
+    query_start = int(query_start_end[0])
+    query_end = int(query_start_end[1])
+
+    # retrieve possible rois
+    possible_coords = tabix_query(link_path, genomic_location)
+
+    # find closest roi
+    start_dist = np.abs(possible_coords[:, 1].astype(int) - query_start)
+    end_dist = np.abs(possible_coords[:, 2].astype(int) - query_end)
+    total_dist = start_dist + end_dist
+    min_dist = np.min(total_dist)
+    min_dist_region_inds = np.where(total_dist == min_dist)[0]
+    middle_ind = min_dist_region_inds[np.floor(len(min_dist_region_inds) / 2).astype(int)]
+    query_region = possible_coords[middle_ind]
 
     roi = int(query_region[3])
     roi_percents = query_region[4:].astype('float32')
@@ -166,7 +194,7 @@ def setup_included_factors(included_factors_str, query_factor_thresh):
         included_factors = included_factors_from_str[
             np.isin(included_factors_from_str, query_factors_above_thresh)
         ]
-
+    # included_factors=np.arange(34)
 
 # given our roi, find the similar regions
 def find_most_similar_region_indices(num_similar_regions):
