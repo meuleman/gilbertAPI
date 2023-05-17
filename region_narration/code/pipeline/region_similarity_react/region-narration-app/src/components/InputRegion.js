@@ -15,24 +15,26 @@ class InputRegion extends React.Component {
     })
   }
 
-  
-
   handleSubmit = (e) => {
     e.preventDefault()
     const coordinates = this.state.location.trim()
-    const chrVal = coordinates.split(':')[0].split('chr')[1]
-    const start = coordinates.split(':')[1].split('-')[0]
-    const end = coordinates.split(':')[1].split('-')[1]
-    console.log()
-    if (
-      (coordinates) &&
-      (chrVal.length > 0) &&
-      (!isNaN(start)) &&
-      (!isNaN(end)) && 
-      (coordinates.slice(0, 3) === 'chr') && 
-      (end > start) &&
-      (this.state.chrValList.includes(chrVal))
-    ) {
+    const coordinateFormat = /^chr\d+:\d+-\d+$/
+
+    let passed = false
+    if (coordinateFormat.test(coordinates)) {
+      const coordSplit = coordinates.split(':')
+      const chrVal = coordSplit[0].split('chr')[1]
+      const start = coordSplit[1].split('-')[0]
+      const end = coordSplit[1].split('-')[1]
+
+      if (
+        (end > start) &&
+        (this.state.chrValList.includes(chrVal))
+      ) {
+        passed = true
+      }
+    }
+    if (passed) {
       this.props.setGenomicLocationProps(this.state.location)
       this.setState({
         location: ''
@@ -40,6 +42,7 @@ class InputRegion extends React.Component {
     } else {
       alert('Please provide valid genomic coordinates')
     }
+    // console.log(coordinateFormat.test(coordinates))
   }
 
   render () {
