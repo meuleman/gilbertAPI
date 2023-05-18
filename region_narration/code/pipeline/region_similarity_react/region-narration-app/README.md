@@ -1,10 +1,14 @@
-To run the local development version:
-1) npm install (if needed)
-2) conda create -n genomic_narration_env --file ../region-narration-flask/requirements.txt  --channel default --channel bioconda (if needed)
-3) conda activate genomic_narration_env
-4) npm run localdev
+Setup:
+1) conda create -n genomic_narration_env --file ../region-narration-flask/requirements.txt --channel default --channel bioconda --channel conda-forge 
+2) conda activate genomic_narration_env
+3) npm install
 
-The app will run on port 3000 and the server will run on port 5435.
+To run the local development version on port ####:
+1) conda activate genomic_narration_env
+2) PORT=#### npm run localdev
+The frontend will run on port #### and the server will run on port 5435. 
 
-To change the port the app runs on:
-4) PORT=#### npm run localdev
+By instead running:
+1) conda activate genomic_narration_env
+2) npm run localdev
+The frontend will run on port 3000. 
