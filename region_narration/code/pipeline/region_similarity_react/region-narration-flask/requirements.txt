@@ -6,8 +6,8 @@ blas=1.0=mkl
 brotlipy=0.7.0=py311h6c40b1e_1002
 bzip2=1.0.8=h1de35cc_0
 c-ares=1.19.0=h6c40b1e_0
-ca-certificates=2023.01.10=hecd8cb5_0
-certifi=2022.12.7=py311hecd8cb5_0
+ca-certificates=2022.12.7=h033912b_0
+certifi=2022.12.7=pyhd8ed1ab_0
 cffi=1.15.1=py311h6c40b1e_3
 charset-normalizer=2.0.4=pyhd3eb1b0_0
 click=8.0.4=py311hecd8cb5_0
@@ -16,6 +16,8 @@ curl=7.88.1=h6c40b1e_0
 flake8=6.0.0=py311hecd8cb5_0
 flask=2.2.2=py311hecd8cb5_0
 flask-cors=3.0.10=pyhd3eb1b0_0
+gitdb=4.0.10=pyhd8ed1ab_0
+gitpython=3.1.31=pyhd8ed1ab_0
 htslib=1.12=hc38c3fb_1
 idna=3.4=py311hecd8cb5_0
 importlib-metadata=6.0.0=py311hecd8cb5_0
@@ -43,7 +45,7 @@ mkl_random=1.2.2=py311hc5848a5_0
 ncurses=6.4=hcec6c5f_0
 numpy=1.24.3=py311h5f9dec5_0
 numpy-base=1.24.3=py311h16c7ea1_0
-openssl=1.1.1t=hca72f7f_0
+openssl=1.1.1t=hfd90126_0
 packaging=23.0=py311hecd8cb5_0
 pip=23.0.1=py311hecd8cb5_0
 pooch=1.4.0=pyhd3eb1b0_0
@@ -58,8 +60,10 @@ requests=2.29.0=py311hecd8cb5_0
 scipy=1.10.1=py311hb23b6d4_0
 setuptools=66.0.0=py311hecd8cb5_0
 six=1.16.0=pyhd3eb1b0_1
+smmap=3.0.5=pyh44b312d_0
 sqlite=3.41.2=h6c40b1e_0
 tk=8.6.12=h5d9f67b_0
+typing_extensions=4.5.0=pyha770c72_0
 tzdata=2023c=h04d1e81_0
 urllib3=1.26.15=py311hecd8cb5_0
 werkzeug=2.2.3=py311hecd8cb5_0
