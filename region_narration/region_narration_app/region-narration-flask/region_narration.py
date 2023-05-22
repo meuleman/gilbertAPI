@@ -15,7 +15,7 @@ CORS(app)
 
 
 current_name = (__file__)
-prod_name = '/data/narrativeGenomics/NarrativeGenomics/region_narration/code/pipeline/region_similarity_react/region-narration-flask/region_narration.py'
+prod_name = '/data/narrativeGenomics/NarrativeGenomics/region_narration/region_narration_app/region-narration-flask/region_narration.py'
 
 if current_name == prod_name:
     server_root_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration'
@@ -29,7 +29,7 @@ if current_name == prod_name:
 else:
     RN_VERSION_STR = ''
     # load search spaces for each scale
-    data_dir = '../../../../data/'
+    data_dir = '../../data/'
 
 # Given a scale, build a path name for the search space
 def build_search_space_path(scale):
