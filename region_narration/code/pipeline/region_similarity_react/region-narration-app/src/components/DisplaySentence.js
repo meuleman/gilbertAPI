@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import factorsArr from '../factors.json'
 
 function DisplaySentence (props) {
-  // useEffect(() => {
+  
   if (props.sentenceProps.data !== '') {
     const queryRegion = props.sentenceProps.data[0]
 
@@ -90,27 +90,26 @@ function DisplaySentence (props) {
     // add query product rank for detail level
     // sentence += " (" + String(Math.round(queryProdRank * 100) / 100) + "%)"
 
+    // useEffect(() => {
     if (document.getElementById('sentence-div')) {
+    // if (sentence != undefined) {
       document.getElementById('sentence-div').style.fontSize = defaultSentenceFontSize + 'px'
       let height = document.getElementById('sentence-div').offsetHeight
 
-      // console.log(1, height, defaultSentenceFontSize)
       while (height > maxHeight) {
         defaultSentenceFontSize -= 1
         document.getElementById('sentence-div').style.fontSize = defaultSentenceFontSize + 'px'
         height = document.getElementById('sentence-div').offsetHeight
-
-
-        // console.log(2, height, defaultSentenceFontSize)
       }
     }
+    
 
     return (
       <div className='sentence-box'>
         <div className='sentence-header'><b>Region Summary</b></div>
         {/* <div className='sentence-body' dangerouslySetInnerHTML={{__html: props.sentenceProps.sentence}} /> */}
         {/* <div className='sentence-body' id='sentence-div' style={{'fontSize': String(sentenceFontSize) + 'px'}}>{sentence}</div> */}
-        <div className='sentence-body' id='sentence-div' style={{'fontSize': '20px'}}>{sentence}</div>
+        <div className='sentence-body' id='sentence-div' style={{'fontSize': {defaultSentenceFontSize} + 'px'}}>{sentence}</div>
       </div>
     )
   } 
