@@ -9,4 +9,4 @@ supervisord.log
 # old server
 region-narration-express/
 # packages for vercel
-region_similarity_react/package.json
+region_narration/code/pipeline/region_similarity_react/package.json
