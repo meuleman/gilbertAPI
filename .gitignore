@@ -6,3 +6,4 @@ package-lock.json
 *~
 supervisord.pid
 supervisord.log
+region-narration-express/
