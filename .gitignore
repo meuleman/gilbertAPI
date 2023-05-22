@@ -6,4 +6,7 @@ package-lock.json
 *~
 supervisord.pid
 supervisord.log
+# old server
 region-narration-express/
+# packages for vercel
+region_similarity_react/package.json
