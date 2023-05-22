@@ -18,6 +18,7 @@ current_name = (__file__)
 prod_name = '/data/narrativeGenomics/NarrativeGenomics/region_narration/region_narration_app/region-narration-flask/region_narration.py'
 
 if current_name == prod_name:
+    production = True
     server_root_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration'
 
     RN_VERSION = '0.0.1'
@@ -27,9 +28,12 @@ if current_name == prod_name:
     data_dir = os.path.join(server_root_dir, 'data')
 
 else:
+    production = False
     RN_VERSION_STR = ''
     # load search spaces for each scale
     data_dir = '../../data/'
+
+print(production)
 
 # Given a scale, build a path name for the search space
 def build_search_space_path(scale):
@@ -47,8 +51,11 @@ def build_query_path(scale):
 
 # Given a scale, build a path name for the tabix query
 def build_tabix_path(scale):
-    # path = os.path.join(data_dir, 'hg38.{}kb.regions.CT20230412.sorted.rownum4.bed.gz'.format(scale))
-    path = 'https://resources.altius.org/~ctrader/public/genomic_narration/indexed/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+    if production:
+        path = 'http://explore.altius.org/tabix/ng/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+    else:
+        # path = os.path.join(data_dir, 'hg38.{}kb.regions.CT20230412.sorted.rownum4.bed.gz'.format(scale))
+        path = 'https://resources.altius.org/~ctrader/public/genomic_narration/indexed/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
     return path
 
 
@@ -277,7 +284,7 @@ def narration():
 
     # get roi
     load_roi(genomic_location, build_tabix_path(scale))
-
+    print(build_tabix_path(scale), flush=True)
     # # get ranks and coordinates for the query region
     # load_ranks(build_query_path(scale))
 
