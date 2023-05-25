@@ -41,6 +41,7 @@ class InputRegion extends React.Component {
       })
     } else {
       alert('Please provide valid genomic coordinates')
+      console.log('FAILED')
     }
     // console.log(coordinateFormat.test(coordinates))
   }
