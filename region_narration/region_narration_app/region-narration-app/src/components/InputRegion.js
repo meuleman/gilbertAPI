@@ -18,7 +18,7 @@ class InputRegion extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault()
     const coordinates = this.state.location.trim()
-    const coordinateFormat = /^chr\d+:\d+-\d+$/
+    const coordinateFormat = /^chr\w+:\d+-\d+$/
 
     let passed = false
     if (coordinateFormat.test(coordinates)) {
