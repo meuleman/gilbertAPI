@@ -1,0 +1,256 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.4;
+  color: #444;
+  background: #fff;
+  height: 100vh;
+  min-width: 1350px;
+}
+
+.container {
+  margin: 0 auto;
+}
+
+.genomic-narration-header {
+  cursor: pointer;
+}
+
+.region {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 800px;
+  padding-top: 4rem;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.query-region {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  display: flex;
+  border-radius: calc(0.5 * 100px);
+  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.38);
+  justify-content: space-evenly;
+}
+
+.input-text {
+  font-size: 1rem;
+  font-weight: 400;
+  width: 85%;
+  padding-right: 5px;
+  padding-left: 10px;
+  border-radius: calc(0.5 * 100px);
+}
+
+.input-text::placeholder {
+  color: #999;
+}
+
+.input-submit {
+  background: transparent;
+  color: #5b5b5b;
+  text-transform: capitalize;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.input-text,
+.input-submit {
+height: 45px;
+outline: none;
+border: none;
+}
+
+.sentence-box {
+  width: 100%;
+  border: 15px;
+  padding: 30px;
+  height: 160px;
+}
+
+.sentence-header {
+  text-align: left;
+  font-size: 20px;
+}
+
+.sentence-body {
+  text-align: left;
+  font-size: 20px;
+}
+
+.figures {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.tab-figures {
+  justify-content: center;
+  width: 100%;
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+.bar {
+  /*background-color: red;
+  border: 1px solid black;*/
+  /*width: 550px;
+  height: 650px;*/
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-right: 2%;
+  margin-left: 2%;
+  position: relative;
+  /*height: 0;
+  width: 100%; 
+  padding: 0;
+  padding-bottom: 110%;*/
+}
+
+.spectrum {
+  /*background-color: blue;
+  border: 1px solid black;*/
+  /*width: 600px;
+  height: 400px;*/
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-left: 2%;
+  margin-bottom: 1%;
+  margin-right: 2%;
+  position: relative;
+}
+
+.upset {
+  /*background-color: green;
+  border: 1px solid black;*/
+  /*width: 600px;
+  height: 400px;*/
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-left: 2%;
+  margin-right: 2%;
+  position: relative;
+}
+
+.scaling-bar-svg-container {
+  position: relative; 
+  height: 0; 
+  width: 100%; 
+  padding: 0;
+  padding-bottom: 100%; 
+  /* override this inline for aspect ratio other than square */
+}
+.scaling-spectrum-svg-container {
+  position: relative; 
+  height: 0; 
+  width: 100%; 
+  padding: 0;
+  padding-bottom: 100%; 
+  /* override this inline for aspect ratio other than square */
+}
+.scaling-upset-svg-container {
+  position: relative; 
+  height: 0; 
+  width: 100%; 
+  padding: 0;
+  padding-bottom: 50%; 
+  padding-top:100%;
+  /* override this inline for aspect ratio other than square */
+}
+.scaling-svg {
+  position: absolute; 
+  height: 100%; 
+  width: 100%; 
+  left: 0; 
+  top: 0;
+}
+
+
+.dropdown {
+  position: relative;
+
+  z-index: 1;
+}
+
+.dropdown-button {
+  border-radius: 3px;
+  width: 240px
+}
+
+.dropdown-option-container {
+  position: absolute;
+  margin-top: -2px;
+
+  border: 1.5px solid black;
+  border-radius: 5px;
+  width: 240px;
+
+  background-color: white;
+}
+
+.dropdown-check, .dropdown-label {
+  margin-left: 5px;
+}
+
+.factor-select-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+}
+
+.detail-slider{
+  width: 200px
+}
+.deatil-level{
+  text-align: center;
+}
+.spinner-background{
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+.spinner{
+  position: absolute;
+  top: 30%;
+
+  border: 15px solid #f3f3f3;
+  border-top: 15px solid #3498db;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,3 +1,16 @@
+/* Functionality: File upload -> plotted on ideogram (Target gene shown in dropdown + related genes plotted)
+   Need to be added: click through ideogram to change target gene
+
+   Notes for future iterations to improve upon:
+   1. Find ideogram endpoints when element on dropdown is pressed so that dropdown is created faster with larger files
+   2. Epilogos State Score integration
+   3. Gene names added next to annotations (Space could be an issue)
+   4. Manual input option along with file upload option
+   5. Add time feature (how long it takes for dropdown to be populated)
+   6. Custom annotation options (rectanlges/circles instead of triangles)
+
+*/
+
 import React, { Component, useState } from "react";
 import Ideogram from 'ideogram';
 import axios from "axios";
@@ -262,7 +275,7 @@ class App extends Component {
               <div>
                 <hr />
                 <div className='geneLabelParent'>
-                  Selected gene: <span className='geneLabel'>{this.state.selectedGene}</span>
+                  Selected/Target gene: <span className='geneLabel'>{this.state.selectedGene}</span>
                 </div>
               </div>
               : 

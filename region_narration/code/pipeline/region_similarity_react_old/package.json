@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "axios": "^0.24.0",
-    "canvg": "^4.0.1"
-  }
-}
