@@ -9,7 +9,9 @@ import qnorm
 import numpy as np
 
 # Open the h5py file
-with h5py.File('/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/sbatch_files/makefiles/192k_biosamples_57k_genes_correctedMatrix_LW20230125.h5', 'r+') as hf:
+root = "/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/refining/data_slash_results/"
+filename = root + 'archs4_gene_human_v2.1_normalized_LW20230126.h5'
+with h5py.File(filename, 'r+') as hf:
     # Get the matrix from the file
     matrix = hf['threshold_matrix']
 

@@ -11,7 +11,7 @@ import numpy as np
 gene_length_list = []
 
 # Open the CSV file
-with open('/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/data_results/edited_gene_name_length_idx_data.csv', 'r') as f:
+with open('/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/refining/data_slash_results/edited_gene_name_length_idx_data.csv', 'r') as f:
     # Skip the header row
     next(f)
 

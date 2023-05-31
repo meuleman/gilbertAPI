@@ -1,6 +1,6 @@
 Project's main objective is to build a gene expression data resource where we can compare gene expression levels between genes and between biosamples. With the standard ARCHS4 dataset this is not possible, as the data are not normalized for transcript length and read depth.
 
-In this folder, the clean up, categorization, filtration, and log transformation/normalization are done for the data to be unusable. 
+In this folder, the clean up, categorization, filtration, and log transformation/normalization are done for the data to be usable. 
 
 The files inside "refining/sbatch_files/makefiles" folder are the main files which:
 1. Assign biosamples to biosample-categories
@@ -21,4 +21,74 @@ The files inside "refining/sbatch_files/makefiles" folder are the main files whi
 Run each of the corresponding ".sh" files in order with the ARCHS4 data. 
 (*These files may need to be modified if ARCHS4 data's gene names are different from the v2.1 or continue to not have ENSEMBLE ID.)
 
-In the "ARCHS4_LW/refining/data_slash_results/archs4_gene_human_v2.1_normalized_LW20230126.h5", has keys: data and meta. data has several matrixs stored ranging from the raw extracted matrix (~57k genes by 200k samples) to the O/E matrix. In meta, there are keys: genes and biosamples. 
+############# ARCHS4 HDF5 File Contents #############
+ 
+root = "/home/lwu/work/NarrativeGenomics/region_narration/code/pipeline/ARCHS4_LW/"
+file_path = "refining/data_slash_results/"
+filename = root + file_path + 'archs4_gene_human_v2.1_normalized_LW20230126.h5'
+
+Groups: 
+1. "data" 
+    - "raw_matrix"
+      The raw (but filtered and catgorized) ARCHS4 v2.1 data
+      
+    - "threshold_matrix"
+      The 5M read count threshold filteration 
+      
+    - "corrected_matrix"
+      Correcting for transcript-length 
+      
+    - "qn_matrix"
+      Performed quantile normalization 
+      
+    - "highest_tier_category_matrix_raw" 
+    - "lowest_tier_category_matrix_raw"
+      Raw samples averaged across highest level tier and lowest level tier categories.
+    
+    - "highest_tier_category_matrix_qn"
+    - "lowest_tier_category_matrix_qn"
+      Raw samples averaged across highest level tier and lowest level tier categories.
+    
+    - "high_tier_oe_matrix_raw"
+    - "low_tier_oe_matrix_raw"  
+      Raw O/E Matrix for highest level and lowest level tier categories.
+
+    - "high_tier_log2oe_matrix_raw"
+    - "low_tier_log2oe_matrix_raw"
+      Raw log2(O/E) Matrix for highest level and lowest level tier categories.
+    
+    - "high_tier_oe_matrix_qn"
+    - "low_tier_oe_matrix_qn"  
+      QN O/E Matrix for highest level and lowest level tier categories.
+
+    - "high_tier_log2oe_matrix_qn"
+    - "low_tier_log2oe_matrix_qn"
+      QN log2(O/E) Matrix for highest level and lowest level tier categories.
+   
+     
+2. "meta"
+i. "biosamples"
+    
+    - "all_biosample_names"
+      Raw matrix - all biosample names
+      
+    - "threshold_biosample_names"
+      After 5M read count threshold filteration - all biosample names 
+    
+    - "category"
+      After 5M filter, sample associated category 
+    
+ii. "genes"
+
+    - "all_gene_names"
+       All gene names 
+       
+    - "gene_description"
+       Short gene description from gProfiler 
+       
+    - "gene_id"
+      Gene ENSMB ID
+      
+    - "gene_length"
+      Gene transcript length 
+
