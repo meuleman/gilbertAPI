@@ -36,27 +36,25 @@ else:
 print(production)
 
 # Given a scale, build a path name for the search space
-def build_search_space_path(scale):
-    path = os.path.join(data_dir, 'regions_{}kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+def build_search_space_path(scale, method='sliding_window'):
+    if method == 'sliding_window':
+        path = os.path.join(data_dir, 'sliding_window/regions_{}kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+    elif method == 'hilbert':
+        path = os.path.join(data_dir, 'hilbert/hilbert_regions_order_{}_CT20230606.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
     return path
-
-
-"""
-# Given a scale, build a path name for the query region
-def build_query_path(scale):
-    path = os.path.join(data_dir, 'regions_{}kb_CT20230412.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.hdf5'.format(scale))
-    return path
-"""
 
 
 # Given a scale, build a path name for the tabix query
-def build_tabix_path(scale):
+def build_tabix_path(scale, method='sliding_window'):
+    if method == 'sliding_window':
+        filename = 'sliding_window/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+    elif method == 'hilbert':
+        filename = 'hilbert/hilbert_order_{}_windows.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
     if production:
-        path = 'http://explore.altius.org/tabix/ng/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+        path = 'http://explore.altius.org/tabix/ng/'
     else:
-        # path = os.path.join(data_dir, 'hg38.{}kb.regions.CT20230412.sorted.rownum4.bed.gz'.format(scale))
-        path = 'https://resources.altius.org/~ctrader/public/genomic_narration/indexed/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
-    return path
+        path = 'https://resources.altius.org/~ctrader/public/genomic_narration/indexed/'
+    return os.path.join(path, filename)
 
 
 # Load search space data from a given scale
@@ -68,13 +66,16 @@ def load_ranks(search_space_path):
 
 
 # load search spaces for all scales into dict
-seach_spaces = {}
+sliding_window_seach_spaces = {}
+hilbert_search_spaces = {}
 for scale in [1, 2, 5, 10, 15, 25, 50, 75, 100]:
-    seach_spaces[scale] = load_ranks(build_search_space_path(scale))
+    sliding_window_seach_spaces[scale] = load_ranks(build_search_space_path(scale, method='sliding_window'))
+for scale in [4, 5, 6, 7, 8, 9, 10]:
+    hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, method='hilbert'))
 
 
 # Functions for narration
-
+# run tabix query
 def tabix_query(filename, query):
     # Use subprocess with tabix and return hits
     process = Popen(['tabix', '-f', filename, query], stdout=PIPE)
@@ -85,54 +86,6 @@ def tabix_query(filename, query):
     hits = np.array(hits)
     return hits
 
-
-"""
-# determine roi from query coordinates
-def load_roi(genomic_location, tabix_file_path):
-    global roi
-
-    # determine chromosome, start, and end from query
-    query_start_end = genomic_location.split(':')[1].split('-')
-    query_start = int(query_start_end[0])
-    query_end = int(query_start_end[1])
-
-    # retrieve possible rois
-    tb = tabix.open(tabix_file_path)
-    possible_coords = np.array(list(tb.querys(genomic_location)))
-
-    # find closest roi
-    start_dist = np.abs(possible_coords[:, 1].astype(int) - query_start)
-    end_dist = np.abs(possible_coords[:, 2].astype(int) - query_end)
-    query_region = possible_coords[np.argmin(start_dist + end_dist)]
-    roi = int(query_region[3])
-
-    return
-"""
-
-"""
-# determine roi from query coordinates
-def load_roi(genomic_location, link_path):
-    global roi, roi_percents, roi_coords
-
-    # determine chromosome, start, and end from query
-    query_start_end = genomic_location.split(':')[1].split('-')
-    query_start = int(query_start_end[0])
-    query_end = int(query_start_end[1])
-
-    # retrieve possible rois
-    possible_coords = tabix_query(link_path, genomic_location)
-
-    # find closest roi
-    start_dist = np.abs(possible_coords[:, 1].astype(int) - query_start)
-    end_dist = np.abs(possible_coords[:, 2].astype(int) - query_end)
-    query_region = possible_coords[np.argmin(start_dist + end_dist)]
-
-    roi = int(query_region[3])
-    roi_percents = query_region[4:].astype('float32')
-    roi_coords = query_region[:3]
-
-    return
-"""
 
 # determine roi from query coordinates
 def load_roi(genomic_location, link_path):
@@ -162,25 +115,13 @@ def load_roi(genomic_location, link_path):
     return
 
 
-"""
-# load query ranks and coordinates
-def load_ranks(query_path):
-    global roi_percents, roi_coords
-
-    # load roi ranks
-    hdf5_f = h5py.File(query_path, 'r')
-    roi_percents = hdf5_f['percentiles'][roi]
-    roi_coords = np.char.decode(hdf5_f['coordinates'][roi])
-    hdf5_f.close()
-"""
-
-
 # choose search space from scale options
-def choose_search_space(scale):
+def choose_search_space(scale, method='sliding_window'):
     global percents, coords
-
-    percents, coords = seach_spaces[scale]
-
+    if method == 'sliding_window':
+        percents, coords = sliding_window_seach_spaces[scale]
+    elif method == 'hilbert':
+        percents, coords = hilbert_search_spaces[scale]
 
 # find the factors we want to search over
 def setup_included_factors(included_factors_str, query_factor_thresh):
@@ -281,15 +222,14 @@ def narration():
     get_roiURL = request_info['roiURL']
     query_factor_thresh = float(request_info['queryFactorThresh'])
     num_similar_regions = int(request_info['numSimilarRegions'])
+    region_method = request_info['regionMethod']
 
     # get roi
-    load_roi(genomic_location, build_tabix_path(scale))
-    print(build_tabix_path(scale), flush=True)
-    # # get ranks and coordinates for the query region
-    # load_ranks(build_query_path(scale))
+    load_roi(genomic_location, build_tabix_path(scale, region_method))
+    print(build_tabix_path(scale, region_method), flush=True)
 
     # choose search space
-    choose_search_space(scale)
+    choose_search_space(scale, region_method)
 
     # factors the user cares about
     setup_included_factors(included_factors_str, query_factor_thresh)

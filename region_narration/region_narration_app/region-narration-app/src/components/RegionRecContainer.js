@@ -245,8 +245,10 @@ class RegionRecContainer extends React.Component {
                 factors: JSON.stringify(this.state.selectedFactors),
                 roiURL: roiURL,
                 scale: scale / 1000,
+                // scale: 4,
                 queryFactorThresh: 0.5,
-                numSimilarRegions: 20
+                numSimilarRegions: 20,
+                regionMethod: "sliding_window",
             };
 	    console.log(`flaskURL: ${this.state.productionFlaskURL}`);
       let flaskURL = this.state.productionFlaskURL;
