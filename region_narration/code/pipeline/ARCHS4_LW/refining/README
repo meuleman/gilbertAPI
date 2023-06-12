@@ -74,9 +74,12 @@ i. "biosamples"
       
     - "threshold_biosample_names"
       After 5M read count threshold filteration - all biosample names 
+      
+    - "all_biosample_category"
+      Raw matrix - all biosamples' associated categories 
     
     - "category"
-      After 5M filter, sample associated category 
+      After 5M filter, biosample associated category 
     
 ii. "genes"
 
