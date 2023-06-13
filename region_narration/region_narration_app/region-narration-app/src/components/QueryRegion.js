@@ -5,7 +5,7 @@ function QueryRegion (props) {
     return (
       <div className='query-region'>
         <div>{props.queryProps.region}</div>
-        <div>Scale: {props.queryProps.scale / 1000}kb</div>
+        <div>Order: {props.queryProps.scale}</div>
       </div>
     )
   } else {

@@ -43,9 +43,12 @@ class RegionRecContainer extends React.Component {
     productionFlaskURL: "https://explore.altius.org:5001/narration",
     // developmentFlaskURL: "http://127.0.0.1:5435/narration",
     developmentFlaskURL: "http://127.0.0.1:5000/narration",
-    scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
+    // scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
+    scales: [4, 5, 6, 7, 8, 9, 10, 11],
+    scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
     currentScale: 1000,
-    requiredURLParams: ['chr', 'start', 'stop']
+    requiredURLParams: ['chr', 'start', 'stop'],
+    regionMethod: 'hilbert'
   }
 
   setDetailLevel = (value) => {
@@ -129,7 +132,7 @@ class RegionRecContainer extends React.Component {
   // }
 
   setAutoFactorSelection = (value) => {
-    console.log(value);
+    // console.log(value);
     // console.log(this.state.selectedFactors);
     this.setState({
       autoFactorSelection: value
@@ -139,18 +142,19 @@ class RegionRecContainer extends React.Component {
   
   setGenomicLocation = (location, popped=false) => {
     if (this.state.selectedFactors.length > 0) {
-        console.log(location);
+        // console.log(location);
         const startToEnd = location.split(':')[1];
         const startbp = startToEnd.split('-')[0];
         const endbp = startToEnd.split('-')[1];
         const queryLength = endbp - startbp;
 
-        let minDistance = this.state.scales.slice(-1)[0];
-        let bestScaleInd = this.state.scales.length - 1;
-        this.state.scales.map((s, i) => {
-            if (Math.min(Math.abs(s - queryLength), minDistance) !== minDistance) {
-                minDistance = Math.abs(s - queryLength)
-                bestScaleInd = i
+        let minDiff = this.state.scaleSegmentLengths[0];
+        let bestScaleInd = 0;
+        this.state.scaleSegmentLengths.map((s, i) => {
+            const diff = Math.abs(s - queryLength)
+            if (Math.min(diff, minDiff) !== minDiff) {
+              minDiff = diff
+              bestScaleInd = i
             }
             return null
         });
@@ -244,13 +248,13 @@ class RegionRecContainer extends React.Component {
                 location: location,
                 factors: JSON.stringify(this.state.selectedFactors),
                 roiURL: roiURL,
-                scale: scale / 1000,
-                // scale: 4,
+                // scale: scale / 1000,
+                scale: scale,
                 queryFactorThresh: 0.5,
                 numSimilarRegions: 20,
-                regionMethod: "sliding_window",
+                regionMethod: this.state.regionMethod,
             };
-	    console.log(`flaskURL: ${this.state.productionFlaskURL}`);
+	    // console.log(`flaskURL: ${this.state.productionFlaskURL}`);
       let flaskURL = this.state.productionFlaskURL;
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         flaskURL = this.state.developmentFlaskURL
@@ -261,7 +265,7 @@ class RegionRecContainer extends React.Component {
                 data: postBody
             }).then((response) => {
                 const fullData = response.data;
-                console.log(fullData);
+                // console.log(fullData);
 
                 // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
                 //     return rank > Math.sqrt(0.9)
@@ -297,7 +301,7 @@ class RegionRecContainer extends React.Component {
                     detailLevel: startDetailLevel,
                     currentScale: scale
                 }, () => {
-                    console.log(this.state.regionalVals);
+                    // console.log(this.state.regionalVals);
                 })
             })
 		.catch((err) => {
