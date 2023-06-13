@@ -70,7 +70,7 @@ sliding_window_seach_spaces = {}
 hilbert_search_spaces = {}
 for scale in [1, 2, 5, 10, 15, 25, 50, 75, 100]:
     sliding_window_seach_spaces[scale] = load_ranks(build_search_space_path(scale, method='sliding_window'))
-for scale in [4, 5, 6, 7, 8, 9, 10]:
+for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
     hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, method='hilbert'))
 
 
