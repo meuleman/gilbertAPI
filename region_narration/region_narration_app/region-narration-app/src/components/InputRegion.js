@@ -6,7 +6,8 @@ class InputRegion extends React.Component {
     location: '',
     chrValList: Array.from(
       {length: 22}, (value, index) => (index + 1).toString()
-    ).concat(['X', 'Y'])
+    ).concat(['X', 'Y']),
+    coordinateFormat: /^chr\w+:\d+-\d+$/
   }
 
   onChange = (e) => {
@@ -18,14 +19,13 @@ class InputRegion extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault()
     const coordinates = this.state.location.trim()
-    const coordinateFormat = /^chr\w+:\d+-\d+$/
 
     let passed = false
-    if (coordinateFormat.test(coordinates)) {
+    if (this.state.coordinateFormat.test(coordinates)) {
       const coordSplit = coordinates.split(':')
       const chrVal = coordSplit[0].split('chr')[1]
-      const start = coordSplit[1].split('-')[0]
-      const end = coordSplit[1].split('-')[1]
+      const start = parseInt(coordSplit[1].split('-')[0])
+      const end = parseInt(coordSplit[1].split('-')[1])
 
       if (
         (end > start) &&
@@ -43,7 +43,6 @@ class InputRegion extends React.Component {
       alert('Please provide valid genomic coordinates')
       console.log('FAILED')
     }
-    // console.log(coordinateFormat.test(coordinates))
   }
 
   render () {
