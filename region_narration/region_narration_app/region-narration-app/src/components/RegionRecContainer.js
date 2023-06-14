@@ -1,6 +1,6 @@
 import React from 'react'
 import Header from './Header'
-import InputRegion from './InputRegion'
+import Autocomplete from './Autocomplete/Autocomplete'
 import DisplaySentence from './DisplaySentence'
 import Axios from 'axios'
 // import DisplayTabs from './DisplayTabs'
@@ -143,9 +143,8 @@ class RegionRecContainer extends React.Component {
   setGenomicLocation = (location, popped=false) => {
     if (this.state.selectedFactors.length > 0) {
         // console.log(location);
-        const startToEnd = location.split(':')[1];
-        const startbp = startToEnd.split('-')[0];
-        const endbp = startToEnd.split('-')[1];
+        const startbp = location.start;
+        const endbp = location.stop;
         const queryLength = endbp - startbp;
 
         let minDiff = this.state.scaleSegmentLengths[0];
@@ -245,7 +244,7 @@ class RegionRecContainer extends React.Component {
             // })
             // Flask Server
 	    const postBody = {
-                location: location,
+                location: `${location.chrom}:${location.start}-${location.stop}`,
                 factors: JSON.stringify(this.state.selectedFactors),
                 roiURL: roiURL,
                 // scale: scale / 1000,
@@ -377,16 +376,20 @@ class RegionRecContainer extends React.Component {
       <div className='container'>
         <div className='region'>
           <Header />
-          <InputRegion setGenomicLocationProps={this.setGenomicLocation} />
-          <QueryRegion queryProps={{
-            region: this.state.genomicLocation,
-            scale: this.state.currentScale
-        }} />
-          <SelectDetailLevel detailProps={{
-            setDetailLevel: this.setDetailLevel, 
-            detailLevel: this.state.detailLevel,
-            maxDetailLevel: this.state.maxDetailLevel
-          }}/>
+          <Autocomplete onChangeLocation={this.setGenomicLocation} />
+          <QueryRegion 
+            queryProps={{
+              region: this.state.genomicLocation,
+              scale: this.state.currentScale
+            }} 
+          />
+          <SelectDetailLevel 
+            detailProps={{
+              setDetailLevel: this.setDetailLevel, 
+              detailLevel: this.state.detailLevel,
+              maxDetailLevel: this.state.maxDetailLevel
+            }}
+          />
           {/* <SelectFactors factorProps={{
             possibleFactors: this.state.possibleFactors, 
             setSelectedFactors: this.setSelectedFactors,
