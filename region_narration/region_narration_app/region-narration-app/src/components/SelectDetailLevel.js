@@ -8,8 +8,8 @@ function SelectDetailLevel (props) {
 
     return (
 
-        <div>
-            <div className='deatil-level'>Detail Level: {props.detailProps.detailLevel}</div>
+        <div className='detail-parent'>
+            <div className='detail-level'>Detail Level: {props.detailProps.detailLevel}</div>
             <input 
             className='detail-slider'
             type="range" 
