@@ -24,7 +24,6 @@ body {
 .region {
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
   align-items: center;
   margin: 0 auto;
   width: 100%;
@@ -32,6 +31,19 @@ body {
   padding-top: 4rem;
   padding-left: 20px;
   padding-right: 20px;
+}
+
+.results {
+  position: absolute;
+  top: 160px;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 800px;
 }
 
 .query-region {
@@ -257,3 +269,7 @@ border: none;
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* .factor-heatmap {
+  position: relative;
+} */

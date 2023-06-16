@@ -12,8 +12,8 @@ function FactorHeatmap (props) {
             const height = 700
             const width = 1200
             const sigHeight = 60
-            const zMax = 20
-            const zMin = -10
+            // const zMax = 20
+            // const zMin = -10
             const queryHeight = 60
             const colorHeight = 5
             const gap1 = 50
@@ -366,10 +366,21 @@ function FactorHeatmap (props) {
                     .style("stroke-width", "1")
             }
 
+            const findOffset = function () {
+                // offset of parent element
+                const parentElement = document.getElementById('results');
+                const parentOffset = parentElement.getBoundingClientRect()
+                const parentOffsetX = parentOffset.x
+                const parentOffsetY = parentOffset.y
+                console.log(parentOffset, parentOffsetX, parentOffsetY)
+                return parentOffset
+            }
+
             // mousemove
             const mousemove = function (e) {
-                tooltip.style('left', (e.pageX + 20) + 'px')
-                tooltip.style('top', (e.pageY) + 'px')
+                const parentOffset = findOffset()
+                tooltip.style('left', (e.clientX - parentOffset.x + 20) + 'px')
+                tooltip.style('top', (e.clientY - parentOffset.y) + 'px')
             }
 
             // mouseleave
@@ -399,6 +410,7 @@ function FactorHeatmap (props) {
                 .style('display', 'inline')
                 .style('z-index', -1)
                 .style('max-width', '500px')
+                .style('min-width', '100px')
 
             // mouseover for labels
             const mouseoverLabel = function (label) {
@@ -410,8 +422,9 @@ function FactorHeatmap (props) {
 
             // mousemove for labels
             const mousemoveLabel = function (e) {
-                labelTooltip.style('left', (e.pageX + 20) + 'px')
-                labelTooltip.style('top', (e.pageY) + 'px')
+                const parentOffset = findOffset()
+                labelTooltip.style('left', (e.clientX - parentOffset.x + 20) + 'px')
+                labelTooltip.style('top', (e.clientY - parentOffset.y) + 'px')
             }
 
             // mouseleave for labels
@@ -466,7 +479,7 @@ function FactorHeatmap (props) {
                 // .attr("transform", "rotate(-90)")
                 .style('font', '13px sans-serif')
                 .text("Rank Enrichment")
-                .on('mouseover', () => mouseoverLabel("Z-score of factor ranks in similar regions"))
+                .on('mouseover', () => mouseoverLabel("Average of factor ranks in similar regions"))
                 .on('mousemove', mousemoveLabel)
                 .on('mouseleave', mouseleaveLabel)
 

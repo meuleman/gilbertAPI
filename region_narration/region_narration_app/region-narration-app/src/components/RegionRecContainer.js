@@ -140,12 +140,22 @@ class RegionRecContainer extends React.Component {
   };
   
   
-  setGenomicLocation = (location, popped=false) => {
+  setGenomicLocation = (inLocation, popped=false) => {
     if (this.state.selectedFactors.length > 0) {
         // console.log(location);
+        let location = {}
+        if (typeof inLocation === "string") {
+          location = {
+            chrom: inLocation.split(':')[0],
+            start: inLocation.split(':')[1].split('-')[0],
+            stop: inLocation.split(':')[1].split('-')[1]
+          }
+        } else {
+          location = inLocation
+        }
         const startbp = location.start;
-        const endbp = location.stop;
-        const queryLength = endbp - startbp;
+        const stopbp = location.stop;
+        const queryLength = stopbp - startbp;
 
         let minDiff = this.state.scaleSegmentLengths[0];
         let bestScaleInd = 0;
@@ -377,55 +387,57 @@ class RegionRecContainer extends React.Component {
         <div className='region'>
           <Header />
           <Autocomplete onChangeLocation={this.setGenomicLocation} />
-          <QueryRegion 
-            queryProps={{
-              region: this.state.genomicLocation,
-              scale: this.state.currentScale
-            }} 
-          />
-          <SelectDetailLevel 
-            detailProps={{
-              setDetailLevel: this.setDetailLevel, 
-              detailLevel: this.state.detailLevel,
-              maxDetailLevel: this.state.maxDetailLevel
+          <div className='results' id='results'>
+            <QueryRegion 
+              queryProps={{
+                region: this.state.genomicLocation,
+                scale: this.state.currentScale
+              }} 
+            />
+            <SelectDetailLevel 
+              detailProps={{
+                setDetailLevel: this.setDetailLevel, 
+                detailLevel: this.state.detailLevel,
+                maxDetailLevel: this.state.maxDetailLevel
+              }}
+            />
+            {/* <SelectFactors factorProps={{
+              possibleFactors: this.state.possibleFactors, 
+              setSelectedFactors: this.setSelectedFactors,
+              data: this.state.regionalVals,
+              selectedFactors: this.state.selectedFactors,
+              setAutoFactorSelection: this.setAutoFactorSelection,
+              setIncluded: this.setIncluded,
+              included: this.state.included
+            }}/> */}
+            <Spinner spinnerProps={this.state.spinner}/>
+            <DisplaySentence sentenceProps={{
+              // sentence: this.state.sentence, 
+              data: this.state.regionalVals,
+              detailLevel: this.state.detailLevel
+              }} />
+            {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
+            <FactorHeatmap heatmapProps={{
+              data: this.state.regionalVals, 
+              search: this.setGenomicLocation,
+              setAutoFactorSelection: this.setAutoFactorSelection,
+              autoFactorSelection: this.state.autoFactorSelection,
+              detailLevel: this.state.detailLevel
+            }} />
+            {/* <LoadDataTest /> */}
+          </div>
+
+          {/*<div className='tab-figures'>
+            <DisplayTabs tabsProps={{
+              // sentence: this.state.sentence,
+              upset: this.state.upsetLimited,
+              spectrum: this.state.spectrum,
+              bar: this.state.barNormal,
+              regionalVals: this.state.regionalVals
             }}
           />
-          {/* <SelectFactors factorProps={{
-            possibleFactors: this.state.possibleFactors, 
-            setSelectedFactors: this.setSelectedFactors,
-            data: this.state.regionalVals,
-            selectedFactors: this.state.selectedFactors,
-            setAutoFactorSelection: this.setAutoFactorSelection,
-            setIncluded: this.setIncluded,
-            included: this.state.included
-          }}/> */}
-          <Spinner spinnerProps={this.state.spinner}/>
-          <DisplaySentence sentenceProps={{
-            // sentence: this.state.sentence, 
-            data: this.state.regionalVals,
-            detailLevel: this.state.detailLevel
-            }} />
-          {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
-          <FactorHeatmap heatmapProps={{
-            data: this.state.regionalVals, 
-            search: this.setGenomicLocation,
-            setAutoFactorSelection: this.setAutoFactorSelection,
-            autoFactorSelection: this.state.autoFactorSelection,
-            detailLevel: this.state.detailLevel
-          }} />
-          {/* <LoadDataTest /> */}
+          </div>*/}
         </div>
-
-        {/*<div className='tab-figures'>
-          <DisplayTabs tabsProps={{
-            // sentence: this.state.sentence,
-            upset: this.state.upsetLimited,
-            spectrum: this.state.spectrum,
-            bar: this.state.barNormal,
-            regionalVals: this.state.regionalVals
-          }}
-        />
-        </div>*/}
       </div>
 
     )
