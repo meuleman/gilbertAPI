@@ -13,6 +13,7 @@ import QueryRegion from './QueryRegion'
 // import SimSearchHeader from './SimSearchHeader'
 import SelectDetailLevel from './SelectDetailLevel'
 import Spinner from './Spinner'
+import Zoom from './Zoom'
 // import LoadDataTest from './LoadDataTest'
 
 class RegionRecContainer extends React.Component {
@@ -46,7 +47,7 @@ class RegionRecContainer extends React.Component {
     // scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
     scales: [4, 5, 6, 7, 8, 9, 10, 11],
     scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
-    currentScale: 1000,
+    currentScale: 4,
     requiredURLParams: ['chr', 'start', 'stop'],
     regionMethod: 'hilbert'
   }
@@ -140,7 +141,7 @@ class RegionRecContainer extends React.Component {
   };
   
   
-  setGenomicLocation = (inLocation, popped=false) => {
+  setGenomicLocation = (inLocation, popped=false, providedScale='') => {
     if (this.state.selectedFactors.length > 0) {
         // console.log(location);
         let location = {}
@@ -157,17 +158,23 @@ class RegionRecContainer extends React.Component {
         const stopbp = location.stop;
         const queryLength = stopbp - startbp;
 
-        let minDiff = this.state.scaleSegmentLengths[0];
-        let bestScaleInd = 0;
-        this.state.scaleSegmentLengths.map((s, i) => {
-            const diff = Math.abs(s - queryLength)
-            if (Math.min(diff, minDiff) !== minDiff) {
-              minDiff = diff
-              bestScaleInd = i
-            }
-            return null
-        });
-        const scale = this.state.scales[bestScaleInd];
+        let scale = ''
+        if (providedScale === '') {
+          let minDiff = this.state.scaleSegmentLengths[0];
+          let bestScaleInd = 0;
+          this.state.scaleSegmentLengths.map((s, i) => {
+              const diff = Math.abs(s - queryLength)
+              if (Math.min(diff, minDiff) !== minDiff) {
+                minDiff = diff
+                bestScaleInd = i
+              }
+              return null
+          });
+          scale = this.state.scales[bestScaleInd];
+        } else {
+          scale = providedScale
+        }
+        
 
         this.setState({
             spectrum: '',
@@ -176,7 +183,8 @@ class RegionRecContainer extends React.Component {
             barNormal: '',
             barCluster: '',
             barReduced: '',
-            spinner: true
+            spinner: true,
+            currentScale: scale
         });
         if (this.devMode) {
             const data = sampleData
@@ -254,65 +262,65 @@ class RegionRecContainer extends React.Component {
             // })
             // Flask Server
 	    const postBody = {
-                location: `${location.chrom}:${location.start}-${location.stop}`,
-                factors: JSON.stringify(this.state.selectedFactors),
-                roiURL: roiURL,
-                // scale: scale / 1000,
-                scale: scale,
-                queryFactorThresh: 0.5,
-                numSimilarRegions: 20,
-                regionMethod: this.state.regionMethod,
-            };
+          location: `${location.chrom}:${location.start}-${location.stop}`,
+          factors: JSON.stringify(this.state.selectedFactors),
+          roiURL: roiURL,
+          // scale: scale / 1000,
+          scale: scale,
+          queryFactorThresh: 0.5,
+          numSimilarRegions: 20,
+          regionMethod: this.state.regionMethod,
+      };
 	    // console.log(`flaskURL: ${this.state.productionFlaskURL}`);
       let flaskURL = this.state.productionFlaskURL;
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         flaskURL = this.state.developmentFlaskURL
       }
-            Axios({
-                method: 'POST',
-                url: flaskURL,
-                data: postBody
-            }).then((response) => {
-                const fullData = response.data;
-                // console.log(fullData);
+      Axios({
+          method: 'POST',
+          url: flaskURL,
+          data: postBody
+      }).then((response) => {
+        const fullData = response.data;
+        // console.log(fullData);
 
-                // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
-                //     return rank > Math.sqrt(0.9)
-                // }).length, 1)
+        // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
+        //     return rank > Math.sqrt(0.9)
+        // }).length, 1)
+        
+        const queryProdRanks = fullData.map((d) => {
+            return d[0].prod_rank
+        });
+        let startDetailLevel = 1;
+        let maxProdRank = 0;
+        queryProdRanks.map((value, index) => {
+            if (Math.max(maxProdRank, value) !== maxProdRank) {
+                maxProdRank = value
+                startDetailLevel = index + 1
+            }
+            return null
+        });
                 
-                const queryProdRanks = fullData.map((d) => {
-                    return d[0].prod_rank
-                });
-                let startDetailLevel = 1;
-                let maxProdRank = 0;
-                queryProdRanks.map((value, index) => {
-                    if (Math.max(maxProdRank, value) !== maxProdRank) {
-                        maxProdRank = value
-                        startDetailLevel = index + 1
-                    }
-                    return null
-                });
-                
-                const data = fullData[startDetailLevel - 1];
-                const queryRegion = data[0];
+        const data = fullData[startDetailLevel - 1];
+        const queryRegion = data[0];
 
-                const queryCoordinates = queryRegion.coordinates;
-                
-                // push state on new query and update tab title
-                this.updateURL(queryCoordinates, popped);
+        const queryCoordinates = queryRegion.coordinates;
+        
+        // push state on new query and update tab title
+        this.updateURL(queryCoordinates, popped);
 
-                this.setState({
-                    genomicLocation: queryCoordinates, // so we get the actual queried location
-                    regionalVals: data,
-                    fullData: fullData,
-                    spinner: false,
-                    maxDetailLevel: fullData.length,
-                    detailLevel: startDetailLevel,
-                    currentScale: scale
-                }, () => {
-                    // console.log(this.state.regionalVals);
-                })
-            })
+        this.setState({
+          genomicLocation: queryCoordinates, // so we get the actual queried location
+          regionalVals: data,
+          fullData: fullData,
+          spinner: false,
+          maxDetailLevel: fullData.length,
+          detailLevel: startDetailLevel,
+          currentScale: scale
+        }, () => {
+            // console.log(this.state.regionalVals);
+        })
+    })
 		.catch((err) => {
 		    console.error(`error:     ${JSON.stringify(err)}`);
 		    console.error(`post body: ${JSON.stringify(postBody)}`);
@@ -394,6 +402,12 @@ class RegionRecContainer extends React.Component {
                 scale: this.state.currentScale
               }} 
             />
+            <Zoom zoomProps={{
+              setGenomicLocation: this.setGenomicLocation,
+              currentScale: this.state.currentScale,
+              currentLocation: this.state.genomicLocation,
+              possibleScales: this.state.scales
+            }}/>
             <SelectDetailLevel 
               detailProps={{
                 setDetailLevel: this.setDetailLevel, 

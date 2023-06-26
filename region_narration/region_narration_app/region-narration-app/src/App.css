@@ -270,6 +270,14 @@ border: none;
   100% { transform: rotate(360deg); }
 }
 
+.zoom-button {
+  width: 20px
+}
+
+.zoom-text {
+  margin-right: 5px;
+}
+
 /* .factor-heatmap {
   position: relative;
 } */

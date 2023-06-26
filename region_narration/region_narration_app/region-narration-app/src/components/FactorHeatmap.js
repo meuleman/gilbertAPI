@@ -372,7 +372,7 @@ function FactorHeatmap (props) {
                 const parentOffset = parentElement.getBoundingClientRect()
                 const parentOffsetX = parentOffset.x
                 const parentOffsetY = parentOffset.y
-                console.log(parentOffset, parentOffsetX, parentOffsetY)
+                // console.log(parentOffset, parentOffsetX, parentOffsetY)
                 return parentOffset
             }
 
