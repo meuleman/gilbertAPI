@@ -14,6 +14,7 @@ import QueryRegion from './QueryRegion'
 import SelectDetailLevel from './SelectDetailLevel'
 import Spinner from './Spinner'
 import Zoom from './Zoom'
+import Overlap from './Overlap'
 // import LoadDataTest from './LoadDataTest'
 
 class RegionRecContainer extends React.Component {
@@ -21,13 +22,14 @@ class RegionRecContainer extends React.Component {
   devMode = false;
   state = {
     genomicLocation: '',
+    queriedGenomicLocation: '',
     // sentence: '',
-    spectrum: '',
-    upsetFull: '',
-    upsetLimited: '',
-    barNormal: '',
-    barCluster: '',
-    barReduced: '',
+    // spectrum: '',
+    // upsetFull: '',
+    // upsetLimited: '',
+    // barNormal: '',
+    // barCluster: '',
+    // barReduced: '',
     regionalVals: '',
     fullData:'',
     selectedFactors: [...Array(factors.length).keys()],
@@ -141,127 +143,82 @@ class RegionRecContainer extends React.Component {
   };
   
   
-  setGenomicLocation = (inLocation, popped=false, providedScale='') => {
+  setGenomicLocation = (inLocation, popped=false, providedScale='', newQueryLocation=true) => {
     if (this.state.selectedFactors.length > 0) {
-        // console.log(location);
-        let location = {}
-        if (typeof inLocation === "string") {
-          location = {
-            chrom: inLocation.split(':')[0],
-            start: inLocation.split(':')[1].split('-')[0],
-            stop: inLocation.split(':')[1].split('-')[1]
-          }
-        } else {
-          location = inLocation
+      let location = {}
+      if (typeof inLocation === "string") {
+        location = {
+          chrom: inLocation.split(':')[0],
+          start: parseInt(inLocation.split(':')[1].split('-')[0]),
+          stop: parseInt(inLocation.split(':')[1].split('-')[1])
         }
-        const startbp = location.start;
-        const stopbp = location.stop;
-        const queryLength = stopbp - startbp;
-
-        let scale = ''
-        if (providedScale === '') {
-          let minDiff = this.state.scaleSegmentLengths[0];
-          let bestScaleInd = 0;
-          this.state.scaleSegmentLengths.map((s, i) => {
-              const diff = Math.abs(s - queryLength)
-              if (Math.min(diff, minDiff) !== minDiff) {
-                minDiff = diff
-                bestScaleInd = i
-              }
-              return null
-          });
-          scale = this.state.scales[bestScaleInd];
-        } else {
-          scale = providedScale
-        }
-        
-
+      } else {
+        location = inLocation
+      }
+      if (newQueryLocation) {
         this.setState({
-            spectrum: '',
-            upsetFull: '',
-            upsetLimited: '',
-            barNormal: '',
-            barCluster: '',
-            barReduced: '',
-            spinner: true,
-            currentScale: scale
-        });
-        if (this.devMode) {
-            const data = sampleData
-            // const queryRegion = data[0]
-            this.setState({
-                regionalVals: data,
+          queriedGenomicLocation: location
         }, () => {
+          // console.log(this.state.queriedGenomicLocation)
         })
-        } else {
-            // const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-            // let queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-            let roiURL = "True"
-            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-                // queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
-                roiURL = "False"
-            } //else {
-            //     queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
-            //     roiURL = "True"
-            // }
-            //   console.log(`queryURL: ${queryURL}`)
-            // console.log(`location: ${location}`)
-            // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
+      }
 
-            // // Express.js server
-            // Axios({
-            //     method: 'GET',
-            //     url: queryURL,
-            //     headers: {
-            //         reqState: location,
-            //         purpose: 'getRegions',
-            //         factors: JSON.stringify(this.state.selectedFactors),
-            //         roiURL: roiURL,
-            //         scale: scale / 1000
-            //     }
-            // }).then((response) => {
-            //     const fullData = response.data.findRegionValsObject
-            //     console.log(fullData)
+      const startbp = location.start;
+      const stopbp = location.stop;
+      const queryLength = stopbp - startbp;
 
-            //     // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
-            //     //     return rank > Math.sqrt(0.9)
-            //     // }).length, 1)
-                
-            //     const queryProdRanks = fullData.map((d) => {
-            //         return d[0].prod_rank
-            //     })
-            //     let startDetailLevel = 1
-            //     let maxProdRank = 0
-            //     queryProdRanks.map((value, index) => {
-            //         if (Math.max(maxProdRank, value) !== maxProdRank) {
-            //             maxProdRank = value
-            //             startDetailLevel = index + 1
-            //         }
-            //         return null
-            //     })
-                
-            //     const data = fullData[startDetailLevel - 1]
-            //     const queryRegion = data[0]
+      let scale = ''
+      if (providedScale === '') {
+        let minDiff = this.state.scaleSegmentLengths[0];
+        let bestScaleInd = 0;
+        this.state.scaleSegmentLengths.map((s, i) => {
+            const diff = Math.abs(s - queryLength)
+            if (Math.min(diff, minDiff) !== minDiff) {
+              minDiff = diff
+              bestScaleInd = i
+            }
+            return null
+        });
+        scale = this.state.scales[bestScaleInd];
+      } else {
+        scale = providedScale
+      }
+        
+      this.setState({
+          spectrum: '',
+          upsetFull: '',
+          upsetLimited: '',
+          barNormal: '',
+          barCluster: '',
+          barReduced: '',
+          spinner: true,
+          currentScale: scale
+      });
+      if (this.devMode) {
+          const data = sampleData
+          // const queryRegion = data[0]
+          this.setState({
+              regionalVals: data,
+      }, () => {
+      })
+      } else {
+        // const queryURL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? `http://${this.state.devQueryHost}:${this.state.devQueryPort}/` : `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+        // let queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+        let roiURL = "True"
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+            // queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
+            roiURL = "False"
+        } //else {
+        //     queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
+        //     roiURL = "True"
+        // }
+        //   console.log(`queryURL: ${queryURL}`)
+        // console.log(`location: ${location}`)
+        // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
 
-            //     const queryCoordinates = queryRegion.coordinates
-                
-            //     // push state on new query and update tab title
-            //     this.updateURL(queryCoordinates, popped)
-
-            //     this.setState({
-            //         genomicLocation: queryCoordinates, // so we get the actual queried location
-            //         regionalVals: data,
-            //         fullData: fullData,
-            //         spinner: false,
-            //         maxDetailLevel: fullData.length,
-            //         detailLevel: startDetailLevel,
-            //         currentScale: scale
-            //     }, () => {
-            //         console.log(this.state.regionalVals)
-            //     })
-            // })
-            // Flask Server
-	    const postBody = {
+          
+        // Flask Server
+        const postBody = {
           location: `${location.chrom}:${location.start}-${location.stop}`,
           factors: JSON.stringify(this.state.selectedFactors),
           roiURL: roiURL,
@@ -270,66 +227,72 @@ class RegionRecContainer extends React.Component {
           queryFactorThresh: 0.5,
           numSimilarRegions: 20,
           regionMethod: this.state.regionMethod,
-      };
-	    // console.log(`flaskURL: ${this.state.productionFlaskURL}`);
-      let flaskURL = this.state.productionFlaskURL;
-      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        flaskURL = this.state.developmentFlaskURL
-      }
-      Axios({
-          method: 'POST',
-          url: flaskURL,
-          data: postBody
-      }).then((response) => {
-        const fullData = response.data;
-        // console.log(fullData);
+        };
+        // console.log(`flaskURL: ${this.state.productionFlaskURL}`);
+        let flaskURL = this.state.productionFlaskURL;
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          flaskURL = this.state.developmentFlaskURL
+        }
+        Axios({
+            method: 'POST',
+            url: flaskURL,
+            data: postBody
+        }).then((response) => {
+          const fullData = response.data;
+          // console.log(fullData);
 
-        // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
-        //     return rank > Math.sqrt(0.9)
-        // }).length, 1)
-        
-        const queryProdRanks = fullData.map((d) => {
-            return d[0].prod_rank
-        });
-        let startDetailLevel = 1;
-        let maxProdRank = 0;
-        queryProdRanks.map((value, index) => {
-            if (Math.max(maxProdRank, value) !== maxProdRank) {
-                maxProdRank = value
-                startDetailLevel = index + 1
-            }
-            return null
-        });
-                
-        const data = fullData[startDetailLevel - 1];
-        const queryRegion = data[0];
+          // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
+          //     return rank > Math.sqrt(0.9)
+          // }).length, 1)
+          
+          const queryProdRanks = fullData.map((d) => {
+              return d[0].prod_rank
+          });
+          let startDetailLevel = 1;
+          let maxProdRank = 0;
+          queryProdRanks.map((value, index) => {
+              if (Math.max(maxProdRank, value) !== maxProdRank) {
+                  maxProdRank = value
+                  startDetailLevel = index + 1
+              }
+              return null
+          });
+                  
+          const data = fullData[startDetailLevel - 1];
+          const queryRegion = data[0];
 
-        const queryCoordinates = queryRegion.coordinates;
-        
-        // push state on new query and update tab title
-        this.updateURL(queryCoordinates, popped);
+          const returnedCoordinates = queryRegion.coordinates;
+          
+          // push state on new query and update tab title
+          this.updateURL(returnedCoordinates, popped);
 
-        this.setState({
-          genomicLocation: queryCoordinates, // so we get the actual queried location
-          regionalVals: data,
-          fullData: fullData,
-          spinner: false,
-          maxDetailLevel: fullData.length,
-          detailLevel: startDetailLevel,
-          currentScale: scale
-        }, () => {
-            // console.log(this.state.regionalVals);
-        })
-    })
-		.catch((err) => {
-		    console.error(`error:     ${JSON.stringify(err)}`);
-		    console.error(`post body: ${JSON.stringify(postBody)}`);
+          const returnedCoordinatesObj = {
+            chrom: returnedCoordinates.split(':')[0],
+            start: parseInt(returnedCoordinates.split(':')[1].split('-')[0]),
+            stop: parseInt(returnedCoordinates.split(':')[1].split('-')[1])
+          }
+
+          this.setState({
+            genomicLocation: returnedCoordinatesObj, // so we get the actual queried/returned location
+            regionalVals: data,
+            fullData: fullData,
+            spinner: false,
+            maxDetailLevel: fullData.length,
+            detailLevel: startDetailLevel,
+            currentScale: scale
+          }, () => {
+              // console.log(this.state.genomicLocation, this.state.queriedGenomicLocation);
+          })
+      })
+      .catch((err) => {
+        console.error(`error:     ${JSON.stringify(err)}`);
+        console.error(`post body: ${JSON.stringify(postBody)}`);
         alert('Query Failed: Try another region.');
         this.setState({
           spinner: false
         })
-		});
-        }
+		  });
+      }
     }
   }
 
@@ -347,28 +310,28 @@ class RegionRecContainer extends React.Component {
     }
     const paramsObj = parseURL();
     if (paramsObj) {
-        let passed  = false;
-        const paramKeys = Object.keys(paramsObj)
-        let numParamDifferences = 0
-        if (paramKeys.length === this.state.requiredURLParams.length) {
-            numParamDifferences = paramKeys.filter((param) => {
-                return !this.state.requiredURLParams.includes(param)
-            }).length;
-        }
-        if (
-            (paramKeys.length !== this.state.requiredURLParams.length) ||
-            (numParamDifferences > 0)
-        ) {
-            if (window.location.href !== document.location.href.split("?")[0]) {
-                window.location.href = document.location.href.split("?")[0];
-            }
-        } else {
-            passed = true
-        }
-        if (passed) {
-            const coordinates = paramsObj.chr + ":" + paramsObj.start + "-" + paramsObj.stop
-            this.setGenomicLocation(coordinates, popped)
-        }
+      let passed  = false;
+      const paramKeys = Object.keys(paramsObj)
+      let numParamDifferences = 0
+      if (paramKeys.length === this.state.requiredURLParams.length) {
+          numParamDifferences = paramKeys.filter((param) => {
+              return !this.state.requiredURLParams.includes(param)
+          }).length;
+      }
+      if (
+          (paramKeys.length !== this.state.requiredURLParams.length) ||
+          (numParamDifferences > 0)
+      ) {
+          if (window.location.href !== document.location.href.split("?")[0]) {
+              window.location.href = document.location.href.split("?")[0];
+          }
+      } else {
+          passed = true
+      }
+      if (passed) {
+          const coordinates = paramsObj.chr + ":" + paramsObj.start + "-" + paramsObj.stop
+          this.setGenomicLocation(coordinates, popped)
+      }
     }
   }
 
@@ -405,14 +368,20 @@ class RegionRecContainer extends React.Component {
             <Zoom zoomProps={{
               setGenomicLocation: this.setGenomicLocation,
               currentScale: this.state.currentScale,
-              currentLocation: this.state.genomicLocation,
+              queriedLocation: this.state.queriedGenomicLocation,
+              returnedLocation: this.state.genomicLocation,
               possibleScales: this.state.scales
+            }}/>
+            <Overlap overlapProps={{
+              queriedLocation: this.state.queriedGenomicLocation,
+              returnedLocation: this.state.genomicLocation
             }}/>
             <SelectDetailLevel 
               detailProps={{
                 setDetailLevel: this.setDetailLevel, 
                 detailLevel: this.state.detailLevel,
-                maxDetailLevel: this.state.maxDetailLevel
+                maxDetailLevel: this.state.maxDetailLevel,
+                returnedLocation: this.state.genomicLocation
               }}
             />
             {/* <SelectFactors factorProps={{
