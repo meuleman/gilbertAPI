@@ -126,7 +126,9 @@ def top_region_sig(percents, top_regions):
     top_region_mean = np.mean(percents[top_regions[:, 1:]], axis=1)
 
     # Z score
-    Z = (top_region_mean - all_mean) / (all_std / np.sqrt(top_regions.shape[1] - 1))
+    # print((top_region_mean, all_mean, all_std, top_regions.shape[1]), flush=True)
+    # Z = (top_region_mean - all_mean) / (all_std / np.sqrt(top_regions.shape[1] - 1))
+    Z = np.zeros(top_region_mean.shape)  # sfc is too sparse
 
     # p-value (one sided)
     pval = stats.norm.sf(Z)

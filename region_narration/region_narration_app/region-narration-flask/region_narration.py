@@ -41,6 +41,8 @@ def build_search_space_path(scale, method='sliding_window'):
         path = os.path.join(data_dir, 'sliding_window/regions_{}kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
     elif method == 'hilbert':
         path = os.path.join(data_dir, 'hilbert/hilbert_regions_order_{}_CT20230606.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+    elif method == 'hilbert_sfc':
+        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230630.dhs.cs.sfc.ranks.limited_search_space_top_1000_no_overlap.npz'.format(scale))
     return path
 
 
@@ -50,6 +52,8 @@ def build_tabix_path(scale, method='sliding_window'):
         filename = 'sliding_window/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
     elif method == 'hilbert':
         filename = 'hilbert/hilbert_order_{}_windows.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+    elif method == 'hilbert_sfc':
+        filename = 'hilbert_sfc/hilbert_order_{}_windows.sorted.rownum4.sfc.ranks5t38.bed.gz'.format(scale)
     if production:
         path = 'http://explore.altius.org/tabix/ng/'
     else:
@@ -58,9 +62,12 @@ def build_tabix_path(scale, method='sliding_window'):
 
 
 # Load search space data from a given scale
-def load_ranks(search_space_path):
+def load_ranks(search_space_path, method='sliding_window'):
     search_space = np.load(search_space_path)
-    percents = search_space['percentiles']
+    if ((method == 'sliding_window') | (method == 'hilbert')):
+        percents = search_space['percentiles']
+    elif (method == 'hilbert_sfc'):
+        percents = search_space['ranks']
     coords = search_space['coordinates']
     return percents, coords
 
@@ -68,10 +75,16 @@ def load_ranks(search_space_path):
 # load search spaces for all scales into dict
 sliding_window_seach_spaces = {}
 hilbert_search_spaces = {}
+hilbert_sfc_search_spaces = {}
 for scale in [1, 2, 5, 10, 15, 25, 50, 75, 100]:
-    sliding_window_seach_spaces[scale] = load_ranks(build_search_space_path(scale, method='sliding_window'))
+    region_method = 'sliding_window'
+    sliding_window_seach_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
 for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
-    hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, method='hilbert'))
+    region_method = 'hilbert'
+    hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
+for scale in [4, 5, 6, 7, 8, 9]:
+    region_method = 'hilbert_sfc'
+    hilbert_sfc_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
 
 
 # Functions for narration
@@ -122,6 +135,8 @@ def choose_search_space(scale, method='sliding_window'):
         percents, coords = sliding_window_seach_spaces[scale]
     elif method == 'hilbert':
         percents, coords = hilbert_search_spaces[scale]
+    elif method == 'hilbert_sfc':
+        percents, coords = hilbert_sfc_search_spaces[scale]
 
 # find the factors we want to search over
 def setup_included_factors(included_factors_str, query_factor_thresh):

@@ -15,6 +15,7 @@ body {
 
 .container {
   margin: 0 auto;
+  align-items: center;
 }
 
 .genomic-narration-header {
@@ -22,15 +23,17 @@ body {
 }
 
 .region {
+  position: absolute;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 800px;
+  /* margin: 0 auto; */
+  /* width: 100%; */
+  /* max-width: 800px; */
   padding-top: 4rem;
-  padding-left: 20px;
-  padding-right: 20px;
+  /* padding-left: 20px; */
+  /* padding-right: 20px; */
 }
 
 .results {
@@ -39,11 +42,10 @@ body {
   z-index: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   margin: 0 auto;
   width: 100%;
-  max-width: 800px;
+  /* max-width: 1500px; */
 }
 
 .query-region {
@@ -96,6 +98,7 @@ border: none;
   border: 15px;
   padding: 30px;
   height: 160px;
+  max-width: 800px;
 }
 
 .sentence-header {
@@ -278,6 +281,24 @@ border: none;
   margin-right: 5px;
 }
 
-/* .factor-heatmap {
-  position: relative;
-} */
+.regions-on-ideogram {
+  /* top: 600px; */
+  /* width: 800px; */
+  height: 700px;
+  width: 20%;
+  max-width: 175px;
+  padding: 10px;
+  padding-top: 90px;
+
+}
+
+.factor-heatmap {
+  width: 80%;
+  max-width: 1150px;
+}
+
+.figures {
+  display: flex;
+  width: 100%;
+  /* padding-left: 50px; */
+}

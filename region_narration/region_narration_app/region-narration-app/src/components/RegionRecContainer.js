@@ -15,6 +15,7 @@ import SelectDetailLevel from './SelectDetailLevel'
 import Spinner from './Spinner'
 import Zoom from './Zoom'
 import Overlap from './Overlap'
+import RegionsOnIdeogram from './RegionsOnIdeogram'
 // import LoadDataTest from './LoadDataTest'
 
 class RegionRecContainer extends React.Component {
@@ -47,11 +48,13 @@ class RegionRecContainer extends React.Component {
     // developmentFlaskURL: "http://127.0.0.1:5435/narration",
     developmentFlaskURL: "http://127.0.0.1:5000/narration",
     // scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
-    scales: [4, 5, 6, 7, 8, 9, 10, 11],
+    // scales: [4, 5, 6, 7, 8, 9, 10, 11],
+    scales: [4, 5, 6, 7, 8, 9],
     scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
+    scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024],
     currentScale: 4,
     requiredURLParams: ['chr', 'start', 'stop'],
-    regionMethod: 'hilbert'
+    regionMethod: 'hilbert_sfc'
   }
 
   setDetailLevel = (value) => {
@@ -96,10 +99,10 @@ class RegionRecContainer extends React.Component {
 
     let hostname = "https://explore.altius.org/ng/"
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        const localPort = window.location.port;
-        hostname = "http://localhost:" + localPort + "/";
+      const localPort = window.location.port;
+      hostname = "http://localhost:" + localPort + "/";
     } else if (window.location.hostname === "region-narration-app.vercel.app") {
-        hostname = "https://region-narration-app.vercel.app/";
+      hostname = "https://region-narration-app.vercel.app/";
     }
 
     const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end;
@@ -143,7 +146,7 @@ class RegionRecContainer extends React.Component {
   };
   
   
-  setGenomicLocation = (inLocation, popped=false, providedScale='', newQueryLocation=true) => {
+  setGenomicLocation = (inLocation, popped=false, providedScale='', newQueryLocation=true, providedDetailLevel='') => {
     if (this.state.selectedFactors.length > 0) {
       let location = {}
       if (typeof inLocation === "string") {
@@ -172,12 +175,12 @@ class RegionRecContainer extends React.Component {
         let minDiff = this.state.scaleSegmentLengths[0];
         let bestScaleInd = 0;
         this.state.scaleSegmentLengths.map((s, i) => {
-            const diff = Math.abs(s - queryLength)
-            if (Math.min(diff, minDiff) !== minDiff) {
-              minDiff = diff
-              bestScaleInd = i
-            }
-            return null
+          const diff = Math.abs(s - queryLength)
+          if (Math.min(diff, minDiff) !== minDiff) {
+            minDiff = diff
+            bestScaleInd = i
+          }
+          return null
         });
         scale = this.state.scales[bestScaleInd];
       } else {
@@ -185,20 +188,20 @@ class RegionRecContainer extends React.Component {
       }
         
       this.setState({
-          spectrum: '',
-          upsetFull: '',
-          upsetLimited: '',
-          barNormal: '',
-          barCluster: '',
-          barReduced: '',
-          spinner: true,
-          currentScale: scale
+        spectrum: '',
+        upsetFull: '',
+        upsetLimited: '',
+        barNormal: '',
+        barCluster: '',
+        barReduced: '',
+        spinner: true,
+        currentScale: scale
       });
       if (this.devMode) {
-          const data = sampleData
-          // const queryRegion = data[0]
-          this.setState({
-              regionalVals: data,
+        const data = sampleData
+        // const queryRegion = data[0]
+        this.setState({
+          regionalVals: data,
       }, () => {
       })
       } else {
@@ -206,8 +209,8 @@ class RegionRecContainer extends React.Component {
         // let queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
         let roiURL = "True"
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-            // queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
-            roiURL = "False"
+          // queryURL = `http://${this.state.devQueryHost}:${this.state.devQueryPort}/`
+          roiURL = "False"
         } //else {
         //     queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
         //     roiURL = "True"
@@ -234,29 +237,30 @@ class RegionRecContainer extends React.Component {
           flaskURL = this.state.developmentFlaskURL
         }
         Axios({
-            method: 'POST',
-            url: flaskURL,
-            data: postBody
+          method: 'POST',
+          url: flaskURL,
+          data: postBody
         }).then((response) => {
           const fullData = response.data;
           // console.log(fullData);
-
-          // const startDetailLevel = Math.max(fullData[0][0].percentiles.filter((rank) => {
-          //     return rank > Math.sqrt(0.9)
-          // }).length, 1)
           
-          const queryProdRanks = fullData.map((d) => {
-              return d[0].prod_rank
-          });
           let startDetailLevel = 1;
-          let maxProdRank = 0;
-          queryProdRanks.map((value, index) => {
+          if (providedDetailLevel === '') {
+            const queryProdRanks = fullData.map((d) => {
+              return d[0].prod_rank
+            });
+            
+            let maxProdRank = 0;
+            queryProdRanks.map((value, index) => {
               if (Math.max(maxProdRank, value) !== maxProdRank) {
-                  maxProdRank = value
-                  startDetailLevel = index + 1
+                maxProdRank = value
+                startDetailLevel = index + 1
               }
               return null
-          });
+            });
+          } else {
+            startDetailLevel = providedDetailLevel
+          }
                   
           const data = fullData[startDetailLevel - 1];
           const queryRegion = data[0];
@@ -281,7 +285,7 @@ class RegionRecContainer extends React.Component {
             detailLevel: startDetailLevel,
             currentScale: scale
           }, () => {
-              // console.log(this.state.genomicLocation, this.state.queriedGenomicLocation);
+            // console.log(this.state.genomicLocation, this.state.queriedGenomicLocation);
           })
       })
       .catch((err) => {
@@ -298,15 +302,15 @@ class RegionRecContainer extends React.Component {
 
   parseQueryParams = (popped) => {
     const parseURL = () => {
-        const urlParams = window.location.search.slice(1)
-        let paramsObj = {}
-        urlParams.split('&').forEach((param) => {
-            const keyVal = param.split("=")
-            if (keyVal[0].length > 0) {
-                paramsObj[keyVal[0]] = decodeURIComponent(keyVal[1])
-            }
-        })
-        return paramsObj
+      const urlParams = window.location.search.slice(1)
+      let paramsObj = {}
+      urlParams.split('&').forEach((param) => {
+          const keyVal = param.split("=")
+          if (keyVal[0].length > 0) {
+            paramsObj[keyVal[0]] = decodeURIComponent(keyVal[1])
+          }
+      })
+      return paramsObj
     }
     const paramsObj = parseURL();
     if (paramsObj) {
@@ -314,23 +318,23 @@ class RegionRecContainer extends React.Component {
       const paramKeys = Object.keys(paramsObj)
       let numParamDifferences = 0
       if (paramKeys.length === this.state.requiredURLParams.length) {
-          numParamDifferences = paramKeys.filter((param) => {
-              return !this.state.requiredURLParams.includes(param)
-          }).length;
+        numParamDifferences = paramKeys.filter((param) => {
+          return !this.state.requiredURLParams.includes(param)
+        }).length;
       }
       if (
-          (paramKeys.length !== this.state.requiredURLParams.length) ||
-          (numParamDifferences > 0)
+        (paramKeys.length !== this.state.requiredURLParams.length) ||
+        (numParamDifferences > 0)
       ) {
-          if (window.location.href !== document.location.href.split("?")[0]) {
-              window.location.href = document.location.href.split("?")[0];
-          }
+        if (window.location.href !== document.location.href.split("?")[0]) {
+          window.location.href = document.location.href.split("?")[0];
+        }
       } else {
-          passed = true
+        passed = true
       }
       if (passed) {
-          const coordinates = paramsObj.chr + ":" + paramsObj.start + "-" + paramsObj.stop
-          this.setGenomicLocation(coordinates, popped)
+        const coordinates = paramsObj.chr + ":" + paramsObj.start + "-" + paramsObj.stop
+        this.setGenomicLocation(coordinates, popped)
       }
     }
   }
@@ -358,7 +362,8 @@ class RegionRecContainer extends React.Component {
         <div className='region'>
           <Header />
           <Autocomplete onChangeLocation={this.setGenomicLocation} />
-          <div className='results' id='results'>
+        </div>
+        <div className='results' id='results'>
             <QueryRegion 
               queryProps={{
                 region: this.state.genomicLocation,
@@ -400,13 +405,19 @@ class RegionRecContainer extends React.Component {
               detailLevel: this.state.detailLevel
               }} />
             {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
-            <FactorHeatmap heatmapProps={{
-              data: this.state.regionalVals, 
-              search: this.setGenomicLocation,
-              setAutoFactorSelection: this.setAutoFactorSelection,
-              autoFactorSelection: this.state.autoFactorSelection,
-              detailLevel: this.state.detailLevel
-            }} />
+            <div className='figures'>
+              <RegionsOnIdeogram ideogramProps={{
+                data: this.state.regionalVals
+              }}/>
+              <FactorHeatmap heatmapProps={{
+                data: this.state.regionalVals, 
+                search: this.setGenomicLocation,
+                setAutoFactorSelection: this.setAutoFactorSelection,
+                autoFactorSelection: this.state.autoFactorSelection,
+                detailLevel: this.state.detailLevel,
+                scale: this.state.currentScale
+              }}/>
+            </div>
             {/* <LoadDataTest /> */}
           </div>
 
@@ -421,7 +432,6 @@ class RegionRecContainer extends React.Component {
           />
           </div>*/}
         </div>
-      </div>
 
     )
   }
