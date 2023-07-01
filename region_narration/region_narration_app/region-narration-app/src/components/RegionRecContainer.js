@@ -50,7 +50,7 @@ class RegionRecContainer extends React.Component {
     // scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
     // scales: [4, 5, 6, 7, 8, 9, 10, 11],
     scales: [4, 5, 6, 7, 8, 9],
-    scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
+    // scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
     scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024],
     currentScale: 4,
     requiredURLParams: ['chr', 'start', 'stop'],
