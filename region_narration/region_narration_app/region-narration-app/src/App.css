@@ -302,3 +302,18 @@ border: none;
   width: 100%;
   /* padding-left: 50px; */
 }
+
+@keyframes orderColorChange {
+  0% { color: red; }
+  50% { color: red; }
+  100% { color: black; }
+}
+
+.order-text.animation {
+  animation: orderColorChange 2s linear;
+}
+
+.order-text {
+  animation: none;
+  color: black;
+}

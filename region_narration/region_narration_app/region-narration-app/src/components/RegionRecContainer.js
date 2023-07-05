@@ -195,7 +195,7 @@ class RegionRecContainer extends React.Component {
         barCluster: '',
         barReduced: '',
         spinner: true,
-        currentScale: scale
+        // currentScale: scale
       });
       if (this.devMode) {
         const data = sampleData
@@ -367,7 +367,8 @@ class RegionRecContainer extends React.Component {
             <QueryRegion 
               queryProps={{
                 region: this.state.genomicLocation,
-                scale: this.state.currentScale
+                scale: this.state.currentScale,
+                spinner: this.state.spinner
               }} 
             />
             <Zoom zoomProps={{
