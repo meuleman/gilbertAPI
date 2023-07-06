@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 // import { scaleLinear } from 'd3'
 import factorsArr from '../factors.json'
 // import topRegionPerFactor from '../hilbert_orders_4t11.top_regions_per_factor.json'
-import topRegionPerFactor from '../hilbert_orders_4t9.sfc.top_regions_per_factor.json'
+import topRegionPerFactor from '../hilbert_orders_4t9.sfc.top_regions_per_factor.closest_order.json'
 // import { scaleLinear, timeFormatDefaultLocale } from 'd3'
 
 function FactorHeatmap (props) {
