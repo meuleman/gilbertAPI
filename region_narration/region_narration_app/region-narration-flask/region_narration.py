@@ -42,7 +42,8 @@ def build_search_space_path(scale, method='sliding_window'):
     elif method == 'hilbert':
         path = os.path.join(data_dir, 'hilbert/hilbert_regions_order_{}_CT20230606.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
     elif method == 'hilbert_sfc':
-        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230630.dhs.cs.sfc.ranks.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+        # path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230630.dhs.cs.sfc.ranks.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230705.dhs.cs.sfc.ranks.limited_search_space.top_1000_per_factor.gte_2_ranked_factors.npz'.format(scale))
     return path
 
 
