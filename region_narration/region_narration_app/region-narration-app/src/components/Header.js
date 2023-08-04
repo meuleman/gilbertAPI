@@ -3,7 +3,7 @@ import React from 'react'
 const Header = () => {
   const handleClick = () => {
     if (window.location.href !== document.location.href.split("?")[0]) {
-        window.location.href = document.location.href.split("?")[0];
+      window.location.href = document.location.href.split("?")[0];
     }
   }
   return (

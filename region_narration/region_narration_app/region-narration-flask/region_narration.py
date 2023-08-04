@@ -43,7 +43,7 @@ def build_search_space_path(scale, method='sliding_window'):
         path = os.path.join(data_dir, 'hilbert/hilbert_regions_order_{}_CT20230606.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
     elif method == 'hilbert_sfc':
         # path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230630.dhs.cs.sfc.ranks.limited_search_space_top_1000_no_overlap.npz'.format(scale))
-        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230705.dhs.cs.sfc.ranks.limited_search_space.top_1000_per_factor.gte_2_ranked_factors.npz'.format(scale))
+        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230718.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.npz'.format(scale))
     return path
 
 
@@ -54,7 +54,7 @@ def build_tabix_path(scale, method='sliding_window'):
     elif method == 'hilbert':
         filename = 'hilbert/hilbert_order_{}_windows.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
     elif method == 'hilbert_sfc':
-        filename = 'hilbert_sfc/hilbert_order_{}_windows.sorted.rownum4.sfc.ranks5t38.bed.gz'.format(scale)
+        filename = 'hilbert_sfc/20230718/hilbert_order_{}_windows.sorted.rownum4.sfc.ranks5t38.bed.gz'.format(scale)
     if production:
         path = 'http://explore.altius.org/tabix/ng/'
     else:
@@ -83,7 +83,7 @@ for scale in [1, 2, 5, 10, 15, 25, 50, 75, 100]:
 for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
     region_method = 'hilbert'
     hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
-for scale in [4, 5, 6, 7, 8, 9]:
+for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
     region_method = 'hilbert_sfc'
     hilbert_sfc_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
 
@@ -211,7 +211,7 @@ def generate_result_array(num_similar_regions):
             if rank == 0:
                 region_dict['region_ind'] = 'NA'
                 region_dict['score'] = 'NA'
-                region_dict['query_factor_order'] = query_factor_order.tolist()
+                region_dict['factor_order'] = query_factor_order.tolist()
                 region_dict['target_factors'] = target_factors.tolist()
                 region_dict['top_region_factor_Z_score'] = return_Z[dl].tolist()
                 region_dict['top_region_factor_pval'] = return_pval[dl].tolist()
@@ -221,6 +221,55 @@ def generate_result_array(num_similar_regions):
             return_arr.append(region_dict)
 
         return_arr_full.append(return_arr)
+
+
+# find the factors we want to search over
+def setup_selected_factors(selected_factors_str):
+    global selected_factors
+    selected_factors = np.int_(
+        selected_factors_str.strip('[').strip(']').split(',')
+    )
+
+
+# search for the best regions for selected factors
+def search_over_selected_factors(num_regions):
+    global top_regions, top_regions_ranks, top_regions_coords, top_regions_score, factor_order
+    # focus on selected factors
+    selected_factor_search_space_ranks = percents[:, selected_factors]
+    # fusion
+    selected_factor_search_space_score = 1 - np.prod(1 - selected_factor_search_space_ranks, axis=1)
+    # get the best regions
+    top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+
+    # factor order
+    total_factors = np.arange(percents.shape[1])
+    leftover_factors = total_factors[~np.isin(total_factors, selected_factors)]
+    factor_order = np.append(selected_factors, leftover_factors)
+
+    # find info for each top region
+    top_regions_ranks = percents[top_regions][:, factor_order]
+    top_regions_coords = coords[top_regions]
+    top_regions_score = selected_factor_search_space_score[top_regions]
+
+
+# build array of objects for each region at each detail level
+def generate_search_by_factor_result_array(num_regions):
+    global search_by_factor_return_arr
+    # for each region, return relevant information
+    search_by_factor_return_arr = []
+    for rank in range(num_regions):
+        coord = top_regions_coords[rank]
+        region_dict = {
+            'rank': rank,
+            'coordinates': coord[0] + ':' + coord[1] + '-' + coord[2],
+            'region_ind': int(top_regions[rank]),
+            'score': float(top_regions_score[rank]),
+            'percentiles': top_regions_ranks[rank].tolist()
+        }
+        if rank == 0:
+            region_dict['factor_order'] = factor_order.tolist()
+            region_dict['selected_factors'] = selected_factors.tolist()
+        search_by_factor_return_arr.append(region_dict)
 
 
 @app.route('/', methods=['GET'])
@@ -265,6 +314,32 @@ def narration():
     # result array as json
     json_return = json.dumps(return_arr_full)
 
+    return json_return
+
+
+# find the top regions for selected factors
+@app.route('/search_by_factor', methods=['POST'])
+def search_by_factor():
+    request_info = request.get_json()
+    scale = request_info['scale']
+    selected_factors_str = request_info['factors']
+    num_regions = int(request_info['numRegions'])
+    region_method = request_info['regionMethod']
+
+    # choose search space
+    choose_search_space(scale, region_method)
+
+    # get the selected factors
+    setup_selected_factors(selected_factors_str)
+
+    # get the top regions for the selected factors
+    search_over_selected_factors(num_regions)
+
+    # build return array
+    generate_search_by_factor_result_array(num_regions)
+
+    # return results
+    json_return = json.dumps(search_by_factor_return_arr)
     return json_return
 
 

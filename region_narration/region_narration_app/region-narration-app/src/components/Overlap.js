@@ -2,7 +2,7 @@ function Overlap (props) {
   const queriedLocation = props.overlapProps.queriedLocation
   const returnedLocation = props.overlapProps.returnedLocation
 
-  if (returnedLocation !== '') {
+  if ((returnedLocation !== '') && (!props.overlapProps.searchedByFactor)) {
     const bpMissingLeft = Math.max(0, returnedLocation.start - queriedLocation.start)
     const bpMissingRight = Math.max(0, queriedLocation.stop - returnedLocation.stop)
     const queriedLength = queriedLocation.stop - queriedLocation.start

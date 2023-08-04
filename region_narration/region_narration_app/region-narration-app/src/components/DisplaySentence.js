@@ -3,12 +3,12 @@ import factorsArr from '../factors.json'
 
 function DisplaySentence (props) {
   
-  if (props.sentenceProps.data !== '') {
+  if ((props.sentenceProps.data !== '') && (!props.sentenceProps.searchedByFactor)) {
     const queryRegion = props.sentenceProps.data[0]
 
     // const queryProdRank = queryRegion.prod_rank
     const targetFactors = queryRegion.target_factors
-    const queryFactorOrder = queryRegion.query_factor_order
+    const queryFactorOrder = queryRegion.factor_order
     const metrics = queryFactorOrder.map((ind) => {
       return factorsArr[ind].metric
     })
@@ -107,8 +107,6 @@ function DisplaySentence (props) {
     return (
       <div className='sentence-box'>
         <div className='sentence-header'><b>Region Summary</b></div>
-        {/* <div className='sentence-body' dangerouslySetInnerHTML={{__html: props.sentenceProps.sentence}} /> */}
-        {/* <div className='sentence-body' id='sentence-div' style={{'fontSize': String(sentenceFontSize) + 'px'}}>{sentence}</div> */}
         <div className='sentence-body' id='sentence-div' style={{'fontSize': {defaultSentenceFontSize} + 'px'}}>{sentence}</div>
       </div>
     )

@@ -2,13 +2,13 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 // import './index.css';
 import './App.css'
-import RegionRecContainer from './components/RegionRecContainer'
+import RegionNarrationAppContainer from './components/RegionNarrationAppContainer'
 // import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <RegionRecContainer />
+    <RegionNarrationAppContainer />
   </React.StrictMode>
 )
 

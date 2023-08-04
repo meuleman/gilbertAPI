@@ -7,34 +7,30 @@ import Axios from 'axios'
 import sampleData from '../devmode_top_similar_regions_results_CT20221129.json'
 // import devModeObj from '../devmode.json'
 // import SelectFactors from './SelectFactors'
+import TopFactorDropdown from './TopFactorDropdown'
 import factors from '../factors.json'
-import FactorHeatmap from './FactorHeatmap'
+import FactorHeatmap from './heatmap/FactorHeatmapContainer'
 import QueryRegion from './QueryRegion'
+import Order from './Order'
 // import SimSearchHeader from './SimSearchHeader'
 import SelectDetailLevel from './SelectDetailLevel'
 import Spinner from './Spinner'
-import Zoom from './Zoom'
 import Overlap from './Overlap'
 import RegionsOnIdeogram from './RegionsOnIdeogram'
 // import LoadDataTest from './LoadDataTest'
 
-class RegionRecContainer extends React.Component {
+class RegionNarrationAppContainer extends React.Component {
   // devMode = devModeObj.devMode
   devMode = false;
   state = {
     genomicLocation: '',
     queriedGenomicLocation: '',
-    // sentence: '',
-    // spectrum: '',
-    // upsetFull: '',
-    // upsetLimited: '',
-    // barNormal: '',
-    // barCluster: '',
-    // barReduced: '',
     regionalVals: '',
     fullData:'',
     selectedFactors: [...Array(factors.length).keys()],
     possibleFactors: [...Array(factors.length).keys()],
+    queryBuildingSelectedFactors: [],
+    searchedByFactor: false,
     autoFactorSelection: true,
     included: new Array((factors.length) + 1).fill(true),
     detailLevel: 1,
@@ -47,13 +43,14 @@ class RegionRecContainer extends React.Component {
     productionFlaskURL: "https://explore.altius.org:5001/narration",
     // developmentFlaskURL: "http://127.0.0.1:5435/narration",
     developmentFlaskURL: "http://127.0.0.1:5000/narration",
-    // scales: [1000, 2000, 5000, 10000, 15000, 25000, 50000, 75000, 100000],
-    // scales: [4, 5, 6, 7, 8, 9, 10, 11],
-    scales: [4, 5, 6, 7, 8, 9],
-    // scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
-    scaleSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024],
-    currentScale: 4,
-    requiredURLParams: ['chr', 'start', 'stop'],
+    productionQueryBuildingFlaskURL: "https://explore.altius.org:5001/search_by_factor",
+    developmentQueryBuildingFlaskURL: "http://127.0.0.1:5000/search_by_factor",
+    orders: [4, 5, 6, 7, 8, 9, 10, 11],
+    orderSegmentLengths: [1048576, 262144, 65536, 16384, 4096, 1024, 256, 64],
+    currentOrder: 4,
+    searchedFactorInd: '',
+    requiredRegionURLParams: ['chr', 'start', 'stop', 'order'],
+    requiredFactorURLParams: ['factors', 'order'],
     regionMethod: 'hilbert_sfc'
   }
 
@@ -85,39 +82,68 @@ class RegionRecContainer extends React.Component {
     });
   };
 
-  
   setIncluded = (newIncluded) => {
     this.setState({
       included: newIncluded
     });
   };
 
-  updateURL = (coordinates, popped) => {
-    const chrm = coordinates.split(":")[0];
-    const start = coordinates.split(":")[1].split("-")[0];
-    const end = coordinates.split(":")[1].split("-")[1];
+  queryBuilding = (providedScale='', providedFactors='', popped=false) => {
+    if ((this.state.queryBuildingSelectedFactors.length !== 0) || (providedFactors !== '')) {
+      this.setState({
+        spinner: true,
+      });
 
-    let hostname = "https://explore.altius.org/ng/"
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      const localPort = window.location.port;
-      hostname = "http://localhost:" + localPort + "/";
-    } else if (window.location.hostname === "region-narration-app.vercel.app") {
-      hostname = "https://region-narration-app.vercel.app/";
-    }
-
-    const newUrl = hostname + "?chr=" + chrm + "&start=" + start + "&stop=" + end;
-    const historyTitle = "Genomic Narration - " + coordinates;
-      if (!popped) {
-	  try {
-              window.history.pushState(newUrl, historyTitle, newUrl);
-	  }
-	  catch (err) {
-	      console.log(`Error: ${JSON.stringify(err)}`);
-	  }
+      let scale = this.state.currentOrder
+      if (providedScale !== '') {
+        scale = providedScale
       }
-    document.title = historyTitle;
+
+      let factors = JSON.stringify(this.state.queryBuildingSelectedFactors)
+      if (providedFactors !== '') {
+        factors = JSON.stringify(providedFactors)
+        this.setState({
+          queryBuildingSelectedFactors: providedFactors
+        })
+      }
+
+      // Flask Server
+      const postBody = {
+        factors: factors,
+        scale: scale,
+        numRegions: 20,
+        regionMethod: this.state.regionMethod,
+      };
+      let flaskURL = this.state.productionQueryBuildingFlaskURL;
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        flaskURL = this.state.developmentQueryBuildingFlaskURL
+      }
+      Axios({
+        method: 'POST',
+        url: flaskURL,
+        data: postBody
+      }).then((response) => {
+        this.setState({
+          regionalVals: response.data,
+          fullData: null,
+          spinner: false,
+          searchedByFactor: true,
+          currentOrder: scale,
+        }, () => {
+          // push state on new query and update tab title
+          this.updateURL(popped);
+        })
+      })
+    }
   }
-  
+
+  setQueryBuildingSelectedFactors = (newSelectedFactors) => {
+    this.setState({
+      queryBuildingSelectedFactors: newSelectedFactors
+    }, () => {
+      this.queryBuilding()
+    })
+  };
 
   // setAutoFactorSelection = (value) => {
   //   console.log(value)
@@ -138,15 +164,36 @@ class RegionRecContainer extends React.Component {
   // }
 
   setAutoFactorSelection = (value) => {
-    // console.log(value);
-    // console.log(this.state.selectedFactors);
     this.setState({
       autoFactorSelection: value
     });
   };
+
+  // determines the order that results should be returned for
+  determineBestOrder = (coordinates) => {
+    const start = coordinates.start
+    // subtract 1 in case provided region stop at end of segment
+    // with floor function, this would map to the next segment over otherwise
+    const stop = coordinates.stop - 1
+    let orderInd = 0
+    let baseline = 0  // for if there is no segment that 100% overlaps query region
+    this.state.orderSegmentLengths.map((l, i) => {
+      let startSegment = Math.floor(start / l)
+      let stopSegment = Math.floor(stop / l)
+      // if the smallest order cannot encompass entirety of query region, update baseline
+      if (i === 0) {
+        baseline = stopSegment - startSegment
+      }
+      // look for largest order that encompasses as much of the query region as possible
+      if (startSegment === stopSegment - baseline) {
+        orderInd = i
+      }
+    })
+    return this.state.orders[orderInd]
+  }
   
   
-  setGenomicLocation = (inLocation, popped=false, providedScale='', newQueryLocation=true, providedDetailLevel='') => {
+  setGenomicLocation = (inLocation, popped=false, providedOrder='', newQueryLocation=true, providedDetailLevel='', searchedFactorInd='') => {
     if (this.state.selectedFactors.length > 0) {
       let location = {}
       if (typeof inLocation === "string") {
@@ -166,25 +213,15 @@ class RegionRecContainer extends React.Component {
         })
       }
 
-      const startbp = location.start;
-      const stopbp = location.stop;
-      const queryLength = stopbp - startbp;
+      // const startbp = location.start;
+      // const stopbp = location.stop;
+      // const queryLength = stopbp - startbp;
 
-      let scale = ''
-      if (providedScale === '') {
-        let minDiff = this.state.scaleSegmentLengths[0];
-        let bestScaleInd = 0;
-        this.state.scaleSegmentLengths.map((s, i) => {
-          const diff = Math.abs(s - queryLength)
-          if (Math.min(diff, minDiff) !== minDiff) {
-            minDiff = diff
-            bestScaleInd = i
-          }
-          return null
-        });
-        scale = this.state.scales[bestScaleInd];
+      let order = ''
+      if (providedOrder === '') {
+        order = this.determineBestOrder(location)
       } else {
-        scale = providedScale
+        order = providedOrder
       }
         
       this.setState({
@@ -195,11 +232,10 @@ class RegionRecContainer extends React.Component {
         barCluster: '',
         barReduced: '',
         spinner: true,
-        // currentScale: scale
+        searchedFactorInd: searchedFactorInd
       });
       if (this.devMode) {
         const data = sampleData
-        // const queryRegion = data[0]
         this.setState({
           regionalVals: data,
       }, () => {
@@ -215,9 +251,7 @@ class RegionRecContainer extends React.Component {
         //     queryURL = `https://${this.state.prodQueryHost}:${this.state.prodQueryPort}/`
         //     roiURL = "True"
         // }
-        //   console.log(`queryURL: ${queryURL}`)
-        // console.log(`location: ${location}`)
-        // console.log(`selectedFactors: ${JSON.stringify(this.state.selectedFactors)}`)
+
 
           
         // Flask Server
@@ -225,8 +259,7 @@ class RegionRecContainer extends React.Component {
           location: `${location.chrom}:${location.start}-${location.stop}`,
           factors: JSON.stringify(this.state.selectedFactors),
           roiURL: roiURL,
-          // scale: scale / 1000,
-          scale: scale,
+          scale: order,
           queryFactorThresh: 0.5,
           numSimilarRegions: 20,
           regionMethod: this.state.regionMethod,
@@ -266,9 +299,6 @@ class RegionRecContainer extends React.Component {
           const queryRegion = data[0];
 
           const returnedCoordinates = queryRegion.coordinates;
-          
-          // push state on new query and update tab title
-          this.updateURL(returnedCoordinates, popped);
 
           const returnedCoordinatesObj = {
             chrom: returnedCoordinates.split(':')[0],
@@ -283,9 +313,11 @@ class RegionRecContainer extends React.Component {
             spinner: false,
             maxDetailLevel: fullData.length,
             detailLevel: startDetailLevel,
-            currentScale: scale
+            currentOrder: order,
+            searchedByFactor: false,
           }, () => {
-            // console.log(this.state.genomicLocation, this.state.queriedGenomicLocation);
+            // push state on new query and update tab title
+            this.updateURL(popped);
           })
       })
       .catch((err) => {
@@ -298,6 +330,45 @@ class RegionRecContainer extends React.Component {
 		  });
       }
     }
+  }
+
+  updateURL = (popped) => {
+    let hostname = "https://explore.altius.org/ng/"
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      const localPort = window.location.port;
+      hostname = "http://localhost:" + localPort + "/";
+    } else if (window.location.hostname === "region-narration-app.vercel.app") {
+      hostname = "https://region-narration-app.vercel.app/";
+    }
+
+    const searchedByFactor = this.state.searchedByFactor
+    let newUrl = ''
+    let historyTitle = "Genomic Narration - "
+
+    if (searchedByFactor) {
+      const order = this.state.currentOrder;
+      const factors = this.state.queryBuildingSelectedFactors;
+      newUrl = hostname + "?order=" + order + "&factors=" + factors;
+      historyTitle += "Factor Search"
+    } else {
+      const coordinates = this.state.genomicLocation
+      const chrm = coordinates.chrom
+      const start = coordinates.start
+      const end = coordinates.stop
+      const order = this.state.currentOrder
+      newUrl = hostname + "?order=" + order + "&chr=" + chrm + "&start=" + start + "&stop=" + end;
+      historyTitle += coordinates;
+    }
+
+    if (!popped) {
+      try {
+        window.history.pushState(newUrl, historyTitle, newUrl);
+      }
+      catch (err) {
+        console.log(`Error: ${JSON.stringify(err)}`);
+	    }
+    }
+    document.title = historyTitle;
   }
 
   parseQueryParams = (popped) => {
@@ -314,27 +385,20 @@ class RegionRecContainer extends React.Component {
     }
     const paramsObj = parseURL();
     if (paramsObj) {
-      let passed  = false;
       const paramKeys = Object.keys(paramsObj)
-      let numParamDifferences = 0
-      if (paramKeys.length === this.state.requiredURLParams.length) {
-        numParamDifferences = paramKeys.filter((param) => {
-          return !this.state.requiredURLParams.includes(param)
-        }).length;
-      }
-      if (
-        (paramKeys.length !== this.state.requiredURLParams.length) ||
-        (numParamDifferences > 0)
-      ) {
-        if (window.location.href !== document.location.href.split("?")[0]) {
-          window.location.href = document.location.href.split("?")[0];
-        }
-      } else {
-        passed = true
-      }
-      if (passed) {
+
+      const regionalURL = JSON.stringify(paramKeys.sort()) === JSON.stringify(this.state.requiredRegionURLParams.sort())
+      const factorURL = JSON.stringify(paramKeys.sort()) === JSON.stringify(this.state.requiredFactorURLParams.sort())
+
+      if (regionalURL) {
         const coordinates = paramsObj.chr + ":" + paramsObj.start + "-" + paramsObj.stop
         this.setGenomicLocation(coordinates, popped)
+      } else if (factorURL) {
+        const order = parseInt(paramsObj.order)
+        const factors = paramsObj.factors.split(',').map(i => parseInt(i))
+        this.queryBuilding(order, factors, popped)
+      } else if ((paramKeys.length > 0) && (window.location.href !== document.location.href.split("?")[0])) {
+        window.location.href = document.location.href.split("?")[0];
       }
     }
   }
@@ -361,54 +425,64 @@ class RegionRecContainer extends React.Component {
       <div className='container'>
         <div className='region'>
           <Header />
-          <Autocomplete onChangeLocation={this.setGenomicLocation} />
+          <div className='search-options'>
+            <Autocomplete onChangeLocation={this.setGenomicLocation} />
+            <TopFactorDropdown topFactorDropdownProps={{
+              // scale: this.state.currentOrder,
+              // search: this.setGenomicLocation,
+              setQueryBuildingSelectedFactors: this.setQueryBuildingSelectedFactors,
+              queryBuildingSelectedFactors: this.state.queryBuildingSelectedFactors
+            }}/>
+          </div>
         </div>
         <div className='results' id='results'>
             <QueryRegion 
               queryProps={{
                 region: this.state.genomicLocation,
-                scale: this.state.currentScale,
-                spinner: this.state.spinner
+                scale: this.state.currentOrder,
+                spinner: this.state.spinner,
+                searchedByFactor: this.state.searchedByFactor,
               }} 
             />
-            <Zoom zoomProps={{
-              setGenomicLocation: this.setGenomicLocation,
-              currentScale: this.state.currentScale,
-              queriedLocation: this.state.queriedGenomicLocation,
-              returnedLocation: this.state.genomicLocation,
-              possibleScales: this.state.scales
-            }}/>
+            <Order 
+              orderProps={{
+                region: this.state.genomicLocation,
+                searchedByFactor: this.state.searchedByFactor,
+                setGenomicLocation: this.setGenomicLocation,
+                queryBuilding: this.queryBuilding,
+                currentScale: this.state.currentOrder,
+                queriedLocation: this.state.queriedGenomicLocation,
+                returnedLocation: this.state.genomicLocation,
+                possibleScales: this.state.orders,
+                searchedByFactor: this.state.searchedByFactor,
+            }}
+            />
             <Overlap overlapProps={{
               queriedLocation: this.state.queriedGenomicLocation,
-              returnedLocation: this.state.genomicLocation
+              returnedLocation: this.state.genomicLocation,
+              searchedByFactor: this.state.searchedByFactor,
             }}/>
             <SelectDetailLevel 
               detailProps={{
                 setDetailLevel: this.setDetailLevel, 
                 detailLevel: this.state.detailLevel,
                 maxDetailLevel: this.state.maxDetailLevel,
-                returnedLocation: this.state.genomicLocation
+                returnedLocation: this.state.genomicLocation,
+                searchedByFactor: this.state.searchedByFactor,
               }}
             />
-            {/* <SelectFactors factorProps={{
-              possibleFactors: this.state.possibleFactors, 
-              setSelectedFactors: this.setSelectedFactors,
-              data: this.state.regionalVals,
-              selectedFactors: this.state.selectedFactors,
-              setAutoFactorSelection: this.setAutoFactorSelection,
-              setIncluded: this.setIncluded,
-              included: this.state.included
-            }}/> */}
             <Spinner spinnerProps={this.state.spinner}/>
             <DisplaySentence sentenceProps={{
               // sentence: this.state.sentence, 
               data: this.state.regionalVals,
-              detailLevel: this.state.detailLevel
+              detailLevel: this.state.detailLevel,
+              searchedByFactor: this.state.searchedByFactor,
               }} />
             {/* <SimSearchHeader simSearchHeaderProps={this.state.regionalVals} /> */}
             <div className='figures'>
               <RegionsOnIdeogram ideogramProps={{
-                data: this.state.regionalVals
+                data: this.state.regionalVals,
+                searchedByFactor: this.state.searchedByFactor
               }}/>
               <FactorHeatmap heatmapProps={{
                 data: this.state.regionalVals, 
@@ -416,26 +490,15 @@ class RegionRecContainer extends React.Component {
                 setAutoFactorSelection: this.setAutoFactorSelection,
                 autoFactorSelection: this.state.autoFactorSelection,
                 detailLevel: this.state.detailLevel,
-                scale: this.state.currentScale
+                scale: this.state.currentOrder,
+                searchedByFactor: this.state.searchedByFactor,
               }}/>
             </div>
-            {/* <LoadDataTest /> */}
           </div>
-
-          {/*<div className='tab-figures'>
-            <DisplayTabs tabsProps={{
-              // sentence: this.state.sentence,
-              upset: this.state.upsetLimited,
-              spectrum: this.state.spectrum,
-              bar: this.state.barNormal,
-              regionalVals: this.state.regionalVals
-            }}
-          />
-          </div>*/}
         </div>
 
     )
   }
 }
 
-export default RegionRecContainer
+export default RegionNarrationAppContainer

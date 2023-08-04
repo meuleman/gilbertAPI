@@ -7,6 +7,11 @@ function RegionsOnIdeogram (props) {
   useEffect(() => {
     if (props.ideogramProps.data !== '') {
       const data = props.ideogramProps.data
+      // const ideogramElement = document.getElementById("regionsOnIdeogram");
+      // ideogramElement.style.paddingTop = "90px"
+      // if (props.ideogramProps.searchedByFactor) {
+      //   ideogramElement.style.paddingTop = "0px"
+      // }
       // clear document
       // if (document.getElementById('factorHeatmap').getElementsByTagName('*').length !== 0) {
       //   d3.select('svg').remove()
@@ -21,13 +26,19 @@ function RegionsOnIdeogram (props) {
           start = 1
         }
         let stop = parseInt(d.coordinates.split(':')[1].split('-')[1])
-        if (d.rank === 0) {
-          c = '#F00'
-          n = 'Query Region'
+        if (!props.ideogramProps.searchedByFactor) {
+          if (d.rank === 0) {
+            c = '#F00'
+            n = 'Query Region'
+          } else {
+            c = '#8D4'
+            n = 'Similar Region ' + d.rank
+          }
         } else {
           c = '#8D4'
-          n = 'Similar Region ' + d.rank
+          n = 'Top Region ' + (parseInt(d.rank) + 1)
         }
+        
         return {
           name: n,
           chr: d.coordinates.split(':')[0].split('chr')[1],
@@ -36,9 +47,10 @@ function RegionsOnIdeogram (props) {
           color: c
         }
       })
-
-      // console.log(regionAnnotations)
-      
+      let chrWidth = 7
+      // if (props.ideogramProps.searchedByFactor) {
+      //   chrWidth = 7
+      // }
 
       var ideogram = new Ideogram({
         organism: 'human',
@@ -48,7 +60,7 @@ function RegionsOnIdeogram (props) {
         orientation: 'horizontal',
         // rows: 2,
         chrHeight: 100,
-        chrWidth: 5,
+        chrWidth: chrWidth,
         annotationHeight: 3,
         // otatable: false,
       });

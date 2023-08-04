@@ -3,8 +3,9 @@ function SelectDetailLevel (props) {
   const returnedLocation = props.detailProps.returnedLocation
   const maxDetailLevel = props.detailProps.maxDetailLevel
   const setDetailLevel = props.detailProps.setDetailLevel
+  const searchedByFactor = props.detailProps.searchedByFactor
 
-  if (returnedLocation !== '') {
+  if ((returnedLocation !== '') && (!searchedByFactor)) {
     const handleChange = (value) => {
       setDetailLevel(value)
     }
