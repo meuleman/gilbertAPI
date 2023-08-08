@@ -231,6 +231,43 @@ def setup_selected_factors(selected_factors_str):
     )
 
 
+def determine_factor_order(top_regions, selected_factors):
+    top_region_ranks = percents[top_regions]
+
+    # order selected factors first
+    selected_factors_best_order = selected_factors[
+        np.argsort(
+            -np.sum(
+                top_region_ranks[:, selected_factors],
+                axis=0
+            )
+        )
+    ]
+
+    # order remaining factors
+    regions_to_consider = np.where(
+        np.count_nonzero(
+            percents[:, selected_factors_best_order],
+            axis=1
+        ) > 0
+    )[0]
+
+    total_factors = np.arange(percents.shape[1])
+    leftover_factors = total_factors[~np.isin(total_factors, selected_factors_best_order)]
+    leftover_factors_best_order = leftover_factors[
+        np.argsort(
+            -np.sum(
+                percents[regions_to_consider][:, leftover_factors],
+                axis=0
+            ),
+            kind='stable'
+        )
+    ]
+
+    factor_order = np.append(selected_factors_best_order, leftover_factors_best_order)
+    return factor_order
+
+
 # search for the best regions for selected factors
 def search_over_selected_factors(num_regions):
     global top_regions, top_regions_ranks, top_regions_coords, top_regions_score, factor_order
@@ -242,9 +279,7 @@ def search_over_selected_factors(num_regions):
     top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
 
     # factor order
-    total_factors = np.arange(percents.shape[1])
-    leftover_factors = total_factors[~np.isin(total_factors, selected_factors)]
-    factor_order = np.append(selected_factors, leftover_factors)
+    factor_order = determine_factor_order(top_regions, selected_factors)
 
     # find info for each top region
     top_regions_ranks = percents[top_regions][:, factor_order]

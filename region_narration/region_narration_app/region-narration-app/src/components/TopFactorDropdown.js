@@ -8,10 +8,14 @@ function TopFactorDropdown (props) {
   // const searchedFactorInd = props.topFactorDropdownProps.searchedFactorInd
   const setQueryBuildingSelectedFactors = props.topFactorDropdownProps.setQueryBuildingSelectedFactors
   const queryBuildingSelectedFactors = props.topFactorDropdownProps.queryBuildingSelectedFactors
+  const factorOrder = props.topFactorDropdownProps.factorOrder
 
   const [open, setOpen] = useState(false);
+  const factorsOrdered = factorOrder.map((i) => {
+    return factors[i]
+  })
 
-  let checked = Array(factors.length).fill(false).map((value, i) => {
+  let checked = Array(factorsOrdered.length).fill(false).map((value, i) => {
     if (queryBuildingSelectedFactors.includes(i)) {
       return true
     } else {
@@ -25,16 +29,6 @@ function TopFactorDropdown (props) {
   }
 
   const handleCheck = function (ind) {
-    // checkboxes
-    // let newChecked = checked.map((value, i) => {
-    //   if (i === ind) {
-    //     return !value
-    //   } else {
-    //     return value
-    //   }
-    // })
-    // setChecked(newChecked)
-
     // factors for query building
     let newQueryBuildingSelectedFactors = null
     if (queryBuildingSelectedFactors.includes(ind)) {
@@ -56,7 +50,7 @@ function TopFactorDropdown (props) {
       <button className='dropdown-button' onClick={() => handleButtonClick()} >{buttonText}</button>
       {open ? (
         <div className='dropdown-container'>
-          {factors.map(({name, ind}) => {
+          {factorsOrdered.map(({name, ind}) => {
             return(
               // <div className='dropdown-item' key={ind} onClick={() => handleFactorClick(ind)}>
               <div className='dropdown-item' key={ind}>

@@ -30,6 +30,7 @@ class RegionNarrationAppContainer extends React.Component {
     selectedFactors: [...Array(factors.length).keys()],
     possibleFactors: [...Array(factors.length).keys()],
     queryBuildingSelectedFactors: [],
+    factorOrder: [...Array(factors.length).keys()],
     searchedByFactor: false,
     autoFactorSelection: true,
     included: new Array((factors.length) + 1).fill(true),
@@ -129,6 +130,7 @@ class RegionNarrationAppContainer extends React.Component {
           spinner: false,
           searchedByFactor: true,
           currentOrder: scale,
+          factorOrder: response.data[0].factor_order
         }, () => {
           // push state on new query and update tab title
           this.updateURL(popped);
@@ -144,24 +146,6 @@ class RegionNarrationAppContainer extends React.Component {
       this.queryBuilding()
     })
   };
-
-  // setAutoFactorSelection = (value) => {
-  //   console.log(value)
-  //   // console.log(this.state.selectedFactors)
-  //   const autoStatePromise = new Promise((resolve) => {
-  //     var returnValue = this.setState({
-  //       autoFactorSelection: value
-  //     }, () => {
-  //       return this.state.autoFactorSelection
-  //     })
-  //     if (returnValue === value) {
-  //       resolve()
-  //     }
-  //   })
-  //   Promise.all([autoStatePromise]).then(() => {
-  //     return this.returnValue
-  //   })
-  // }
 
   setAutoFactorSelection = (value) => {
     this.setState({
@@ -431,7 +415,8 @@ class RegionNarrationAppContainer extends React.Component {
               // scale: this.state.currentOrder,
               // search: this.setGenomicLocation,
               setQueryBuildingSelectedFactors: this.setQueryBuildingSelectedFactors,
-              queryBuildingSelectedFactors: this.state.queryBuildingSelectedFactors
+              queryBuildingSelectedFactors: this.state.queryBuildingSelectedFactors,
+              factorOrder: this.state.factorOrder
             }}/>
           </div>
         </div>
