@@ -28,6 +28,16 @@ function TopFactorDropdown (props) {
     setOpen(!open)
   }
 
+  // closes the dropdown when anywhere else on the page is clicked
+  document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.dropdown-button');
+    const dropdownCheckbox = document.querySelector('.dropdown-container');
+    if (!dropdown.contains(event.target) && (!dropdownCheckbox.contains(event.target))) {
+      setOpen(false)
+    }
+  });
+
+
   const handleCheck = function (ind) {
     // factors for query building
     let newQueryBuildingSelectedFactors = null
@@ -40,7 +50,7 @@ function TopFactorDropdown (props) {
     setQueryBuildingSelectedFactors(newQueryBuildingSelectedFactors)
 
     // close dropdown
-    setOpen(false)
+    // setOpen(false)
   }
 
   let buttonText = "Search by Factors"
@@ -70,7 +80,7 @@ function TopFactorDropdown (props) {
             )
           })}
         </div>
-      ) : null}
+      ) : <div className='dropdown-container' style={{'border': '0px solid white'}}/>}
     </div>
   )
 }
