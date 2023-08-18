@@ -8,7 +8,7 @@ from git import Repo
 import json
 # import h5py
 from subprocess import Popen, PIPE
-from simsearch_functions import simsearch, roiURL  # , load_per
+from simsearch_functions import perform_simsearch, roiURL  # , load_per
 
 app = Flask(__name__)
 CORS(app)
@@ -66,11 +66,11 @@ def build_tabix_path(scale, method='sliding_window'):
 def load_ranks(search_space_path, method='sliding_window'):
     search_space = np.load(search_space_path)
     if ((method == 'sliding_window') | (method == 'hilbert')):
-        percents = search_space['percentiles']
+        ranks = search_space['percentiles']
     elif (method == 'hilbert_sfc'):
-        percents = search_space['ranks']
+        ranks = search_space['ranks']
     coords = search_space['coordinates']
-    return percents, coords
+    return ranks, coords
 
 
 # load search spaces for all scales into dict
@@ -103,7 +103,7 @@ def tabix_query(filename, query):
 
 # determine roi from query coordinates
 def load_roi(genomic_location, link_path):
-    global roi, roi_percents, roi_coords
+    global roi, roi_ranks, roi_coords
 
     # determine chromosome, start, and end from query
     query_start_end = genomic_location.split(':')[1].split('-')
@@ -123,7 +123,7 @@ def load_roi(genomic_location, link_path):
     query_region = possible_coords[middle_ind]
 
     roi = int(query_region[3])
-    roi_percents = query_region[4:].astype('float32')
+    roi_ranks = query_region[4:].astype('float32')
     roi_coords = query_region[:3]
 
     return
@@ -131,49 +131,50 @@ def load_roi(genomic_location, link_path):
 
 # choose search space from scale options
 def choose_search_space(scale, method='sliding_window'):
-    global percents, coords
+    global ranks, coords
     if method == 'sliding_window':
-        percents, coords = sliding_window_seach_spaces[scale]
+        ranks, coords = sliding_window_seach_spaces[scale]
     elif method == 'hilbert':
-        percents, coords = hilbert_search_spaces[scale]
+        ranks, coords = hilbert_search_spaces[scale]
     elif method == 'hilbert_sfc':
-        percents, coords = hilbert_sfc_search_spaces[scale]
+        ranks, coords = hilbert_sfc_search_spaces[scale]
+    return
 
-# find the factors we want to search over
-def setup_included_factors(included_factors_str, query_factor_thresh):
-    global included_factors, metric_factors, percents, roi_percents
+# limit ranks ro just what hte user wants to include
+def filter_factors_in_ranks(included_factors_str):
+    global ranks, roi_ranks
 
     metric_factors = np.int_(
         included_factors_str.strip('[').strip(']').split(',')
     )
-    # limit ranks ro just metric_factors
-    # print(percents, flush=True)
-    percents = percents[:, metric_factors]
-    roi_percents = roi_percents[metric_factors]
+    ranks = ranks[:, metric_factors]
+    roi_ranks = roi_ranks[metric_factors]
 
-    query_factors_above_thresh = np.where(roi_percents > query_factor_thresh)[0]
+    return
 
+# find the factors we want to search over
+def refine_factors_to_search_over(query_factor_thresh):
+    global included_factors
+
+    query_factors_above_thresh = np.where(roi_ranks > query_factor_thresh)[0]
     # if no factors above threshold, search best one
     if len(query_factors_above_thresh) == 0:
-        sort_order = np.argsort(-roi_percents)
-        # included_factors = sort_order[
-        #     np.isin(sort_order, metric_factors)
-        # ][:1]
+        sort_order = np.argsort(-roi_ranks)
         included_factors = sort_order[:1]
     else:
-        # included_factors = metric_factors[
-        #     np.isin(metric_factors, query_factors_above_thresh)
-        # ]
         included_factors = query_factors_above_thresh
-    # included_factors=np.arange(34)
+    return 
 
 # given our roi, find the similar regions
 def find_most_similar_region_indices(num_similar_regions):
     global top_regions, top_region_coords, top_regions_sim, top_regions_per, query_factor_order, target_factors, pval, Z, query_sim_prod_ranks
+    
     (top_regions, top_region_coords, top_regions_sim,
      top_regions_per, query_factor_order,
      target_factors, pval,
-     Z, query_sim_prod_ranks) = simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions)
+     Z, query_sim_prod_ranks) = perform_simsearch(roi_ranks, ranks, roi, roi_coords, coords, included_factors, num_similar_regions)
+    
+    return
 
 
 # generate roiURL to view similar regions in index browser
@@ -187,6 +188,8 @@ def setup_roiURLs(get_roiURL, target_factors):
                                   dl, '_'.join(target_factors.astype(str))))
         else:
             roiURLs.append('roiURL not available')
+    
+    return
 
 
 # reorder data based on ranks in query region/roi
@@ -195,6 +198,7 @@ def reorder_by_query_region():
     return_top_regions_per = top_regions_per[:, :, query_factor_order]
     return_pval = pval[:, query_factor_order]
     return_Z = Z[:, query_factor_order]
+    return
 
 
 # build array of objects for roi and each similar region at each detail level
@@ -228,6 +232,7 @@ def generate_result_array(num_similar_regions):
             return_arr.append(region_dict)
 
         return_arr_full.append(return_arr)
+    return
 
 
 # find the factors we want to search over
@@ -236,10 +241,11 @@ def setup_selected_factors(selected_factors_str):
     selected_factors = np.int_(
         selected_factors_str.strip('[').strip(']').split(',')
     )
+    return
 
 
 def determine_factor_order(top_regions, selected_factors):
-    top_region_ranks = percents[top_regions]
+    top_region_ranks = ranks[top_regions]
 
     # order selected factors first
     selected_factors_best_order = selected_factors[
@@ -254,17 +260,17 @@ def determine_factor_order(top_regions, selected_factors):
     # order remaining factors
     regions_to_consider = np.where(
         np.count_nonzero(
-            percents[:, selected_factors_best_order],
+            ranks[:, selected_factors_best_order],
             axis=1
         ) > 0
     )[0]
 
-    total_factors = np.arange(percents.shape[1])
+    total_factors = np.arange(ranks.shape[1])
     leftover_factors = total_factors[~np.isin(total_factors, selected_factors_best_order)]
     leftover_factors_best_order = leftover_factors[
         np.argsort(
             -np.sum(
-                percents[regions_to_consider][:, leftover_factors],
+                ranks[regions_to_consider][:, leftover_factors],
                 axis=0
             ),
             kind='stable'
@@ -279,7 +285,7 @@ def determine_factor_order(top_regions, selected_factors):
 def search_over_selected_factors(num_regions):
     global top_regions, top_regions_ranks, top_regions_coords, top_regions_score, factor_order
     # focus on selected factors
-    selected_factor_search_space_ranks = percents[:, selected_factors]
+    selected_factor_search_space_ranks = ranks[:, selected_factors]
     # fusion
     selected_factor_search_space_score = 1 - np.prod(1 - selected_factor_search_space_ranks, axis=1)
     # get the best regions
@@ -289,9 +295,10 @@ def search_over_selected_factors(num_regions):
     factor_order = determine_factor_order(top_regions, selected_factors)
 
     # find info for each top region
-    top_regions_ranks = percents[top_regions][:, factor_order]
+    top_regions_ranks = ranks[top_regions][:, factor_order]
     top_regions_coords = coords[top_regions]
     top_regions_score = selected_factor_search_space_score[top_regions]
+    return 
 
 
 # build array of objects for each region at each detail level
@@ -312,6 +319,12 @@ def generate_search_by_factor_result_array(num_regions):
             region_dict['factor_order'] = factor_order.tolist()
             region_dict['selected_factors'] = selected_factors.tolist()
         search_by_factor_return_arr.append(region_dict)
+    return
+
+def generate_narration_result_array():
+    global narration_return_arr
+    narration_return_arr = [{'roi': roi, 'percentiles': roi_ranks, 'coordinates': roi_coords}]
+    return
 
 
 @app.route('/', methods=['GET'])
@@ -320,8 +333,8 @@ def about():
     return "<html><body><div>region-narration ({})</div><div>Python {}</div></body></html>".format(RN_VERSION_STR, python_version)
 
 
-@app.route('/narration', methods=['POST'])
-def narration():
+@app.route('/simsearch', methods=['POST'])
+def simsearch():
     request_info = request.get_json()
     genomic_location = request_info['location']
     scale = request_info['scale']
@@ -338,8 +351,11 @@ def narration():
     # choose search space
     choose_search_space(scale, region_method)
 
-    # factors the user cares about
-    setup_included_factors(included_factors_str, query_factor_thresh)
+    # limit ranks to just the factors included with included_factors_str
+    filter_factors_in_ranks(included_factors_str)
+
+    # find the factors we actually want to search over/the user would acre about
+    refine_factors_to_search_over(query_factor_thresh)
 
     # find most similar region inds
     find_most_similar_region_indices(num_similar_regions)
@@ -382,6 +398,26 @@ def search_by_factor():
 
     # return results
     json_return = json.dumps(search_by_factor_return_arr)
+    return json_return
+
+
+# find the top regions for selected factors
+@app.route('/narration', methods=['POST'])
+def narration():
+    request_info = request.get_json()
+    genomic_location = request_info['location']
+    scale = request_info['scale']
+    region_method = request_info['regionMethod']
+
+    # get roi
+    load_roi(genomic_location, build_tabix_path(scale, region_method))
+
+    # generate result array
+    generate_narration_result_array()
+
+    # result array as json
+    json_return = json.dumps(narration_return_arr)
+
     return json_return
 
 

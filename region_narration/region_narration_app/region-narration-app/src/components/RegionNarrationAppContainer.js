@@ -41,9 +41,9 @@ class RegionNarrationAppContainer extends React.Component {
     devQueryPort: 3001,
     prodQueryHost: 'tools.altiusinstitute.org',
     prodQueryPort: 9877,
-    productionFlaskURL: "https://explore.altius.org:5001/narration",
-    // developmentFlaskURL: "http://127.0.0.1:5435/narration",
-    developmentFlaskURL: "http://127.0.0.1:5000/narration",
+    productionFlaskURL: "https://explore.altius.org:5001/simsearch",
+    // developmentFlaskURL: "http://127.0.0.1:5435/simsearch",
+    developmentFlaskURL: "http://127.0.0.1:5000/simsearch",
     productionQueryBuildingFlaskURL: "https://explore.altius.org:5001/search_by_factor",
     developmentQueryBuildingFlaskURL: "http://127.0.0.1:5000/search_by_factor",
     orders: [4, 5, 6, 7, 8, 9, 10, 11],
@@ -341,7 +341,7 @@ class RegionNarrationAppContainer extends React.Component {
       const end = coordinates.stop
       const order = this.state.currentOrder
       newUrl = hostname + "?order=" + order + "&chr=" + chrm + "&start=" + start + "&stop=" + end;
-      historyTitle += coordinates;
+      historyTitle += chrm + ":" + start + "-" + end;
     }
 
     if (!popped) {

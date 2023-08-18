@@ -136,7 +136,7 @@ def top_region_sig(percents, top_regions):
     return pval, Z
 
 
-def simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions):
+def perform_simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions):
 
     # factors the query region ranks highest in
     query_factor_order = np.argsort(-roi_percents)
