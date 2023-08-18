@@ -141,23 +141,30 @@ def choose_search_space(scale, method='sliding_window'):
 
 # find the factors we want to search over
 def setup_included_factors(included_factors_str, query_factor_thresh):
-    global included_factors
+    global included_factors, metric_factors, percents, roi_percents
 
-    included_factors_from_str = np.int_(
+    metric_factors = np.int_(
         included_factors_str.strip('[').strip(']').split(',')
     )
+    # limit ranks ro just metric_factors
+    # print(percents, flush=True)
+    percents = percents[:, metric_factors]
+    roi_percents = roi_percents[metric_factors]
+
     query_factors_above_thresh = np.where(roi_percents > query_factor_thresh)[0]
 
     # if no factors above threshold, search best one
     if len(query_factors_above_thresh) == 0:
         sort_order = np.argsort(-roi_percents)
-        included_factors = sort_order[
-            np.isin(sort_order, included_factors_from_str)
-        ][:1]
+        # included_factors = sort_order[
+        #     np.isin(sort_order, metric_factors)
+        # ][:1]
+        included_factors = sort_order[:1]
     else:
-        included_factors = included_factors_from_str[
-            np.isin(included_factors_from_str, query_factors_above_thresh)
-        ]
+        # included_factors = metric_factors[
+        #     np.isin(metric_factors, query_factors_above_thresh)
+        # ]
+        included_factors = query_factors_above_thresh
     # included_factors=np.arange(34)
 
 # given our roi, find the similar regions
