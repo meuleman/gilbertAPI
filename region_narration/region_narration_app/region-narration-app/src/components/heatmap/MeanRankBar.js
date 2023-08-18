@@ -49,7 +49,7 @@ const MeanRankBarChart = ({
   })
   const factorMeans = factorSums.map((value, index) => {
     return {
-      mean: value / heatmapData[heatmapData.length - 1].rank,
+      mean: value / (heatmapData[heatmapData.length - 1].rank + 1),
       factor: colLabels[index],
       originalFactorInd: data[0].factor_order[index]
     }

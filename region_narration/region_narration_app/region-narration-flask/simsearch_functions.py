@@ -162,8 +162,8 @@ def perform_simsearch(roi_percents, percents, roi, roi_coords, coords, included_
 
     # most similar regions
     top_regions = np.zeros(
-        (len(included_factors), num_similar_regions + 1)
-        , dtype=int
+        (len(included_factors), num_similar_regions + 1), 
+        dtype=int
     )
 
     # top region genomic coordinates

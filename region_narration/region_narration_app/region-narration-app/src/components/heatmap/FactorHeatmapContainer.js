@@ -42,6 +42,7 @@ function FactorHeatmapContainer (props) {
       let browserButtonWidth = 25
       let indexButtonX = 1
       let goXAdjustment = 50
+      let maxNumHeatmapRegions = 20
 
       // data
       let data = props.heatmapProps.data
@@ -70,12 +71,17 @@ function FactorHeatmapContainer (props) {
         .range(factorColors)
         .domain(colLabels)
 
+      console.log()
+
       const searchedByFactor = props.heatmapProps.searchedByFactor
       if (searchedByFactor) {
         gap1 = 0
         queryLength = 0
         colorHeight2 = 0
         goXAdjustment = 0
+        heatmapLength = 400 / maxNumHeatmapRegions * data.length
+      } else {
+        heatmapLength = 400 / (maxNumHeatmapRegions + 1) * data.length
       }
 
       // set sizes

@@ -135,7 +135,14 @@ class RegionNarrationAppContainer extends React.Component {
           // push state on new query and update tab title
           this.updateURL(popped);
         })
-      })
+      }).catch((err) => {
+        console.error(`error:     ${JSON.stringify(err)}`);
+        console.error(`post body: ${JSON.stringify(postBody)}`);
+        alert('Query Failed: Try another factor or a different order.');
+        this.setState({
+          spinner: false
+        })
+		  });
     }
   }
 
@@ -259,7 +266,7 @@ class RegionNarrationAppContainer extends React.Component {
           data: postBody
         }).then((response) => {
           const fullData = response.data;
-          // console.log(fullData);
+          console.log(fullData);
           
           let startDetailLevel = 1;
           if (providedDetailLevel === '') {

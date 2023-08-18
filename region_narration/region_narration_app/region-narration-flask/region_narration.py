@@ -202,36 +202,39 @@ def reorder_by_query_region():
 
 
 # build array of objects for roi and each similar region at each detail level
-def generate_result_array(num_similar_regions):
+def generate_simsearch_result_array(num_similar_regions):
     global return_arr_full
     return_arr_full = []
-    for dl in range(len(included_factors)):
-        # for the roi, return results as json array
-        # each element is an object of scores for each metric
-        return_arr = []
-        for rank in range(num_similar_regions + 1):
-            coord = top_region_coords[dl, rank]
-            region_dict = {
-                'rank': rank,
-                'coordinates': coord[0] + ':' + coord[1] + '-' + coord[2],
-                'region_ind': int(top_regions[dl, rank]),
-                'score': float(top_regions_sim[dl, rank]),
-                'percentiles': return_top_regions_per[dl, rank].tolist(),
-                'prod_rank': query_sim_prod_ranks[dl, rank]
-            }
-            if rank == 0:
-                region_dict['region_ind'] = 'NA'
-                region_dict['score'] = 'NA'
-                region_dict['factor_order'] = query_factor_order.tolist()
-                region_dict['target_factors'] = target_factors.tolist()
-                region_dict['top_region_factor_Z_score'] = return_Z[dl].tolist()
-                region_dict['top_region_factor_pval'] = return_pval[dl].tolist()
-                region_dict['roiURL'] = roiURLs[dl]
-                region_dict['detail_level'] = dl + 1
-                # region_dict['query_prod_rank'] = query_sim_prod_ranks[dl]
-            return_arr.append(region_dict)
-
-        return_arr_full.append(return_arr)
+    # if the best factor for the query region has a non-zero rank
+    if return_top_regions_per[0, 0, 0] > 0:
+        for dl in range(len(included_factors)):
+            # for the roi, return results as json array
+            # each element is an object of scores for each metric
+            return_arr = []
+            for rank in range(num_similar_regions + 1):
+                # if similar region has non-zero score
+                if float(top_regions_sim[dl, rank]) > 0:
+                    coord = top_region_coords[dl, rank]
+                    region_dict = {
+                        'rank': rank,
+                        'coordinates': coord[0] + ':' + coord[1] + '-' + coord[2],
+                        'region_ind': int(top_regions[dl, rank]),
+                        'score': float(top_regions_sim[dl, rank]),
+                        'percentiles': return_top_regions_per[dl, rank].tolist(),
+                        'prod_rank': query_sim_prod_ranks[dl, rank]
+                    }
+                    if rank == 0:
+                        region_dict['region_ind'] = 'NA'
+                        region_dict['score'] = 'NA'
+                        region_dict['factor_order'] = query_factor_order.tolist()
+                        region_dict['target_factors'] = target_factors.tolist()
+                        region_dict['top_region_factor_Z_score'] = return_Z[dl].tolist()
+                        region_dict['top_region_factor_pval'] = return_pval[dl].tolist()
+                        region_dict['roiURL'] = roiURLs[dl]
+                        region_dict['detail_level'] = dl + 1
+                        # region_dict['query_prod_rank'] = query_sim_prod_ranks[dl]
+                    return_arr.append(region_dict)
+            return_arr_full.append(return_arr)
     return
 
 
@@ -308,17 +311,19 @@ def generate_search_by_factor_result_array(num_regions):
     search_by_factor_return_arr = []
     for rank in range(num_regions):
         coord = top_regions_coords[rank]
-        region_dict = {
-            'rank': rank,
-            'coordinates': coord[0] + ':' + coord[1] + '-' + coord[2],
-            'region_ind': int(top_regions[rank]),
-            'score': float(top_regions_score[rank]),
-            'percentiles': top_regions_ranks[rank].tolist()
-        }
-        if rank == 0:
-            region_dict['factor_order'] = factor_order.tolist()
-            region_dict['selected_factors'] = selected_factors.tolist()
-        search_by_factor_return_arr.append(region_dict)
+        # check for non-zero score
+        if float(top_regions_score[rank]) > 0:
+            region_dict = {
+                'rank': rank,
+                'coordinates': coord[0] + ':' + coord[1] + '-' + coord[2],
+                'region_ind': int(top_regions[rank]),
+                'score': float(top_regions_score[rank]),
+                'percentiles': top_regions_ranks[rank].tolist()
+            }
+            if rank == 0:
+                region_dict['factor_order'] = factor_order.tolist()
+                region_dict['selected_factors'] = selected_factors.tolist()
+            search_by_factor_return_arr.append(region_dict)
     return
 
 def generate_narration_result_array():
@@ -367,7 +372,7 @@ def simsearch():
     reorder_by_query_region()
 
     # generate result array
-    generate_result_array(num_similar_regions)
+    generate_simsearch_result_array(num_similar_regions)
 
     # result array as json
     json_return = json.dumps(return_arr_full)
