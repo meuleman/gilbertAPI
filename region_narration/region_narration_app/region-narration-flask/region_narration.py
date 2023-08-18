@@ -328,7 +328,7 @@ def generate_search_by_factor_result_array(num_regions):
 
 def generate_narration_result_array():
     global narration_return_arr
-    narration_return_arr = [{'roi': roi, 'percentiles': roi_ranks, 'coordinates': roi_coords}]
+    narration_return_arr = [{'roi': roi, 'percentiles': roi_ranks.tolist(), 'coordinates': roi_coords.tolist()}]
     return
 
 
