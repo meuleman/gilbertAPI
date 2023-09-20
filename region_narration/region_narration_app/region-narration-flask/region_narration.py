@@ -140,7 +140,7 @@ def choose_search_space(scale, method='sliding_window'):
         ranks, coords = hilbert_sfc_search_spaces[scale]
     return
 
-# limit ranks ro just what hte user wants to include
+# limit ranks to just what the user wants to include
 def filter_factors_in_ranks(included_factors_str):
     global ranks, roi_ranks
 
@@ -284,15 +284,43 @@ def determine_factor_order(top_regions, selected_factors):
     return factor_order
 
 
+# # search for the best regions for selected factors
+# def search_over_selected_factors(num_regions):
+#     global top_regions, top_regions_ranks, top_regions_coords, top_regions_score, factor_order
+#     # focus on selected factors
+#     selected_factor_search_space_ranks = ranks[:, selected_factors]
+#     # fusion
+#     selected_factor_search_space_score = 1 - np.prod(1 - selected_factor_search_space_ranks, axis=1)
+#     # get the best regions
+#     top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+
+#     # factor order
+#     factor_order = determine_factor_order(top_regions, selected_factors)
+
+#     # find info for each top region
+#     top_regions_ranks = ranks[top_regions][:, factor_order]
+#     top_regions_coords = coords[top_regions]
+#     top_regions_score = selected_factor_search_space_score[top_regions]
+#     return 
+
 # search for the best regions for selected factors
 def search_over_selected_factors(num_regions):
     global top_regions, top_regions_ranks, top_regions_coords, top_regions_score, factor_order
     # focus on selected factors
     selected_factor_search_space_ranks = ranks[:, selected_factors]
+
+    # limit regions to just those containing all factors
+    selected_factor_region_inds = np.where(
+        np.count_nonzero(selected_factor_search_space_ranks, axis=1) == len(selected_factors)
+    )[0]
+    selected_factor_search_space_filtered_ranks = selected_factor_search_space_ranks[selected_factor_region_inds]
+
     # fusion
-    selected_factor_search_space_score = 1 - np.prod(1 - selected_factor_search_space_ranks, axis=1)
+    selected_factor_search_space_score = 1 - np.prod(1 - selected_factor_search_space_filtered_ranks, axis=1)
+
     # get the best regions
-    top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+    top_filtered_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+    top_regions = selected_factor_region_inds[top_filtered_regions]
 
     # factor order
     factor_order = determine_factor_order(top_regions, selected_factors)
@@ -300,8 +328,8 @@ def search_over_selected_factors(num_regions):
     # find info for each top region
     top_regions_ranks = ranks[top_regions][:, factor_order]
     top_regions_coords = coords[top_regions]
-    top_regions_score = selected_factor_search_space_score[top_regions]
-    return 
+    top_regions_score = selected_factor_search_space_score[top_filtered_regions]
+    return
 
 
 # build array of objects for each region at each detail level
@@ -309,7 +337,7 @@ def generate_search_by_factor_result_array(num_regions):
     global search_by_factor_return_arr
     # for each region, return relevant information
     search_by_factor_return_arr = []
-    for rank in range(num_regions):
+    for rank in range(len(top_regions)):
         coord = top_regions_coords[rank]
         # check for non-zero score
         if float(top_regions_score[rank]) > 0:
@@ -359,7 +387,7 @@ def simsearch():
     # limit ranks to just the factors included with included_factors_str
     filter_factors_in_ranks(included_factors_str)
 
-    # find the factors we actually want to search over/the user would acre about
+    # find the factors we actually want to search over/the user would care about
     refine_factors_to_search_over(query_factor_thresh)
 
     # find most similar region inds
