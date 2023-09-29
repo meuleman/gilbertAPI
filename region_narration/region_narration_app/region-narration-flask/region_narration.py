@@ -304,23 +304,24 @@ def determine_factor_order(top_regions, selected_factors):
 #     return 
 
 # search for the best regions for selected factors
-def search_over_selected_factors(num_regions):
+def search_over_selected_factors(num_regions, weight=0.8):
     global top_regions, top_regions_ranks, top_regions_coords, top_regions_score, factor_order
     # focus on selected factors
     selected_factor_search_space_ranks = ranks[:, selected_factors]
 
-    # limit regions to just those containing all factors
-    selected_factor_region_inds = np.where(
-        np.count_nonzero(selected_factor_search_space_ranks, axis=1) == len(selected_factors)
-    )[0]
-    selected_factor_search_space_filtered_ranks = selected_factor_search_space_ranks[selected_factor_region_inds]
+    # # limit regions to just those containing all factors
+    # selected_factor_region_inds = np.where(
+    #     np.count_nonzero(selected_factor_search_space_ranks, axis=1) == len(selected_factors)
+    # )[0]
+    # selected_factor_search_space_filtered_ranks = selected_factor_search_space_ranks[selected_factor_region_inds]
 
     # fusion
-    selected_factor_search_space_score = 1 - np.prod(1 - selected_factor_search_space_filtered_ranks, axis=1)
+    selected_factor_search_space_score = 1 - np.prod(1 - weight * selected_factor_search_space_ranks, axis=1)
 
     # get the best regions
-    top_filtered_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
-    top_regions = selected_factor_region_inds[top_filtered_regions]
+    top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+    # top_filtered_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+    # top_regions = selected_factor_region_inds[top_filtered_regions]
 
     # factor order
     factor_order = determine_factor_order(top_regions, selected_factors)
@@ -328,7 +329,7 @@ def search_over_selected_factors(num_regions):
     # find info for each top region
     top_regions_ranks = ranks[top_regions][:, factor_order]
     top_regions_coords = coords[top_regions]
-    top_regions_score = selected_factor_search_space_score[top_filtered_regions]
+    top_regions_score = selected_factor_search_space_score[top_regions]
     return
 
 

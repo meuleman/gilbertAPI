@@ -136,7 +136,7 @@ def top_region_sig(percents, top_regions):
     return pval, Z
 
 
-def perform_simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions):
+def perform_simsearch(roi_percents, percents, roi, roi_coords, coords, included_factors, num_similar_regions, weight=0.8):
 
     # factors the query region ranks highest in
     query_factor_order = np.argsort(-roi_percents)
@@ -156,7 +156,7 @@ def perform_simsearch(roi_percents, percents, roi, roi_coords, coords, included_
     # fusion
     roi_sim_all = []
     for dl in range(1, len(included_factors) + 1):
-        roi_sim = 1 - np.prod(1 - roi_conv_all[:, :dl], axis=1)
+        roi_sim = 1 - np.prod(1 - weight * roi_conv_all[:, :dl], axis=1)
         roi_sim_all.append(roi_sim)
     roi_sim_all = np.array(roi_sim_all)
 
