@@ -1,6 +1,8 @@
 from flask import Flask, request
 from flask_cors import CORS
 import numpy as np
+from scipy.stats import hypergeom
+import re
 # import tabix
 import sys
 import os
@@ -33,7 +35,7 @@ else:
     # load search spaces for each scale
     data_dir = '../../data/'
 
-print(production)
+# print(production)
 
 # Given a scale, build a path name for the search space
 def build_search_space_path(scale, method='sliding_window'):
@@ -44,6 +46,12 @@ def build_search_space_path(scale, method='sliding_window'):
     elif method == 'hilbert_sfc':
         # path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230630.dhs.cs.sfc.ranks.limited_search_space_top_1000_no_overlap.npz'.format(scale))
         path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230718.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.npz'.format(scale))
+    return path
+
+
+# Given a scale, build a path name for the search space
+def build_geneset_bin_path(scale):
+    path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.mapped_extended_domain_GREATv4_gene_c5GOBP_selected_genesets.bin.compressed.CT20231023.npz'.format(scale))
     return path
 
 
@@ -73,20 +81,30 @@ def load_ranks(search_space_path, method='sliding_window'):
     return ranks, coords
 
 
+# Load search space data from a given scale
+def load_geneset_bin(geneset_bin_path):
+    geneset_bin = np.load(geneset_bin_path)
+    search_space_geneset_bin = geneset_bin['search_space_geneset_bin']
+    geneset_order = geneset_bin['geneset_order']
+    return search_space_geneset_bin, geneset_order
+
+
 # load search spaces for all scales into dict
-sliding_window_seach_spaces = {}
-hilbert_search_spaces = {}
+# sliding_window_seach_spaces = {}
+# hilbert_search_spaces = {}
 hilbert_sfc_search_spaces = {}
-for scale in [1, 2, 5, 10, 15, 25, 50, 75, 100]:
-    region_method = 'sliding_window'
-    sliding_window_seach_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
-for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
-    region_method = 'hilbert'
-    hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
+hilbert_sfc_geneset_bin = {}
+# for scale in [1, 2, 5, 10, 15, 25, 50, 75, 100]:
+#     region_method = 'sliding_window'
+#     sliding_window_seach_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
+# for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
+#     region_method = 'hilbert'
+#     hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
+
 for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
     region_method = 'hilbert_sfc'
     hilbert_sfc_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
-
+    hilbert_sfc_geneset_bin[scale] = load_geneset_bin(build_geneset_bin_path(scale))
 
 # Functions for narration
 # run tabix query
@@ -379,6 +397,28 @@ def append_roi_information(top_regions, top_regions_ranks, top_regions_coords, t
     return appended_top_regions, appended_top_regions_ranks, appended_top_regions_coords, appended_top_regions_score
 
 
+def geneset_hypergeom(region_inds, N, M, n, geneset_order, search_space_geneset_bin):
+    k = np.sum(search_space_geneset_bin[region_inds], axis=0)
+    inds_to_test = np.where(k)[0]
+
+    test = hypergeom.sf(k[inds_to_test], M, n[inds_to_test], N)
+    tested_genesets = geneset_order[inds_to_test]
+    test = test * len(geneset_order)  # bonferroni correction
+    test = np.where(test > 1, 1, test)
+    return tested_genesets, inds_to_test, test
+
+
+def parse_geneset_enrichment_query_data(query_data):
+    query_sim_region_inds = []
+    query_sim_region_coords = []
+    for i in range(len(query_data)):
+        coord = re.split('[:-]', query_data[i]['coordinates'])
+        query_sim_region_coords.append(coord)
+        query_sim_region_inds.append(query_data[i]['region_ind'])
+    
+    return query_sim_region_inds, query_sim_region_coords
+
+
 @app.route('/', methods=['GET'])
 def about():
     python_version = sys.version
@@ -512,6 +552,43 @@ def narration():
     json_return = json.dumps(narration_return_arr)
 
     return json_return
+
+
+# perform a geneset enrichment test for desired regions
+@app.route('/geneset_enrichment', methods=['POST'])
+def geneset_enrichment():
+    request_info = request.get_json()
+    query_data = request_info['data']
+    scale = request_info['scale']
+
+
+    # get the search space x geneset matrix for the correct order
+    search_space_geneset_bin, geneset_order = hilbert_sfc_geneset_bin[scale]
+
+    # parse the data to get the region indices and the region coordinates
+    query_sim_region_inds, query_sim_region_coords = parse_geneset_enrichment_query_data(query_data)
+        
+    # perform hypergeometric test for enrichment
+    num_sim_regions = len(query_sim_region_coords)
+    num_regions = search_space_geneset_bin.shape[0]
+    gs_region_counts = np.sum(search_space_geneset_bin, axis=0)
+
+    query_tested_gs, query_tested_gs_inds, query_tested_gs_pval = geneset_hypergeom(
+        region_inds=query_sim_region_inds, 
+        N=num_sim_regions,
+        M=num_regions, 
+        n=gs_region_counts, 
+        geneset_order=geneset_order,
+        search_space_geneset_bin=search_space_geneset_bin
+    )
+
+    return_geneset_enrichment = {
+        'query_tested_gs': query_tested_gs.tolist(), 
+        'query_tested_gs_inds': query_tested_gs_inds.tolist(), 
+        'query_tested_gs_pval': query_tested_gs_pval.tolist()
+    }
+
+    return return_geneset_enrichment
 
 
 if __name__ == '__main__':
