@@ -579,13 +579,17 @@ def geneset_enrichment():
         search_space_geneset_bin=search_space_geneset_bin
     )
 
-    return_geneset_enrichment = {
-        'query_tested_gs': query_tested_gs.tolist(), 
-        'query_tested_gs_inds': query_tested_gs_inds.tolist(), 
-        'query_tested_gs_pval': query_tested_gs_pval.tolist()
-    }
+    return_geneset_enrichment = []
+    for gs, i, p in zip(query_tested_gs, query_tested_gs_inds, query_tested_gs_pval):
+        return_geneset_enrichment.append({
+            'geneset_name': gs, 
+            'geneset_index': int(i), 
+            'geneset_pval': float(p)
+        })
+        
+    json_return = json.dumps(return_geneset_enrichment)
 
-    return return_geneset_enrichment
+    return json_return
 
 
 if __name__ == '__main__':
