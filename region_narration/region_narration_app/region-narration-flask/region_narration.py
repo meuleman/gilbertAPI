@@ -410,13 +410,10 @@ def geneset_hypergeom(region_inds, N, M, n, geneset_order, search_space_geneset_
 
 def parse_geneset_enrichment_query_data(query_data):
     query_sim_region_inds = []
-    query_sim_region_coords = []
     for i in range(len(query_data)):
-        coord = re.split('[:-]', query_data[i]['coordinates'])
-        query_sim_region_coords.append(coord)
         query_sim_region_inds.append(query_data[i]['region_ind'])
     
-    return query_sim_region_inds, query_sim_region_coords
+    return query_sim_region_inds
 
 
 @app.route('/', methods=['GET'])
@@ -566,10 +563,10 @@ def geneset_enrichment():
     search_space_geneset_bin, geneset_order = hilbert_sfc_geneset_bin[scale]
 
     # parse the data to get the region indices and the region coordinates
-    query_sim_region_inds, query_sim_region_coords = parse_geneset_enrichment_query_data(query_data)
+    query_sim_region_inds = parse_geneset_enrichment_query_data(query_data)
         
     # perform hypergeometric test for enrichment
-    num_sim_regions = len(query_sim_region_coords)
+    num_sim_regions = len(query_sim_region_inds)
     num_regions = search_space_geneset_bin.shape[0]
     gs_region_counts = np.sum(search_space_geneset_bin, axis=0)
 
