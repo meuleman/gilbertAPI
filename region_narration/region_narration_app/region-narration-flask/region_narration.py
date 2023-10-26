@@ -331,7 +331,7 @@ def determine_factor_order(top_regions, selected_factors, ranks):
 
 
 # search for the best regions for selected factors
-def search_over_selected_factors(num_regions, ranks, coords, selected_factors, convolution=[], weight=0.8):
+def search_over_selected_factors(num_regions, ranks, coords, selected_factors, convolution=[], roi_coords=[], weight=0.8):
     # fusion
     if len(convolution) > 0:
         data_for_fusion = convolution[:, selected_factors]
@@ -340,7 +340,30 @@ def search_over_selected_factors(num_regions, ranks, coords, selected_factors, c
     selected_factor_search_space_score = 1 - np.prod(1 - weight * data_for_fusion, axis=1)
 
     # get the best regions
-    top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
+    if len(roi_coords) > 0:
+        # filter out regions that overlap with the query region
+        mask = np.where(~
+            (
+                (coords[:, 0] == roi_coords[0]) & 
+                (
+                    (
+                        (coords[:, 1].astype(int) > int(roi_coords[1])) &
+                        (coords[:, 1].astype(int) < int(roi_coords[2]))
+                    ) |
+                    (
+                        (coords[:, 2].astype(int) > int(roi_coords[1])) &
+                        (coords[:, 2].astype(int) < int(roi_coords[2]))
+                    ) |
+                    (
+                        (coords[:, 1].astype(int) == int(roi_coords[1])) &
+                        (coords[:, 2].astype(int) == int(roi_coords[2]))
+                    )
+                )
+            )
+        )[0]
+        top_regions = mask[np.argsort(-selected_factor_search_space_score[mask])][:num_regions]
+    else:
+        top_regions = np.argsort(-selected_factor_search_space_score)[:num_regions]
 
     # factor order
     # factor_order = determine_factor_order(top_regions, selected_factors, ranks)
@@ -478,7 +501,7 @@ def simsearch():
     # calculate convolution scores between roi and search space
     convolution = calculate_convolution(roi_ranks, ranks)
 
-    top_regions, top_regions_ranks, top_regions_coords, top_regions_score = search_over_selected_factors(num_similar_regions, ranks, coords, selected_factors, convolution, weight=weight)
+    top_regions, top_regions_ranks, top_regions_coords, top_regions_score = search_over_selected_factors(num_similar_regions, ranks, coords, selected_factors, convolution, roi_coords=roi_coords, weight=weight)
 
     top_regions, top_regions_ranks, top_regions_coords, top_regions_score = append_roi_information(top_regions, top_regions_ranks, top_regions_coords, top_regions_score, roi, roi_ranks, roi_coords)
 
