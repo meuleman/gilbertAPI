@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort, Response
 from flask_cors import CORS
 import numpy as np
 from scipy.stats import hypergeom
@@ -454,6 +454,7 @@ def search_by_factor():
     num_regions = int(request_info['numRegions'])
     region_method = request_info['regionMethod']
     weight = float(request_info['fusionWeight'])
+    print((scale, selected_factors_str, num_regions, region_method, weight), flush=True)
 
     # choose search space
     ranks, coords = choose_search_space(scale, region_method)
@@ -494,6 +495,8 @@ def simsearch():
 
     # limit ranks to just the factors included with included_factors_str
     ranks, roi_ranks = filter_factors_in_ranks(included_factors_str, ranks, roi_ranks)
+    if len(roi_ranks[roi_ranks != 0]) == 0:
+        abort(404)
 
     # get the selected factors
     selected_factors = setup_selected_factors(selected_factors_str, roi_ranks, query_factor_thresh)
