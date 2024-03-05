@@ -114,6 +114,7 @@ class RegionNarrationAppContainer extends React.Component {
         scale: scale,
         numRegions: 20,
         regionMethod: this.state.regionMethod,
+        fusionWeight: 0.1
       };
       let flaskURL = this.state.productionQueryBuildingFlaskURL;
       if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
@@ -248,12 +249,14 @@ class RegionNarrationAppContainer extends React.Component {
         // Flask Server
         const postBody = {
           location: `${location.chrom}:${location.start}-${location.stop}`,
-          factors: JSON.stringify(this.state.selectedFactors),
+          includedFactors: JSON.stringify(this.state.possibleFactors),
+          selectedFactors: JSON.stringify(this.state.selectedFactors),
           roiURL: roiURL,
           scale: order,
           queryFactorThresh: 0.5,
           numSimilarRegions: 20,
           regionMethod: this.state.regionMethod,
+          fusionWeight: 0.1,
         };
         // console.log(`flaskURL: ${this.state.productionFlaskURL}`);
         let flaskURL = this.state.productionFlaskURL;
