@@ -618,5 +618,178 @@ def geneset_enrichment():
     return json_return
 
 
+# =======================================================================================
+# YC240401 Shared factor anaylsis for UMAP
+# =======================================================================================
+
+import numpy as np
+import pandas as pd
+import h5py
+
+# GilbertSFCH5_DIR = '/home/ychoi/projects/hilbert-genome/data/20240328_GilbertDataInH5'
+GilbertSFCH5_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5/20240328_GilbertDataInH5'
+
+# Map chromosome location to index at specific Gilbert order
+def map_to_order_indice(chr_str, order, df_indices):
+    # Parse chr_str
+    chr,start_end = chr_str.split(':')
+    start,end = [int(i) for i in start_end.split('-')]
+    # Get index 
+    segment_size = 4**(14-order)
+    chr_index = start // segment_size
+    chr_offset = df_indices[str(order)][chr] 
+    index = chr_index + chr_offset
+    return index
+
+# Use fancy indexing on h5
+def fancy_indexing(hf, index):
+    # Create unique ordered version of index for hf
+    index_sorted = np.sort(np.unique(index)) # index for hf
+    hfidx2idx = dict(zip(index_sorted,np.arange(len(index_sorted))))
+    # Get array from hf then reindex
+    arr_hf = np.array(hf['arr'][index_sorted],dtype='float32')
+    arr = arr_hf[[hfidx2idx[i] for i in index]]
+    return arr
+
+# Given dataset and order, create path to h5 file
+def get_h5_path(ds,order):
+    basedir = GilbertSFCH5_DIR
+    path = f"{basedir}/{ds}/offset_0/order_{order}_windows_annotation_sfc_scores.h5"
+    return path
+
+# Given variable metadata for factors and kwargs for columns in the metadata, return boolean index
+def subset_by_var(var, **kwargs):
+    var_idx = np.repeat(True, len(var))
+    for k,v in kwargs.items():
+        var_idx = np.all([var_idx,(var[k] == v)],axis=0)
+    return var_idx
+
+# Given SFC array of (sample,feature), return top n arg per sample (sample, n)
+def argnmax(arr, n=1, axis=1, ordered=True):
+    if ordered:
+        idx = np.argsort(-arr, axis=axis)[:,:n]
+    else:
+        idx = np.argpartition(arr, -n, axis=axis)[:,-n:]
+    return idx
+
+# Given SFC array of (sample,feature), return top args per sample and index of features considered
+def get_top_factor(arr, var, n=1, ordered=True, exclude_LAD=False, **kwargs):
+    """
+    """
+    var_idx = subset_by_var(var, **kwargs)
+    if exclude_LAD:
+        var_idx[subset_by_var(var,dataset='LAD')] = False
+    arr_keep = arr[:,var_idx]
+    topargs = argnmax(arr_keep,n=10,ordered=ordered)
+    zero_idx = np.array([arr_keep[i,topargs[i]] for i in range(len(topargs))]) == 0
+    topargs[zero_idx] = -1
+    return topargs, var_idx
+
+def shared_factor_percentage(top_factors, n_shared=10):
+    """
+    per factor, show percentage of the samples the factor was top factor in
+    """
+    top_shared_factor_counts = pd.Series(top_factors.reshape(-1)).value_counts()
+    top_shared_factor_counts_per_sample = top_shared_factor_counts / len(top_factors)
+    return top_shared_factor_counts_per_sample
+
+def perform_shared_factor_analysis(arr, var, n=10):
+    """
+    return
+        (mean shared factor percentage, 
+         list of shared factor names in decreasing order,
+         individual shared factor perecentage)
+    """
+    top_factors,var_idx = get_top_factor(arr,n=n,var=var)
+    shared_factor = shared_factor_percentage(top_factors)
+    shared_factor = shared_factor[shared_factor.index != -1]
+    score = shared_factor[:n] / n
+    shared_factor_name = var['scaled factor'][var_idx].values[shared_factor[:10].index]
+    shared_factor.index = shared_factor_name
+    gil = [score,shared_factor_name,shared_factor]
+    return gil
+
+
+class ScaledGilbertDataLoader():
+    """
+    class for loading cross scale Gilbert SFC data from h5 files
+    """
+#
+    def __init__(self):
+#
+        # Preload h5 files
+        self.datasets = ['DHS','chromatin_states','TF']
+        self.orders = np.arange(4,13)
+#
+        h5_dict = {}
+        for ds in self.datasets:
+            for order in self.orders:
+                h5path = get_h5_path(ds,order)
+                h5_dict[f"{ds}-{order}"] = h5py.File(h5path,'r')
+#
+        self.h5_dict = h5_dict
+#
+        # Load indices where each chromosome begins
+        FILE_DIR = f'{GilbertSFCH5_DIR}/chromosome_indices.csv'
+        self.df_indices = pd.read_csv(FILE_DIR,index_col=0)
+#
+        # Load var, variable metadata
+        self._generate_var()
+#
+    def load_segment(self, chr,start,end):
+        arrs = []
+        for ds in self.datasets: 
+            for order in self.orders:
+                idx = map_to_order_indice(chr,start,end,order)
+                hf = self.h5_dict[f"{ds}-{order}"]
+                arr_ = hf['arr'][idx]
+                arrs.append(arr_)
+        arrs = np.concatenate(arrs,axis=1)
+        return arrs
+#
+    def load_segments(self, chr_strs):
+        arrs = []
+        for ds in self.datasets: 
+            for order in self.orders:
+                idx = [map_to_order_indice(chr_str=chr_str,order=order,df_indices=self.df_indices) for chr_str in chr_strs]
+                hf = self.h5_dict[f"{ds}-{order}"]
+                arr_ = fancy_indexing(hf,idx)
+                arrs.append(arr_)
+        arrs = np.concatenate(arrs,axis=1)
+        return arrs
+#
+    def _generate_var(self):
+        var = []
+        for sds,h5 in self.h5_dict.items():
+            ds,order = sds.split('-')
+            factors = h5['columns'][:].astype('str')
+            df_var = pd.DataFrame({'Scaled Dataset': sds,
+                                    'dataset': ds,
+                                    'order': order, 
+                                    'factor': factors,
+                                    'scaled factor': pd.Series(factors) + '-' + order,
+                                    })
+            var.append(df_var)
+        self.var = pd.concat(var)
+
+sgdl = ScaledGilbertDataLoader()
+
+# find the top regions for selected factors
+@app.route('/get_shared_factor', methods=['POST'])
+def get_shared_factor():
+    request_info = request.get_json()
+    chr_strs = request_info['chr_strs']
+    arr = sgdl.load_segments(chr_strs)
+    results = perform_shared_factor_analysis(arr=arr,var=sgdl.var)
+    json_return = json.dumps({
+        "SharedFactor": list(results[2].index.values),
+        "SharedFactorPercentage": list(results[2].values),
+        "MeanSharedFactorPercentage": results[2].mean(),
+        }
+    )
+    return json_return
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
