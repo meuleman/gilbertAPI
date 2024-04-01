@@ -693,7 +693,7 @@ def shared_factor_percentage(top_factors, n_shared=10):
     top_shared_factor_counts_per_sample = top_shared_factor_counts / len(top_factors)
     return top_shared_factor_counts_per_sample
 
-def perform_shared_factor_analysis(arr, var, n=10):
+def perform_shared_factor_analysis(arr, var, n=10, min_percentage=0.2):
     """
     return
         (mean shared factor percentage, 
@@ -703,9 +703,10 @@ def perform_shared_factor_analysis(arr, var, n=10):
     top_factors,var_idx = get_top_factor(arr,n=n,var=var)
     shared_factor = shared_factor_percentage(top_factors)
     shared_factor = shared_factor[shared_factor.index != -1]
-    score = shared_factor[:n] / n
-    shared_factor_name = var['scaled factor'][var_idx].values[shared_factor[:10].index]
+    score = shared_factor[:n].sum() / n
+    shared_factor_name = var['scaled factor'][var_idx].values[shared_factor.index]
     shared_factor.index = shared_factor_name
+    shared_factor = shared_factor[shared_factor.values > min_percentage]
     gil = [score,shared_factor_name,shared_factor]
     return gil
 
