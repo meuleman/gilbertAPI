@@ -12,6 +12,10 @@ import json
 from subprocess import Popen, PIPE
 # from simsearch_functions import perform_simsearch, roiURL  # , load_per
 
+# CSN
+from csns import csns_bp
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -789,6 +793,15 @@ def get_shared_factor():
         }
     )
     return json_return
+
+
+
+
+
+
+##########CSN#########
+app.register_blueprint(csns_bp, url_prefix='/api/csns') # Register the Blueprint at /api/csns
+
 
 
 
