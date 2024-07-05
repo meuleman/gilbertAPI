@@ -26,7 +26,8 @@ chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 
 def fetch_indices(order, chromosome, factor_index, dataset_name):
-    url = f"{baseS3URLPrefix}/${order}.${chromosome}.${dataset_name}.${factor_index}.order_14_resolution.indices.int32.bytes"
+    url = f"{baseS3URLPrefix}/{order}.{chromosome}.{dataset_name}.{factor_index}.order_14_resolution.indices.int32.bytes"
+    print(url, flush=True)
     bytes_arr = requests.get(url).content
     indices = np.frombuffer(bytes_arr, dtype="int32")
     return indices
