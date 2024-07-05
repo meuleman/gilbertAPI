@@ -14,15 +14,15 @@ chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 
 
-# load path scores from each chromosome
-scores_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores'
+# # load path scores from each chromosome
+# scores_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores'
 scores_lookup = {}
-for chromosome in chromosomes:
-    chromosome_score_path = os.path.join(scores_dir, f"path_scores.{chromosome}.order_14_resolution.float32.bytes")
-    with open(chromosome_score_path, "rb") as f:
-        bytes_data = f.read()
-        f.close()
-    scores_lookup[chromosome] = np.frombuffer(bytes_data, dtype="float32")
+# for chromosome in chromosomes:
+#     chromosome_score_path = os.path.join(scores_dir, f"path_scores.{chromosome}.order_14_resolution.float32.bytes")
+#     with open(chromosome_score_path, "rb") as f:
+#         bytes_data = f.read()
+#         f.close()
+#     scores_lookup[chromosome] = np.frombuffer(bytes_data, dtype="float32")
 
 
 def fetch_indices(order, chromosome, factor_index, dataset_name):
