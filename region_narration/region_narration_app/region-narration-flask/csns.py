@@ -39,6 +39,7 @@ def find_intersection(group):
     common_indices = group[0]["indices"]
     for g in group[1:]:
         common_indices = common_indices[np.isin(common_indices, g["indices"])]
+    print(("Common indices dtype: ", common_indices.dtype), flush=True)
     return common_indices
 
 def get_filtered_indices(filters):
@@ -133,6 +134,7 @@ def get_scores(
             print(f"{len(chromosome_indices)} indices", flush=True)
             sort_order = np.argsort(chromosome_indices)
             unsort_order = np.argsort(sort_order)
+            print(("chromosome_indices dtypes: ", chromosome_indices.dtypes), flush=True)
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
             scores.extend(chromosome_scores)
         # for chromosome, index in zip(chromosomes, indices):
@@ -173,7 +175,8 @@ def top_paths():
 
     # find the top paths based on full or factor score
     print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N)        
+    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N)   
+    print(("indices dtype: ", top_indices.dtype), flush=True)     
     
     # get the dehydrated paths for each index 
     print("getting dehydrated paths", flush=True)
