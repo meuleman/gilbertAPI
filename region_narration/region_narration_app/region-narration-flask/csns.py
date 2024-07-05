@@ -81,7 +81,7 @@ def get_filtered_indices(filters):
 
 
 def sort_by_score(chromosome_indices, score_type, N):
-    indices = np.array([])
+    indices = np.array([], dtype="int32")
     chromosomes = []
 
     for chromosome in chromosome_indices.keys():
@@ -91,6 +91,7 @@ def sort_by_score(chromosome_indices, score_type, N):
         indices = np.append(indices, chrm_indices)
         chromosomes = np.append(chromosomes, chrm_array)
 
+    print(("Indices dtype: ", indices.dtype), flush=True)
     # get scores
     if score_type == "full":
         scores = get_scores(indices, chromosomes)
