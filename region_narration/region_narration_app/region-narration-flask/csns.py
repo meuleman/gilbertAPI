@@ -149,9 +149,9 @@ def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_pa
     return_list = []
     for index, chrom, score, path in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths):
         return_list.append({
-            "index": index,
-            "chromosome": chrom,
-            "score": score,
+            "index": int(index),
+            "chromosome": str(chrom),
+            "score": float(score),
             "path": path.tolist()
         })
 
