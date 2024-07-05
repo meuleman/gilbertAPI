@@ -129,7 +129,7 @@ def get_scores(
         for chromosome, index in zip(chromosomes, indices):
             scores.append(f[chromosome][int(index)])
     
-    return scores
+    return np.array(scores)
 
 
 def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths):
