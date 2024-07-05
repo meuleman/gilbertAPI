@@ -124,7 +124,7 @@ Collects path scores for index positions on each chromosome.
 def get_scores(
     indices,
     chromosomes,
-    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores/path_scores.order_14_resolution.float32.h5'
+    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores/20240530/path_scores.order_14_resolution.float32.h5'
 ):
     scores = []
     # load in h5 file and read in the scores for each position
