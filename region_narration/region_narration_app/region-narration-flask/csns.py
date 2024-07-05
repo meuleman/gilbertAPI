@@ -12,22 +12,12 @@ csns_bp = Blueprint('csns_bp', __name__)
 baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240530/csn_index_files"
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
-
-
-# # load path scores from each chromosome
-# scores_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores'
-# scores_lookup = {}
-# for chromosome in chromosomes:
-#     chromosome_score_path = os.path.join(scores_dir, f"path_scores.{chromosome}.order_14_resolution.float32.bytes")
-#     with open(chromosome_score_path, "rb") as f:
-#         bytes_data = f.read()
-#         f.close()
-#     scores_lookup[chromosome] = np.frombuffer(bytes_data, dtype="float32")
-
-
+"""
+Fetches the order 14 positional indices for a given order, chromosome, factor index, 
+and dataset name. Returns an empty array if the indices are not found.
+"""
 def fetch_indices(order, chromosome, factor_index, dataset_name):
     url = f"{baseS3URLPrefix}/{order}.{chromosome}.{dataset_name}.{factor_index}.order_14_resolution.indices.int32.bytes"
-    print(url, flush=True)
     try:
         bytes_arr = requests.get(url).content
         indices = np.frombuffer(bytes_arr, dtype="int32")
@@ -35,13 +25,21 @@ def fetch_indices(order, chromosome, factor_index, dataset_name):
         indices = np.array([], dtype="int32")
     return indices
 
+
+"""
+For a given chromosome group, find the common indices between all filters.
+"""
 def find_intersection(group):
     common_indices = group[0]["indices"]
     for g in group[1:]:
         common_indices = common_indices[np.isin(common_indices, g["indices"])]
-    print(("Common indices dtype: ", common_indices.dtype), flush=True)
     return common_indices
 
+
+"""
+Collects positional indices for each filter, groups them by chromosome, and finds the
+intersection between filters within each chromosome.
+"""
 def get_filtered_indices(filters):
     filter_indices = []
     # parse each filter and collect indices
@@ -79,7 +77,10 @@ def get_filtered_indices(filters):
     return reduced_chromosome_groups
 
 
-
+"""
+Collects the path scores for index positions across chromosome, sorts by score,
+and returns the indices, chromosomes, and scores for the top N paths across the genome.
+"""
 def sort_by_score(chromosome_indices, score_type, N):
     indices = np.array([], dtype="int32")
     chromosomes = []
@@ -91,7 +92,6 @@ def sort_by_score(chromosome_indices, score_type, N):
         indices = np.append(indices, chrm_indices)
         chromosomes = np.append(chromosomes, chrm_array)
 
-    print(("Indices dtype: ", indices.dtype), flush=True)
     # get scores
     if score_type == "full":
         scores = get_scores(indices, chromosomes)
@@ -104,11 +104,13 @@ def sort_by_score(chromosome_indices, score_type, N):
 
     return top_indices, top_chromosomes, top_scores
 
-
+"""
+Collects and returns the factor indices for each of the top paths.
+"""
 def get_dehydrated_paths(
     top_indices,
     top_chromosomes,
-    file_path = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/paths/path_factor_indices.order_14_resolution.h5'
+    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/paths/path_factor_indices.order_14_resolution.h5'
 ):
     dehydrated_paths = []
     # load in h5 file and read in the exact dehydrated paths we need
@@ -118,33 +120,31 @@ def get_dehydrated_paths(
     
     return dehydrated_paths
 
-
+"""
+Collects path scores for index positions on each chromosome.
+"""
 def get_scores(
     indices,
     chromosomes,
-    file_path = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores/path_scores.order_14_resolution.float32.h5'
+    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores/path_scores.order_14_resolution.float32.h5'
 ):
     scores = []
-    # load in h5 file and read in the exact dehydrated paths we need
-    print(("Indices, chromosomes shape: ", indices.shape, chromosomes.shape), flush=True)
+    # load in h5 file and read in the scores for each position
     with h5py.File(file_path, 'r') as f:
         unique_chromosomes = np.unique(chromosomes)
         for chromosome in unique_chromosomes:
-            print(f"Reading chromosome {chromosome}", flush=True)
             chromosome_indices = indices[chromosomes == chromosome]
-            print(f"{len(chromosome_indices)} indices", flush=True)
             sort_order = np.argsort(chromosome_indices)
             unsort_order = np.argsort(sort_order)
-            print(("chromosome_indices dtypes: ", chromosome_indices.dtype), flush=True)
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
             scores.extend(chromosome_scores)
-        # for chromosome, index in zip(chromosomes, indices):
-
-        #     scores.append(f[chromosome][int(index)])
     
     return np.array(scores)
 
 
+"""
+Refactors our top paths into a JSON object for return.
+"""
 def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths):
     return_list = []
     for index, chrom, score, path in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths):
@@ -169,22 +169,21 @@ def top_paths():
     N = request_info['N']  # number of paths to return
 
     # get the indices for the filters of each chromosome
-    print("getting filtered indices", flush=True)
+    # print("getting filtered indices", flush=True)
     chromosome_indices = get_filtered_indices(filters)
 
     #TODO: filter by regions that are passed in
 
     # find the top paths based on full or factor score
-    print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N)   
-    print(("indices dtype: ", top_indices.dtype), flush=True)     
+    # print("sorting by score", flush=True)
+    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N)      
     
     # get the dehydrated paths for each index 
-    print("getting dehydrated paths", flush=True)
+    # print("getting dehydrated paths", flush=True)
     dehydrated_paths = get_dehydrated_paths(top_indices, top_chromosomes)
 
     # generate the return list
-    print("generating return list", flush=True)
+    # print("generating return list", flush=True)
     return_list = generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths)
 
     return return_list
