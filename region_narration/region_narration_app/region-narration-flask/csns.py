@@ -126,7 +126,7 @@ def get_scores(
     # load in h5 file and read in the exact dehydrated paths we need
     with h5py.File(file_path, 'r') as f:
         for chromosome, index in zip(chromosomes, indices):
-            scores.append(f[chromosome][index])
+            scores.append(f[chromosome][int(index)])
     
     return scores
 
