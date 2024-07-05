@@ -113,6 +113,19 @@ def get_dehydrated_paths(
     return dehydrated_paths
 
 
+def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths):
+    return_list = []
+    for index, chrom, score, path in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths):
+        return_list.append({
+            "index": index,
+            "chromosome": chrom,
+            "score": score,
+            "path": path.tolist()
+        })
+
+    return json.dumps(return_list)
+
+
 @csns_bp.route("top_paths")
 def top_paths():
     request_info = request.get_json()
@@ -134,6 +147,7 @@ def top_paths():
     # get the dehydrated paths for each index 
     dehydrated_paths = get_dehydrated_paths(top_indices, top_chromosomes)
 
-    #TODO: return requested paths
+    # generate the return list
+    return_list = generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths)
 
-    return
+    return return_list
