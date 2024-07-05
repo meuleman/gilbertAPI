@@ -134,7 +134,7 @@ def get_scores(
             print(f"{len(chromosome_indices)} indices", flush=True)
             sort_order = np.argsort(chromosome_indices)
             unsort_order = np.argsort(sort_order)
-            print(("chromosome_indices dtypes: ", chromosome_indices.dtypes), flush=True)
+            print(("chromosome_indices dtypes: ", chromosome_indices.dtype), flush=True)
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
             scores.extend(chromosome_scores)
         # for chromosome, index in zip(chromosomes, indices):
