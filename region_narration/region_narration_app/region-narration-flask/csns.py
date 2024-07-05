@@ -108,7 +108,7 @@ Collects and returns the factor indices for each of the top paths.
 def get_dehydrated_paths(
     top_indices,
     top_chromosomes,
-    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/paths/path_factor_indices.order_14_resolution.h5'
+    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/paths/20240530/path_factor_indices.order_14_resolution.h5'
 ):
     dehydrated_paths = []
     # load in h5 file and read in the exact dehydrated paths we need
