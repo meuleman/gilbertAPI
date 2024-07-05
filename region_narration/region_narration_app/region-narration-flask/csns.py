@@ -28,8 +28,11 @@ chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 def fetch_indices(order, chromosome, factor_index, dataset_name):
     url = f"{baseS3URLPrefix}/{order}.{chromosome}.{dataset_name}.{factor_index}.order_14_resolution.indices.int32.bytes"
     print(url, flush=True)
-    bytes_arr = requests.get(url).content
-    indices = np.frombuffer(bytes_arr, dtype="int32")
+    try:
+        bytes_arr = requests.get(url).content
+        indices = np.frombuffer(bytes_arr, dtype="int32")
+    except:
+        indices = np.array([], dtype="int32")
     return indices
 
 def find_intersection(group):
@@ -48,13 +51,14 @@ def get_filtered_indices(filters):
         # fetch indices from each chromosome
         for chromosome in chromosomes:
             indices = fetch_indices(order, chromosome, index, dataset_name)
-            filter_indices.append({
-                "chromosome": chromosome, 
-                "order": order, 
-                "index": index, 
-                "dataset_name": dataset_name, 
-                "indices": indices
-            })
+            if len(indices) > 0:
+                filter_indices.append({
+                    "chromosome": chromosome, 
+                    "order": order, 
+                    "index": index, 
+                    "dataset_name": dataset_name, 
+                    "indices": indices
+                })
 
     # group by chromosome
     chromosome_groups = {}
