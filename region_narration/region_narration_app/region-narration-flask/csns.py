@@ -1,9 +1,7 @@
-from flask import Blueprint, Flask, request, abort, Response
+from flask import Blueprint, request
 import numpy as np
 import requests
-import os
 import json
-from functools import reduce
 import h5py
 
 # Create a Blueprint
@@ -158,6 +156,9 @@ def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_pa
     return json.dumps(return_list)
 
 
+"""
+Endpoint for fetching the top paths based on a set of filters and regions.
+"""
 @csns_bp.route("top_paths", methods=['POST'])
 def top_paths():
     request_info = request.get_json()
