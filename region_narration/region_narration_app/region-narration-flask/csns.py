@@ -126,8 +126,18 @@ def get_scores(
     # load in h5 file and read in the exact dehydrated paths we need
     print(("Indices, chromosomes shape: ", indices.shape, chromosomes.shape), flush=True)
     with h5py.File(file_path, 'r') as f:
-        for chromosome, index in zip(chromosomes, indices):
-            scores.append(f[chromosome][int(index)])
+        unique_chromosomes = np.unique(chromosomes)
+        for chromosome in unique_chromosomes:
+            print(f"Reading chromosome {chromosome}", flush=True)
+            chromosome_indices = indices[chromosomes == chromosome]
+            print(f"{len(chromosome_indices)} indices", flush=True)
+            sort_order = np.argsort(chromosome_indices)
+            unsort_order = np.argsort(sort_order)
+            chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
+            scores.extend(chromosome_scores)
+        # for chromosome, index in zip(chromosomes, indices):
+
+        #     scores.append(f[chromosome][int(index)])
     
     return np.array(scores)
 
