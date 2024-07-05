@@ -16,7 +16,7 @@ chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 # # load path scores from each chromosome
 # scores_dir = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores'
-scores_lookup = {}
+# scores_lookup = {}
 # for chromosome in chromosomes:
 #     chromosome_score_path = os.path.join(scores_dir, f"path_scores.{chromosome}.order_14_resolution.float32.bytes")
 #     with open(chromosome_score_path, "rb") as f:
@@ -77,18 +77,17 @@ def get_filtered_indices(filters):
 def sort_by_score(chromosome_indices, score_type, N):
     indices = np.array([])
     chromosomes = []
-    scores = []
 
     for chromosome in chromosome_indices.keys():
         chrm_indices = chromosome_indices[chromosome]
         chrm_array = np.array([chromosome] * len(chrm_indices))
         
-        if score_type == "full":
-            chrm_scores = scores_lookup[chromosome][chrm_indices]
-
         indices = np.append(indices, chrm_indices)
         chromosomes = np.append(chromosomes, chrm_array)
-        scores = np.append(scores, chrm_scores)
+
+    # get scores
+    if score_type == "full":
+        scores = get_scores(indices, chromosomes)
 
     # sort
     sort_order = np.argsort(-scores)[:N]
@@ -111,6 +110,20 @@ def get_dehydrated_paths(
             dehydrated_paths.append(f[chromosome][index])
     
     return dehydrated_paths
+
+
+def get_scores(
+    indices,
+    chromosomes,
+    file_path = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores/path_scores.order_14_resolution.float32.h5'
+):
+    scores = []
+    # load in h5 file and read in the exact dehydrated paths we need
+    with h5py.File(file_path, 'r') as f:
+        for chromosome, index in zip(chromosomes, indices):
+            scores.append(f[chromosome][index])
+    
+    return scores
 
 
 def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths):
