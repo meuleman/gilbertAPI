@@ -124,6 +124,7 @@ def get_scores(
 ):
     scores = []
     # load in h5 file and read in the exact dehydrated paths we need
+    print(("Indices, chromosomes shape: ", indices.shape, chromosomes.shape), flush=True)
     with h5py.File(file_path, 'r') as f:
         for chromosome, index in zip(chromosomes, indices):
             scores.append(f[chromosome][int(index)])
@@ -155,17 +156,21 @@ def top_paths():
     N = request_info['N']  # number of paths to return
 
     # get the indices for the filters of each chromosome
+    print("getting filtered indices", flush=True)
     chromosome_indices = get_filtered_indices(filters)
 
     #TODO: filter by regions that are passed in
 
     # find the top paths based on full or factor score
+    print("sorting by score", flush=True)
     top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N)        
     
     # get the dehydrated paths for each index 
+    print("getting dehydrated paths", flush=True)
     dehydrated_paths = get_dehydrated_paths(top_indices, top_chromosomes)
 
     # generate the return list
+    print("generating return list", flush=True)
     return_list = generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths)
 
     return return_list
