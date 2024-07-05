@@ -9,7 +9,7 @@ import h5py
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
 
-baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com"
+baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240530/csn_index_files"
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 
