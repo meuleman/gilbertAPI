@@ -3,12 +3,15 @@ import numpy as np
 import requests
 import json
 import h5py
+import os
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
 
 baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240530/csn_index_files"
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
+
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240530"
 
 """
 Fetches the order 14 positional indices for a given order, chromosome, factor index, 
@@ -108,7 +111,7 @@ Collects and returns the factor indices for each of the top paths.
 def get_dehydrated_paths(
     top_indices,
     top_chromosomes,
-    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/paths/20240530/path_factor_indices.order_14_resolution.h5'
+    file_path=os.path.join(datadir, 'paths/path_factor_indices.order_14_resolution.h5')
 ):
     dehydrated_paths = []
     # load in h5 file and read in the exact dehydrated paths we need
@@ -124,7 +127,7 @@ Collects path scores for index positions on each chromosome.
 def get_scores(
     indices,
     chromosomes,
-    file_path='/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/path_scores/20240530/path_scores.order_14_resolution.float32.h5'
+    file_path=os.path.join(datadir, 'path_scores/path_scores.order_14_resolution.float32.h5')
 ):
     scores = []
     # load in h5 file and read in the scores for each position
