@@ -116,6 +116,7 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
         seen = {}
         diverse_indices = []
         diverse_chromosomes = []
+        print(f"Starting diversity filter: {time.time() - start}")
         for i,index in enumerate(indices):
             op = hilbert_pos_to_order(index, 14, order_diversity)
             if op not in seen:
@@ -124,6 +125,7 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
                 diverse_chromosomes.append(chromosomes[i])
             else:
                 seen[op] += 1
+        print(f"Conversion done: {time.time() - start}")
 
         print("len all indices", len(indices))
         print("len diverse indices", len(diverse_indices))
