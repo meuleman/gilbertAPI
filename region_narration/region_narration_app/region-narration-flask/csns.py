@@ -113,14 +113,19 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
         for i,index in enumerate(indices):
             op = hilbert_pos_to_order(index, 14, order_diversity)
             if op not in seen:
-                seen[op] = index
+                seen[op] = 1
                 diverse_indices.append(index)
                 diverse_chromosomes.append(chromosomes[i])
+            else:
+                seen[op] += 1
 
         print("len all indices", len(indices))
         print("len diverse indices", len(diverse_indices))
         indices = np.array(diverse_indices, dtype="int32")
         chromosomes = np.array(diverse_chromosomes, dtype="str")
+        seen_counts = np.zeros(len(indices), dtype="int32")
+        for i,index in enumerate(indices):
+            seen_counts[i] = seen.get(index, 0)
         print(f"Time to find diversity: {time.time() - start}", flush=True)
 
     # get scores
@@ -133,10 +138,11 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
     top_scores = scores[sort_order]
     top_indices = indices[sort_order]
     top_chromosomes = chromosomes[sort_order]
+    top_seen_counts = seen_counts[sort_order]
 
     print(f"Time to sort by score: {time.time() - start}", flush=True)
 
-    return top_indices, top_chromosomes, top_scores
+    return top_indices, top_chromosomes, top_scores, top_seen_counts
 
 """
 Collects and returns the factor indices for each of the top paths.
@@ -183,16 +189,17 @@ def get_scores(
 """
 Refactors our top paths into a JSON object for return.
 """
-def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths):
+def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
     # return the top csns
     start = time.time()
     return_list = []
-    for index, chrom, score, path in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths):
+    for index, chrom, score, path, seen_count in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
         return_list.append({
             "i": int(index),
             "chromosome": str(chrom),
             "score": float(score),
-            "path": path.tolist()
+            "path": path.tolist(),
+            "representedPaths": int(seen_count)
         })
 
     # return the filtered indices
@@ -236,7 +243,7 @@ def top_paths():
         max_order = -1
     # find the top paths based on full or factor score
     # print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N, order_diversity=max_order)      
+    top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, order_diversity=max_order)      
     
     # get the dehydrated paths for each index 
     # print("getting dehydrated paths", flush=True)
@@ -244,6 +251,6 @@ def top_paths():
 
     # generate the return list
     # print("generating return list", flush=True)
-    return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths)
+    return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts)
 
     return return_list
