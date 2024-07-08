@@ -110,12 +110,12 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
         seen = {}
         diverse_indices = []
         diverse_chromosomes = []
-        for index in indices:
-            order = hilbert_pos_to_order(index, 14, order_diversity)
-            if order not in seen:
-                seen[order] = index
+        for i,index in enumerate(indices):
+            op = hilbert_pos_to_order(index, 14, order_diversity)
+            if op not in seen:
+                seen[op] = index
                 diverse_indices.append(index)
-                diverse_chromosomes.append(chromosomes[index])
+                diverse_chromosomes.append(chromosomes[i])
 
         print("len all indices", len(indices))
         print("len diverse indices", len(diverse_indices))
