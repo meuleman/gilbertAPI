@@ -8,10 +8,10 @@ import os
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
 
-baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240530/csn_index_files"
+baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/csn_index_files"
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240530"
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240703"
 
 """
 Fetches the order 14 positional indices for a given order, chromosome, factor index, 
