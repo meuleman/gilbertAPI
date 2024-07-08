@@ -5,7 +5,6 @@ import json
 import h5py
 import os
 import time
-from math import floor
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -16,7 +15,7 @@ chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240703"
 
 def hilbert_pos_to_order(pos, frm, to):
-    return floor(pos / pow(4, frm - to))
+    return np.floor(pos / pow(4, frm - to)).astype(int)
 
 """
 Fetches the order 14 positional indices for a given order, chromosome, factor index, 
@@ -100,42 +99,59 @@ and returns the indices, chromosomes, and scores for the top N paths across the 
 """
 def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
     indices = np.array([], dtype="int32")
-    chromosomes = []
+    chromosomes = np.array([])
+    seen_counts = np.array([], dtype="int32")
 
+    start = time.time()
     for chromosome in chromosome_indices.keys():
         chrm_indices = chromosome_indices[chromosome]
-        chrm_array = np.array([chromosome] * len(chrm_indices))
+
+        # diversity filter: keep only the first index we find within a segment at highest res filter order
+        if order_diversity > 0:
+            chrm_ops = hilbert_pos_to_order(chrm_indices, 14, order_diversity)
+            unique_chrm_ops, chrm_ops_indices, chrm_ops_counts = np.unique(
+                chrm_ops, return_index=True, return_counts=True
+            )  # this sorts the indices
+
+            # we lose the ordering here - we do this to match the count order and get unique original indices
+            chrm_indices = chrm_indices[chrm_ops_indices]  
+        else:
+            chrm_ops_counts = np.ones(len(chrm_indices), dtype="int32")
         
         indices = np.append(indices, chrm_indices)
+
+        chrm_array = np.array([chromosome] * len(chrm_indices))
         chromosomes = np.append(chromosomes, chrm_array)
 
-    # diversity filter: keep only the first index we find within a segment at highest res filter order
-    if order_diversity > 0:
-        start = time.time()
-        # we use the highest resolution order in the filter
-        seen = {}
-        diverse_indices = []
-        diverse_chromosomes = []
-        print(f"Starting diversity filter: {time.time() - start}")
-        for i,index in enumerate(indices):
-            op = hilbert_pos_to_order(index, 14, order_diversity)
-            if op not in seen:
-                seen[op] = 1
-                diverse_indices.append(index)
-                diverse_chromosomes.append(chromosomes[i])
-            else:
-                seen[op] += 1
-        print(f"Conversion done: {time.time() - start}")
+        seen_counts = np.append(seen_counts, chrm_ops_counts)
 
-        print("len all indices", len(indices))
-        print("len diverse indices", len(diverse_indices))
-        indices = np.array(diverse_indices, dtype="int32")
-        chromosomes = np.array(diverse_chromosomes, dtype="str")
-        seen_counts = np.zeros(len(indices), dtype="int32")
-        for i,index in enumerate(indices):
-            op = hilbert_pos_to_order(index, 14, order_diversity)
-            seen_counts[i] = seen.get(op, 0)
-        print(f"Time to find diversity: {time.time() - start}", flush=True)
+    print(f"Time to find diversity: {time.time() - start}", flush=True)
+
+    
+    # if order_diversity > 0:
+    #     start = time.time()
+    #     # we use the highest resolution order in the filter
+    #     seen = {}
+    #     diverse_indices = []
+    #     diverse_chromosomes = []
+    #     for i,index in enumerate(indices):
+    #         op = hilbert_pos_to_order(index, 14, order_diversity)
+    #         if op not in seen:
+    #             seen[op] = 1
+    #             diverse_indices.append(index)
+    #             diverse_chromosomes.append(chromosomes[i])
+    #         else:
+    #             seen[op] += 1
+
+    #     print("len all indices", len(indices))
+    #     print("len diverse indices", len(diverse_indices))
+    #     indices = np.array(diverse_indices, dtype="int32")
+    #     chromosomes = np.array(diverse_chromosomes, dtype="str")
+    #     seen_counts = np.zeros(len(indices), dtype="int32")
+    #     for i,index in enumerate(indices):
+    #         op = hilbert_pos_to_order(index, 14, order_diversity)
+    #         seen_counts[i] = seen.get(op, 0)
+    #     print(f"Time to find diversity: {time.time() - start}", flush=True)
 
     # get scores
     if score_type == "full":
