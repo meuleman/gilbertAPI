@@ -125,7 +125,8 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
         chromosomes = np.array(diverse_chromosomes, dtype="str")
         seen_counts = np.zeros(len(indices), dtype="int32")
         for i,index in enumerate(indices):
-            seen_counts[i] = seen.get(index, 0)
+            op = hilbert_pos_to_order(index, 14, order_diversity)
+            seen_counts[i] = seen.get(op, 0)
         print(f"Time to find diversity: {time.time() - start}", flush=True)
 
     # get scores
