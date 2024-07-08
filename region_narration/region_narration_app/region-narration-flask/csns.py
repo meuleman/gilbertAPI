@@ -4,6 +4,8 @@ import requests
 import json
 import h5py
 import os
+import time
+from math import floor
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -12,6 +14,9 @@ baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/cs
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240703"
+
+def hilbert_pos_to_order(pos, frm, to):
+    return floor(pos / pow(4, frm - to))
 
 """
 Fetches the order 14 positional indices for a given order, chromosome, factor index, 
@@ -44,6 +49,7 @@ intersection between filters within each chromosome.
 def get_filtered_indices(filters):
     filter_indices = []
     # parse each filter and collect indices
+    start = time.time()
     for f in filters:
         order = f['order']
         index = f['index']
@@ -60,6 +66,9 @@ def get_filtered_indices(filters):
                     "indices": indices
                 })
 
+    print(f"Time to fetch indices: {time.time() - start}", flush=True)
+
+    start = time.time()
     # group by chromosome
     chromosome_groups = {}
     for chromosome in chromosomes:
@@ -75,6 +84,7 @@ def get_filtered_indices(filters):
         if len(group_intersection) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
     
+    print(f"Time to find intersection: {time.time() - start}", flush=True)
     return reduced_chromosome_groups
 
 
@@ -82,7 +92,7 @@ def get_filtered_indices(filters):
 Collects the path scores for index positions across chromosome, sorts by score,
 and returns the indices, chromosomes, and scores for the top N paths across the genome.
 """
-def sort_by_score(chromosome_indices, score_type, N):
+def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
     indices = np.array([], dtype="int32")
     chromosomes = []
 
@@ -93,15 +103,38 @@ def sort_by_score(chromosome_indices, score_type, N):
         indices = np.append(indices, chrm_indices)
         chromosomes = np.append(chromosomes, chrm_array)
 
+    # diversity filter: keep only the first index we find within a segment at highest res filter order
+    if order_diversity > 0:
+        start = time.time()
+        # we use the highest resolution order in the filter
+        seen = {}
+        diverse_indices = []
+        diverse_chromosomes = []
+        for index in indices:
+            order = hilbert_pos_to_order(index, 14, order_diversity)
+            if order not in seen:
+                seen[order] = index
+                diverse_indices.append(index)
+                diverse_chromosomes.append(chromosomes[index])
+
+        print("len all indices", len(indices))
+        print("len diverse indices", len(diverse_indices))
+        indices = np.array(diverse_indices, dtype="int32")
+        chromosomes = np.array(diverse_chromosomes, dtype="str")
+        print(f"Time to find diversity: {time.time() - start}", flush=True)
+
     # get scores
     if score_type == "full":
         scores = get_scores(indices, chromosomes)
 
+    start = time.time()
     # sort
     sort_order = np.argsort(-scores)[:N]
     top_scores = scores[sort_order]
     top_indices = indices[sort_order]
     top_chromosomes = chromosomes[sort_order]
+
+    print(f"Time to sort by score: {time.time() - start}", flush=True)
 
     return top_indices, top_chromosomes, top_scores
 
@@ -113,12 +146,14 @@ def get_dehydrated_paths(
     top_chromosomes,
     file_path=os.path.join(datadir, 'paths/path_factor_indices.order_14_resolution.h5')
 ):
+    start = time.time()
     dehydrated_paths = []
     # load in h5 file and read in the exact dehydrated paths we need
     with h5py.File(file_path, 'r') as f:
         for chromosome, index in zip(top_chromosomes, top_indices):
             dehydrated_paths.append(f[chromosome][index])
     
+    print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
     return dehydrated_paths
 
 """
@@ -129,6 +164,7 @@ def get_scores(
     chromosomes,
     file_path=os.path.join(datadir, 'path_scores/path_scores.order_14_resolution.float32.h5')
 ):
+    start = time.time()
     scores = []
     # load in h5 file and read in the scores for each position
     with h5py.File(file_path, 'r') as f:
@@ -139,24 +175,39 @@ def get_scores(
             unsort_order = np.argsort(sort_order)
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
             scores.extend(chromosome_scores)
-    
+
+    print(f"Time to get scores: {time.time() - start}", flush=True)
     return np.array(scores)
 
 
 """
 Refactors our top paths into a JSON object for return.
 """
-def generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths):
+def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths):
+    # return the top csns
+    start = time.time()
     return_list = []
     for index, chrom, score, path in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths):
         return_list.append({
-            "index": int(index),
+            "i": int(index),
             "chromosome": str(chrom),
             "score": float(score),
             "path": path.tolist()
         })
 
-    return json.dumps(return_list)
+    # return the filtered indices
+    return_indices = []
+    for chr in chromosome_indices.keys():
+        return_indices.append({
+            "chromosome": chr,
+            "indices": chromosome_indices[chr].tolist()
+        })
+
+    print(f"Time to generate return data: {time.time() - start}", flush=True)
+    return json.dumps({
+        "filtered_indices": return_indices,
+        "csns": return_list
+    })
 
 
 """
@@ -178,9 +229,14 @@ def top_paths():
 
     #TODO: filter by regions that are passed in
 
+
+    if(diversity):
+        max_order = max(filters, key=lambda x: x['order'])['order']
+    else:
+        max_order = -1
     # find the top paths based on full or factor score
     # print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N)      
+    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, score_type, N, order_diversity=max_order)      
     
     # get the dehydrated paths for each index 
     # print("getting dehydrated paths", flush=True)
@@ -188,6 +244,6 @@ def top_paths():
 
     # generate the return list
     # print("generating return list", flush=True)
-    return_list = generate_return_list(top_indices, top_chromosomes, top_scores, dehydrated_paths)
+    return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths)
 
     return return_list

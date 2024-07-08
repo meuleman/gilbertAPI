@@ -10,3 +10,4 @@ supervisord.log
 region-narration-express/
 # packages for vercel
 region_narration/region_narration_app/package.json
+.DS_Store
