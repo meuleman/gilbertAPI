@@ -22,13 +22,19 @@ def hilbert_pos_to_order(pos, frm, to):
 Fetches the order 14 positional indices for a given order, chromosome, factor index, 
 and dataset name. Returns an empty array if the indices are not found.
 """
-def fetch_indices(order, chromosome, factor_index, dataset_name):
-    url = f"{baseS3URLPrefix}/{order}.{chromosome}.{dataset_name}.{factor_index}.order_14_resolution.indices.int32.bytes"
-    try:
-        bytes_arr = requests.get(url).content
-        indices = np.frombuffer(bytes_arr, dtype="int32")
-    except:
-        indices = np.array([], dtype="int32")
+def fetch_indices(
+    order, 
+    chromosome, 
+    factor_index, 
+    dataset_name, 
+    file_path=os.path.join(datadir, 'indices/all_indices.order_14_resolution.h5')
+):
+    dataset_name = f"{order}.{chromosome}.{dataset_name}.{factor_index}"
+    with h5py.File(file_path, 'r') as f:
+        try:
+            indices = f[dataset_name][:]
+        except:
+            indices = np.array([], dtype="int32")
     return indices
 
 
