@@ -154,7 +154,7 @@ def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_divers
     #     print(f"Time to find diversity: {time.time() - start}", flush=True)
 
     # get scores
-    if score_type == "full":
+    if ((score_type == "full" )| (score_type == "factor")):
         print("filter_orders", filter_orders)
         scores = get_scores(indices, chromosomes, score_type, filter_orders)
 
