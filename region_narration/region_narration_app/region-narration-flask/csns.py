@@ -155,6 +155,7 @@ def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_divers
 
     # get scores
     if score_type == "full":
+        print("filter_orders", filter_orders)
         scores = get_scores(indices, chromosomes, score_type, filter_orders)
 
     start = time.time()
