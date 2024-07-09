@@ -216,6 +216,7 @@ def get_scores(
             if score_type == "factor":
                 orders_adjusted = np.array(filter_orders) - 4
                 chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
+                print(f"chromosome_scores: {chromosome_scores}, {chromosome_scores.shape}", flush=True)
 
             scores.extend(chromosome_scores)
 
