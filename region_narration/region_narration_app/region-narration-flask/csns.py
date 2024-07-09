@@ -97,7 +97,7 @@ def get_filtered_indices(filters):
 Collects the path scores for index positions across chromosome, sorts by score,
 and returns the indices, chromosomes, and scores for the top N paths across the genome.
 """
-def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
+def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=-1):
     indices = np.array([], dtype="int32")
     chromosomes = np.array([])
     seen_counts = np.array([], dtype="int32")
@@ -108,7 +108,7 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
 
         # diversity filter: keep only the first index we find within a segment at highest res filter order
         if order_diversity > 0:
-            chrm_ops = hilbert_pos_to_order(chrm_indices, 14, order_diversity)
+            chrm_ops = hilbert_pos_to_order(chrm_indices, 14, order_diversity)  # same ordering as chrm_indices
             unique_chrm_ops, chrm_ops_indices, chrm_ops_counts = np.unique(
                 chrm_ops, return_index=True, return_counts=True
             )  # this sorts the indices
@@ -155,7 +155,7 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity = -1):
 
     # get scores
     if score_type == "full":
-        scores = get_scores(indices, chromosomes)
+        scores = get_scores(indices, chromosomes, score_type, filter_orders)
 
     start = time.time()
     # sort
@@ -193,18 +193,30 @@ Collects path scores for index positions on each chromosome.
 def get_scores(
     indices,
     chromosomes,
-    file_path=os.path.join(datadir, 'path_scores/path_scores.order_14_resolution.float32.h5')
+    score_type,
+    filter_orders,
+    full_file_path=os.path.join(datadir, 'path_scores/path_scores.order_14_resolution.float32.h5'),
+    factor_file_path=os.path.join(datadir, 'factor_scores/factor_scores.order_14_resolution.h5')
 ):
     start = time.time()
     scores = []
     # load in h5 file and read in the scores for each position
+    file_path = full_file_path if score_type == "full" else factor_file_path
     with h5py.File(file_path, 'r') as f:
         unique_chromosomes = np.unique(chromosomes)
         for chromosome in unique_chromosomes:
             chromosome_indices = indices[chromosomes == chromosome]
             sort_order = np.argsort(chromosome_indices)
             unsort_order = np.argsort(sort_order)
+
+            # scores for each segment
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
+            
+            # average scores for factors at each order filtered upon if not path scores
+            if score_type == "factor":
+                orders_adjusted = np.array(filter_orders) - 4
+                chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
+
             scores.extend(chromosome_scores)
 
     print(f"Time to get scores: {time.time() - start}", flush=True)
@@ -261,14 +273,15 @@ def top_paths():
 
     #TODO: filter by regions that are passed in
 
-
+    filter_orders = [f['order'] for f in filters]
     if(diversity):
-        max_order = max(filters, key=lambda x: x['order'])['order']
+        # max_order = max(filters, key=lambda x: x['order'])['order']
+        max_order = max(filter_orders)
     else:
         max_order = -1
     # find the top paths based on full or factor score
     # print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, order_diversity=max_order)      
+    top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=max_order)      
     
     # get the dehydrated paths for each index 
     # print("getting dehydrated paths", flush=True)
