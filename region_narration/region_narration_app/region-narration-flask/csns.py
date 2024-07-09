@@ -271,7 +271,8 @@ def top_paths():
     # if we have regions, only get the indices for chromomsomes present in the regions
     chromosome_indices = get_filtered_indices(filters, filter_chromosomes)
     # filter down the indices to the regions, converts indices to order of regions and checks
-    chromosome_indices = filter_regions(chromosome_indices, regions)
+    if len(regions) > 0:
+        chromosome_indices = filter_regions(chromosome_indices, regions)
 
     filter_orders = [f['order'] for f in filters]
     if(diversity):
