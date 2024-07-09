@@ -264,7 +264,7 @@ def top_paths():
 
     # figure out which chromosomes the regions are in (if any)
     if len(regions) > 0:
-        filter_chromosomes = list(set(r['chromosome'] for r in regions))
+        filter_chromosomes = list(set(r['chromosome'] for r in regions if r is not None))
     else:
         filter_chromosomes = []
     # get the indices for the filters of each chromosome
