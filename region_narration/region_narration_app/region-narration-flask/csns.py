@@ -51,7 +51,7 @@ def find_intersection(group):
 Collects positional indices for each filter, groups them by chromosome, and finds the
 intersection between filters within each chromosome.
 """
-def get_filtered_indices(filters):
+def get_filtered_indices(filters, filter_chromosomes=[]):
     filter_indices = []
     # parse each filter and collect indices
     start = time.time()
@@ -61,6 +61,8 @@ def get_filtered_indices(filters):
         dataset_name = f['dataset_name']
         # fetch indices from each chromosome
         for chromosome in chromosomes:
+            if len(filter_chromosomes) > 0 and chromosome not in filter_chromosomes:
+                continue
             indices = fetch_indices(order, chromosome, index, dataset_name)
             if len(indices) > 0:
                 filter_indices.append({
@@ -92,6 +94,25 @@ def get_filtered_indices(filters):
     print(f"Time to find intersection: {time.time() - start}", flush=True)
     return reduced_chromosome_groups
 
+"""
+Takes in a dictionary of chromosome indices and filters them by regions.
+If more than one regions are present, we OR the regions together, giving all paths that flow through each region
+"""
+def filter_regions(chromosome_indices, regions):
+    filtered_chromosome_indices = {}
+    for region in regions:
+        chromosome = region['chromosome']
+        indices = chromosome_indices[chromosome]
+        order = region['order']
+        index = region['i']
+        ops = hilbert_pos_to_order(indices, 14, order)
+        indices = indices[ops == index]
+        # we "OR" the regions together if there are more than one (getting all the valid indices in given regions of interest)
+        if(filtered_chromosome_indices.get(chromosome)):
+            filtered_chromosome_indices[chromosome] = np.append(filtered_chromosome_indices[chromosome], indices)
+        else:
+            filtered_chromosome_indices[chromosome] = indices
+    return filtered_chromosome_indices
 
 """
 Collects the path scores for index positions across chromosome, sorts by score,
@@ -126,32 +147,6 @@ def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_divers
         seen_counts = np.append(seen_counts, chrm_ops_counts)
 
     print(f"Time to find diversity: {time.time() - start}", flush=True)
-
-    
-    # if order_diversity > 0:
-    #     start = time.time()
-    #     # we use the highest resolution order in the filter
-    #     seen = {}
-    #     diverse_indices = []
-    #     diverse_chromosomes = []
-    #     for i,index in enumerate(indices):
-    #         op = hilbert_pos_to_order(index, 14, order_diversity)
-    #         if op not in seen:
-    #             seen[op] = 1
-    #             diverse_indices.append(index)
-    #             diverse_chromosomes.append(chromosomes[i])
-    #         else:
-    #             seen[op] += 1
-
-    #     print("len all indices", len(indices))
-    #     print("len diverse indices", len(diverse_indices))
-    #     indices = np.array(diverse_indices, dtype="int32")
-    #     chromosomes = np.array(diverse_chromosomes, dtype="str")
-    #     seen_counts = np.zeros(len(indices), dtype="int32")
-    #     for i,index in enumerate(indices):
-    #         op = hilbert_pos_to_order(index, 14, order_diversity)
-    #         seen_counts[i] = seen.get(op, 0)
-    #     print(f"Time to find diversity: {time.time() - start}", flush=True)
 
     # get scores
     if ((score_type == "full" )| (score_type == "factor")):
@@ -267,11 +262,16 @@ def top_paths():
     diversity = request_info['diversity']  # true | false
     N = request_info['N']  # number of paths to return
 
+    # figure out which chromosomes the regions are in (if any)
+    if len(regions) > 0:
+        filter_chromosomes = list(set(r['chromosome'] for r in regions))
+    else:
+        filter_chromosomes = []
     # get the indices for the filters of each chromosome
-    # print("getting filtered indices", flush=True)
-    chromosome_indices = get_filtered_indices(filters)
-
-    #TODO: filter by regions that are passed in
+    # if we have regions, only get the indices for chromomsomes present in the regions
+    chromosome_indices = get_filtered_indices(filters, filter_chromosomes)
+    # filter down the indices to the regions, converts indices to order of regions and checks
+    chromosome_indices = filter_regions(chromosome_indices, regions)
 
     filter_orders = [f['order'] for f in filters]
     if(diversity):
