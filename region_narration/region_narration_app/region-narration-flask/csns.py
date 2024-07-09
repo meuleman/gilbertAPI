@@ -155,7 +155,6 @@ def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_divers
 
     # get scores
     if ((score_type == "full" )| (score_type == "factor")):
-        print("filter_orders", filter_orders)
         scores = get_scores(indices, chromosomes, score_type, filter_orders)
 
     start = time.time()
@@ -217,7 +216,6 @@ def get_scores(
             if score_type == "factor":
                 orders_adjusted = np.array(filter_orders) - 4
                 chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
-                print(f"chromosome_scores: {chromosome_scores}, {chromosome_scores.shape}", flush=True)
 
             scores.extend(chromosome_scores)
 
