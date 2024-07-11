@@ -143,6 +143,8 @@ def filter_region(chromosome_indices, region):
     filtered_chromosome_indices = {}
     # for region in regions:
     chromosome = region['chromosome']
+    if chromosome not in chromosome_indices:
+        return np.array([], dtype="int32")
     indices = chromosome_indices[chromosome]
     order = region['order']
     index = region['i']
