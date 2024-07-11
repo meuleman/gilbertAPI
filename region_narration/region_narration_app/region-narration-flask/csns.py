@@ -225,14 +225,19 @@ def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_s
     # return the top csns
     start = time.time()
     return_list = []
-    for index, chrom, score, path, seen_count in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
-        return_list.append({
-            "i": int(index),
-            "chromosome": str(chrom),
-            "score": float(score),
-            "path": path.tolist(),
-            "representedPaths": int(seen_count)
-        })
+    # TODO: make this faster?
+    file_path = os.path.join(datadir, 'factor_scores/factor_scores.order_14_resolution.h5')
+    with h5py.File(file_path, 'r') as f:
+        for index, chrom, score, path, seen_count in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
+            scores = f[chrom][index]
+            return_list.append({
+                "i": int(index),
+                "chromosome": str(chrom),
+                "score": float(score),
+                "path": path.tolist(),
+                "factors": scores.tolist(),
+                "representedPaths": int(seen_count)
+            })
 
     # return the filtered indices
     # return_indices = []
