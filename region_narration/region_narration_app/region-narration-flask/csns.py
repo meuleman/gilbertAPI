@@ -221,7 +221,7 @@ def get_scores(
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
             
             # average scores for factors at each order filtered upon if not path scores
-            if score_type == "factor":
+            if score_type == "factor" and len(filter_orders) > 0:
                 orders_adjusted = np.array(filter_orders) - 4
                 chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
 
@@ -289,7 +289,7 @@ def top_paths():
         chromosome_indices = filter_region(chromosome_indices, region)
 
     filter_orders = [f['order'] for f in filters]
-    if(diversity):
+    if(diversity and len(filter_orders) > 0):
         # max_order = max(filters, key=lambda x: x['order'])['order']
         max_order = max(filter_orders)
     else:
