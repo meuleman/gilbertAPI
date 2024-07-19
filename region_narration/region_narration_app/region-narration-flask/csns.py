@@ -37,7 +37,7 @@ CHR_SIZES_UCSC = {"chr1": 248956422,
                   "chrX": 156040895,
                   "chrY": 57227415}
 
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240703"
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240717"
 
 def hilbert_pos_to_order(pos, frm, to):
     return np.floor(pos / pow(4, frm - to)).astype(int)
@@ -51,7 +51,7 @@ def fetch_indices(
     chromosome, 
     factor_index, 
     dataset_name, 
-    file_path=os.path.join(datadir, 'indices/all_indices.order_14_resolution.h5')
+    file_path=os.path.join(datadir, 'indices/all_thresholded_indices.order_14_resolution.h5')
 ):
     dataset_name = f"{order}.{chromosome}.{dataset_name}.{factor_index}"
     with h5py.File(file_path, 'r') as f:
@@ -214,7 +214,7 @@ Collects and returns the factor indices for each of the top paths.
 def get_dehydrated_paths(
     top_indices,
     top_chromosomes,
-    file_path=os.path.join(datadir, 'paths/path_factor_indices.order_14_resolution.h5')
+    file_path=os.path.join(datadir, 'paths/full_path_factors.order_14_resolution.h5')
 ):
     start = time.time()
     dehydrated_paths = []
@@ -234,8 +234,8 @@ def get_scores(
     chromosomes,
     score_type,
     filter_orders,
-    full_file_path=os.path.join(datadir, 'path_scores/path_scores.order_14_resolution.float32.h5'),
-    factor_file_path=os.path.join(datadir, 'factor_scores/factor_scores.order_14_resolution.h5')
+    full_file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+    factor_file_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
 ):
     start = time.time()
     scores = []
@@ -270,7 +270,7 @@ def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_s
     start = time.time()
     return_list = []
     # TODO: make this faster?
-    file_path = os.path.join(datadir, 'factor_scores/factor_scores.order_14_resolution.h5')
+    file_path = os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
     with h5py.File(file_path, 'r') as f:
         for index, chrom, score, path, seen_count in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
             scores = f[chrom][index]
