@@ -238,13 +238,16 @@ def get_scores(
     factor_file_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
 ):
     start = time.time()
-    scores = []
+     # Preallocate scores array
+    scores = np.zeros(len(indices), dtype=np.float32)
     # load in h5 file and read in the scores for each position
     file_path = full_file_path if score_type == "full" else factor_file_path
     with h5py.File(file_path, 'r') as f:
         unique_chromosomes = np.unique(chromosomes)
         for chromosome in unique_chromosomes:
-            chromosome_indices = indices[chromosomes == chromosome]
+            # chromosome_indices = indices[chromosomes == chromosome]
+            mask = chromosomes == chromosome
+            chromosome_indices = indices[mask]
             sort_order = np.argsort(chromosome_indices)
             unsort_order = np.argsort(sort_order)
 
@@ -256,7 +259,8 @@ def get_scores(
                 orders_adjusted = np.array(filter_orders) - 4
                 chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
 
-            scores.extend(chromosome_scores)
+            # scores.extend(chromosome_scores)
+            scores[mask] = chromosome_scores
 
     print(f"Time to get scores: {time.time() - start}", flush=True)
     return np.array(scores)
