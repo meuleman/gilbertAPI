@@ -240,24 +240,32 @@ def get_scores(
     start = time.time()
      # Preallocate scores array
     scores = np.zeros(len(indices), dtype=np.float32)
+    print(f"scores for {len(indices)} indices")
     # load in h5 file and read in the scores for each position
     file_path = full_file_path if score_type == "full" else factor_file_path
     with h5py.File(file_path, 'r') as f:
         unique_chromosomes = np.unique(chromosomes)
         for chromosome in unique_chromosomes:
+            csstart = time.time()
             # chromosome_indices = indices[chromosomes == chromosome]
             mask = chromosomes == chromosome
             chromosome_indices = indices[mask]
+            print("chr indices", chromosome, len(indices[mask]))
             sort_order = np.argsort(chromosome_indices)
             unsort_order = np.argsort(sort_order)
+            print(f"Time to sort chromosome: {time.time() - csstart}", flush=True)
 
+            sstart = time.time()
             # scores for each segment
             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
+            print(f"Time to get chromosome scores: {time.time() - sstart}", flush=True)
             
             # average scores for factors at each order filtered upon if not path scores
             if score_type == "factor" and len(filter_orders) > 0:
+                astart = time.time()
                 orders_adjusted = np.array(filter_orders) - 4
                 chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
+                print(f"Time to average chromosome scores: {time.time() - astart}", flush=True)
 
             # scores.extend(chromosome_scores)
             scores[mask] = chromosome_scores
