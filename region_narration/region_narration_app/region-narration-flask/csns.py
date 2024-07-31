@@ -46,20 +46,20 @@ def hilbert_pos_to_order(pos, frm, to):
 Fetches the order 14 positional indices for a given order, chromosome, factor index, 
 and dataset name. Returns an empty array if the indices are not found.
 """
-def fetch_indices(
+def fetch_indices_scores(
     order, 
     chromosome, 
     factor_index, 
     dataset_name, 
-    file_path=os.path.join(datadir, 'indices/all_thresholded_indices.order_14_resolution.h5')
+    file_path=os.path.join(datadir, 'indices/indices.scores.order_14_resolution.h5')
 ):
     dataset_name = f"{order}.{chromosome}.{dataset_name}.{factor_index}"
     with h5py.File(file_path, 'r') as f:
         try:
-            indices = f[dataset_name][:]
+            indices_scores = f[dataset_name][:]
         except:
-            indices = np.array([], dtype="int32")
-    return indices
+            indices_scores = np.array([], dtype="int32")
+    return indices_scores
 
 
 """
@@ -104,14 +104,16 @@ def get_filtered_indices(filters, region):
         for chromosome in chromosomes:
             if region is not None and chromosome != region["chromosome"]:
                 continue
-            indices = fetch_indices(order, chromosome, index, dataset_name)
+            indices_scores = fetch_indices_scores(order, chromosome, index, dataset_name)
             if len(indices) > 0:
                 filter_indices.append({
                     "chromosome": chromosome, 
                     "order": order, 
                     "index": index, 
                     "dataset_name": dataset_name, 
-                    "indices": indices
+                    "indices": indices_scores[:, 0].astype(int),
+                    "path_scores": indices_scores[:, 1],
+                    "factor_scores": indices_scores[:, 2]
                 })
 
     print(f"Time to fetch indices: {time.time() - start}", flush=True)
@@ -127,6 +129,7 @@ def get_filtered_indices(filters, region):
 
     # reduce chromosome groups to common indices
     reduced_chromosome_groups = {}
+    print(("CHROMOSOME GROUPS:", chromosome_groups), flush=True)
     for chromosome, group in chromosome_groups.items():
         group_intersection = find_intersection(group)
         if len(group_intersection) > 0:
@@ -332,11 +335,7 @@ def top_paths():
         chromosome_indices = filter_region(chromosome_indices, region)
 
     filter_orders = [f['order'] for f in filters]
-    if(diversity and len(filter_orders) > 0):
-        # max_order = max(filters, key=lambda x: x['order'])['order']
-        max_order = max(filter_orders)
-    else:
-        max_order = -1
+    max_order = max(filter_orders) if (diversity and len(filter_orders) > 0) else -1
     # find the top paths based on full or factor score
     # print("sorting by score", flush=True)
     top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=max_order)      
