@@ -105,7 +105,7 @@ def get_filtered_indices(filters, region):
             if region is not None and chromosome != region["chromosome"]:
                 continue
             indices_scores = fetch_indices_scores(order, chromosome, index, dataset_name)
-            if len(indices) > 0:
+            if len(indices_scores) > 0:
                 filter_indices.append({
                     "chromosome": chromosome, 
                     "order": order, 
