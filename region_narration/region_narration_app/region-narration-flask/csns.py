@@ -151,7 +151,7 @@ def get_filtered_indices_and_scores(filters, region):
 
     # reduce chromosome groups to common indices
     reduced_chromosome_groups = {}
-    print(("CHROMOSOME GROUPS:", chromosome_groups), flush=True)
+    # print(("CHROMOSOME GROUPS:", chromosome_groups), flush=True)
     for chromosome, group in chromosome_groups.items():
         group_intersection = find_intersection(group)
         if len(group_intersection["indices"]) > 0:
