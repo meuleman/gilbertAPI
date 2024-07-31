@@ -66,17 +66,39 @@ def fetch_indices_scores(
 For a given chromosome group, find the common indices between all filters.
 """
 def find_intersection(group):
-    common_indices = group[0]["indices"]
+    indices = group[0]["indices"]
+    indices_sort_order = np.argsort(indices)
+    indices = indices[indices_sort_order]
+    combined_factor_scores = group[0]["factor_scores"][indices_sort_order]
+    path_scores = group[0]["path_scores"][indices_sort_order]
+    
+    # add other groups to the combined indices and scores
     for g in group[1:]:
-        common_indices = common_indices[np.isin(common_indices, g["indices"])]
-    return common_indices
+        g_indices = g["indices"]
+        g_sort_order = np.argsort(g_indices)
+        g_indices = g_indices[g_sort_order]
+        g_factor_scores = g["factor_scores"][g_sort_order]
+        
+        # find overlap in indices
+        common_mask = np.isin(indices, g_indices)
+        indices = indices[common_mask]
+        path_scores = path_scores[common_mask]
+        combined_factor_scores = combined_factor_scores[common_mask]
+       
+       # combine factor scores
+        g_mask = np.isin(g_indices, indices)
+        combined_factor_scores += g_factor_scores[g_mask]
+    
+    # average combined factor scores
+    combined_factor_scores = combined_factor_scores / len(group)
+    return {"indices": indices, "factor_scores": combined_factor_scores, "path_scores": path_scores}
 
 
 """
 Collects positional indices for each filter, groups them by chromosome, and finds the
 intersection between filters within each chromosome.
 """
-def get_filtered_indices(filters, region):
+def get_filtered_indices_and_scores(filters, region):
     filter_indices = []
     start = time.time()
 
@@ -132,7 +154,7 @@ def get_filtered_indices(filters, region):
     print(("CHROMOSOME GROUPS:", chromosome_groups), flush=True)
     for chromosome, group in chromosome_groups.items():
         group_intersection = find_intersection(group)
-        if len(group_intersection) > 0:
+        if len(group_intersection["indices"]) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
     
     print(f"Time to find intersection: {time.time() - start}", flush=True)
@@ -147,18 +169,27 @@ def filter_region(chromosome_indices, region):
     # for region in regions:
     chromosome = region['chromosome']
     if chromosome not in chromosome_indices:
-        filtered_chromosome_indices[chromosome] = np.array([], dtype="int32")
+        filtered_chromosome_indices[chromosome] = {
+            "indices": np.array([], dtype="int32"),
+            "path_scores": np.array([], dtype="float32"),
+            "factor_scores": np.array([], dtype="float32")
+        }
         return filtered_chromosome_indices
-    indices = chromosome_indices[chromosome]
+    indices = chromosome_indices[chromosome]["indices"]
+    path_scores = chromosome_indices[chromosome]["path_scores"]
+    factor_scores = chromosome_indices[chromosome]["factor_scores"]
     order = region['order']
     index = region['i']
     ops = hilbert_pos_to_order(indices, 14, order)
-    indices = indices[ops == index]
+    mask = ops == index
+    indices = indices[mask]
+    path_scores = path_scores[mask]
+    factor_scores = factor_scores[mask]
     # we "OR" the regions together if there are more than one (getting all the valid indices in given regions of interest)
     # if(filtered_chromosome_indices.get(chromosome)):
     #     filtered_chromosome_indices[chromosome] = np.append(filtered_chromosome_indices[chromosome], indices)
     # else:
-    filtered_chromosome_indices[chromosome] = indices
+    filtered_chromosome_indices[chromosome] = {"indices": indices, "path_scores": path_scores, "factor_scores": factor_scores}
     return filtered_chromosome_indices
 
 """
@@ -167,12 +198,16 @@ and returns the indices, chromosomes, and scores for the top N paths across the 
 """
 def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=-1):
     indices = np.array([], dtype="int32")
+    path_scores = np.array([], dtype="float32")
+    factor_scores = np.array([], dtype="float32")
     chromosomes = np.array([])
     seen_counts = np.array([], dtype="int32")
 
     start = time.time()
     for chromosome in chromosome_indices.keys():
-        chrm_indices = chromosome_indices[chromosome]
+        chrm_indices = chromosome_indices[chromosome]["indices"]
+        chrm_factor_scores = chromosome_indices[chromosome]["factor_scores"]
+        chrm_path_scores = chromosome_indices[chromosome]["path_scores"]
 
         # diversity filter: keep only the first index we find within a segment at highest res filter order
         if order_diversity > 0:
@@ -182,22 +217,27 @@ def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_divers
             )  # this sorts the indices
 
             # we lose the ordering here - we do this to match the count order and get unique original indices
-            chrm_indices = chrm_indices[chrm_ops_indices]  
+            chrm_indices = chrm_indices[chrm_ops_indices] 
+            chrm_factor_scores = chrm_factor_scores[chrm_ops_indices]
+            chrm_path_scores = chrm_path_scores[chrm_ops_indices]
         else:
             chrm_ops_counts = np.ones(len(chrm_indices), dtype="int32")
         
         indices = np.append(indices, chrm_indices)
-
-        chrm_array = np.array([chromosome] * len(chrm_indices))
-        chromosomes = np.append(chromosomes, chrm_array)
-
+        path_scores = np.append(path_scores, chrm_path_scores)
+        factor_scores = np.append(factor_scores, chrm_factor_scores)
+        chromosomes = np.append(chromosomes, np.array([chromosome] * len(chrm_indices)))
         seen_counts = np.append(seen_counts, chrm_ops_counts)
 
     print(f"Time to find diversity: {time.time() - start}", flush=True)
 
     # get scores
-    if ((score_type == "full" )| (score_type == "factor")):
-        scores = get_scores(indices, chromosomes, score_type, filter_orders)
+    # if ((score_type == "full" )| (score_type == "factor")):
+    #     scores = get_scores(indices, chromosomes, score_type, filter_orders)
+    if (score_type == "full"):
+        scores = path_scores
+    elif (score_type == "factor"):
+        scores = factor_scores
 
     start = time.time()
     # sort
@@ -229,52 +269,52 @@ def get_dehydrated_paths(
     print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
     return dehydrated_paths
 
-"""
-Collects path scores for index positions on each chromosome.
-"""
-def get_scores(
-    indices,
-    chromosomes,
-    score_type,
-    filter_orders,
-    full_file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
-    factor_file_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
-):
-    start = time.time()
-     # Preallocate scores array
-    scores = np.zeros(len(indices), dtype=np.float32)
-    print(f"scores for {len(indices)} indices")
-    # load in h5 file and read in the scores for each position
-    file_path = full_file_path if score_type == "full" else factor_file_path
-    with h5py.File(file_path, 'r') as f:
-        unique_chromosomes = np.unique(chromosomes)
-        for chromosome in unique_chromosomes:
-            csstart = time.time()
-            # chromosome_indices = indices[chromosomes == chromosome]
-            mask = chromosomes == chromosome
-            chromosome_indices = indices[mask]
-            print("chr indices", chromosome, len(indices[mask]))
-            sort_order = np.argsort(chromosome_indices)
-            unsort_order = np.argsort(sort_order)
-            print(f"Time to sort chromosome: {time.time() - csstart}", flush=True)
+# """
+# Collects path scores for index positions on each chromosome.
+# """
+# def get_scores(
+#     indices,
+#     chromosomes,
+#     score_type,
+#     filter_orders,
+#     full_file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+#     factor_file_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
+# ):
+#     start = time.time()
+#      # Preallocate scores array
+#     scores = np.zeros(len(indices), dtype=np.float32)
+#     print(f"scores for {len(indices)} indices")
+#     # load in h5 file and read in the scores for each position
+#     file_path = full_file_path if score_type == "full" else factor_file_path
+#     with h5py.File(file_path, 'r') as f:
+#         unique_chromosomes = np.unique(chromosomes)
+#         for chromosome in unique_chromosomes:
+#             csstart = time.time()
+#             # chromosome_indices = indices[chromosomes == chromosome]
+#             mask = chromosomes == chromosome
+#             chromosome_indices = indices[mask]
+#             print("chr indices", chromosome, len(indices[mask]))
+#             sort_order = np.argsort(chromosome_indices)
+#             unsort_order = np.argsort(sort_order)
+#             print(f"Time to sort chromosome: {time.time() - csstart}", flush=True)
 
-            sstart = time.time()
-            # scores for each segment
-            chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
-            print(f"Time to get chromosome scores: {time.time() - sstart}", flush=True)
+#             sstart = time.time()
+#             # scores for each segment
+#             chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
+#             print(f"Time to get chromosome scores: {time.time() - sstart}", flush=True)
             
-            # average scores for factors at each order filtered upon if not path scores
-            if score_type == "factor" and len(filter_orders) > 0:
-                astart = time.time()
-                orders_adjusted = np.array(filter_orders) - 4
-                chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
-                print(f"Time to average chromosome scores: {time.time() - astart}", flush=True)
+#             # average scores for factors at each order filtered upon if not path scores
+#             if score_type == "factor" and len(filter_orders) > 0:
+#                 astart = time.time()
+#                 orders_adjusted = np.array(filter_orders) - 4
+#                 chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
+#                 print(f"Time to average chromosome scores: {time.time() - astart}", flush=True)
 
-            # scores.extend(chromosome_scores)
-            scores[mask] = chromosome_scores
+#             # scores.extend(chromosome_scores)
+#             scores[mask] = chromosome_scores
 
-    print(f"Time to get scores: {time.time() - start}", flush=True)
-    return np.array(scores)
+#     print(f"Time to get scores: {time.time() - start}", flush=True)
+#     return np.array(scores)
 
 
 """
@@ -329,7 +369,7 @@ def top_paths():
     
     # get the indices for the filters of each chromosome
     # if we have regions, only get the indices for chromomsomes present in the regions
-    chromosome_indices = get_filtered_indices(filters, region)
+    chromosome_indices = get_filtered_indices_and_scores(filters, region)
     # filter down the indices to the regions, converts indices to order of regions and checks
     if region is not None and len(filters) > 0:
         chromosome_indices = filter_region(chromosome_indices, region)
