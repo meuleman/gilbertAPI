@@ -421,13 +421,14 @@ def preview_filter():
         commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
 
         # group by chromosome
-        chromosome_groups = {}
+        chromosome_intersection = {}
+        print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order)
         for chromosome in commom_chromosomes:
             # chromosome_group = [f for f in filter_indices if f['chromosome'] == chromosome]
             chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
-            chromosome_groups[chromosome] = chromosome_group
+            chromosome_intersection[chromosome] = find_intersection(chromosome_group)
         
-        print("COMMON INDICES", chromosome_groups)
+        print("COMMON INDICES", chromosome_intersection)
 
     # # filter down the indices to the regions, converts indices to order of regions and checks
     # if region is not None and len(filters) > 0:
