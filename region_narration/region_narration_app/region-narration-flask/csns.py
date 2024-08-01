@@ -360,7 +360,7 @@ Endpoint for fetching the top paths based on a set of filters and regions.
 def top_paths():
     request_info = request.get_json()
     
-    filters = request_info['filters']  # [{order, index}, ...]
+    filters = request_info['filters']  # [{order, index, dataset_name}, ...]
     region = request_info['region']  # {order, chromosome, index}
     score_type = request_info['scoreType']  # "full", "factor"
     diversity = request_info['diversity']  # true | false
@@ -398,8 +398,8 @@ Endpoint for previewing the number of regions a filter would provide at each ord
 def preview_filter():
     request_info = request.get_json()
     
-    set_filters = request_info['set_filters']  # [{order, index}, ...]
-    new_filter = request_info['new_filter']  # [{order, index}, ...]
+    set_filters = request_info['filters']  # [{order, index, dataset_name}, ...]
+    new_filter = request_info['newFilter']  # [{order, index}, ...]
     region = request_info['region']  # {order, chromosome, index}
 
     print((set_filters, new_filter, region), flush=True)
