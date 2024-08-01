@@ -409,7 +409,7 @@ def preview_filter():
     # if we have regions, only get the indices for chromomsomes present in the regions
     set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
     set_chromosomes = np.array(list(set_chromosome_indices.keys()))
-    set_index_count = sum(set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes)
+    set_index_count = sum(len(set_chromosome_indices[chromosome]['indices']) for chromosome in set_chromosomes)
 
     previews = {}
     for order in range(4, 15):
@@ -436,6 +436,7 @@ def preview_filter():
         
         print()
         print("COMMON INDICES", chromosome_intersections, "RESULT COUNT", common_index_count, "SET COUNT", set_index_count)
+        print()
 
     # # filter down the indices to the regions, converts indices to order of regions and checks
     # if region is not None and len(filters) > 0:
