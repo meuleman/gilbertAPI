@@ -153,7 +153,9 @@ def get_filtered_indices_and_scores(filters, region):
     reduced_chromosome_groups = {}
     # print(("CHROMOSOME GROUPS:", chromosome_groups), flush=True)
     for chromosome, group in chromosome_groups.items():
+        print("GROUP", group, flush=True)
         group_intersection = find_intersection(group)
+        print("GROUP INTERSECTION", group_intersection, flush=True)
         if len(group_intersection["indices"]) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
     
@@ -398,16 +400,17 @@ Endpoint for previewing the number of regions a filter would provide at each ord
 def preview_filter():
     request_info = request.get_json()
     
-    set_filters = request_info['filters']  # [{order, index, dataset_name}, ...]
+    filters = request_info['filters']  # [{order, index, dataset_name}, ...]
     new_filter = request_info['newFilter']  # [{order, index}, ...]
     region = request_info['region']  # {order, chromosome, index}
 
-    print((set_filters, new_filter, region), flush=True)
+    # print((filters, new_filter, region), flush=True)
 
     
-    # # get the indices for the filters of each chromosome
-    # # if we have regions, only get the indices for chromomsomes present in the regions
-    # chromosome_indices = get_filtered_indices_and_scores(filters, region)
+    # get the indices for the filters of each chromosome
+    # if we have regions, only get the indices for chromomsomes present in the regions
+    chromosome_indices = get_filtered_indices_and_scores(filters, region)
+    print(chromosome_indices, flush=True)
     # # filter down the indices to the regions, converts indices to order of regions and checks
     # if region is not None and len(filters) > 0:
     #     chromosome_indices = filter_region(chromosome_indices, region)
