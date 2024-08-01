@@ -352,6 +352,42 @@ def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_s
         "csns": return_list
     })
 
+"""
+Finds the regional index overlap between established and proposed filters and returns fractional overlap value at each order
+"""
+def get_factor_filter_previews(filters, new_filter, region, orders=range(4, 15)):
+    # get the indices for the filters we have established for each chromosome
+    # if we have regions, only get the indices for chromomsomes present in the regions
+    set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
+    # find the chromosomes set filters have regions for
+    set_chromosomes = np.array(list(set_chromosome_indices.keys()))
+    # count the total number of regions for set filters
+    set_index_count = sum(len(set_chromosome_indices[chromosome]['indices']) for chromosome in set_chromosomes)
+
+    # loop through each order and find the overlap between set filters and new filter
+    previews = {}
+    for order in orders:
+        new_filter_at_order = new_filter.copy()
+        new_filter_at_order['order'] = order
+        # get the regional indices for the new filter
+        preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
+        # find the chromosomes new filter has regions for
+        preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
+
+        # for order, find the common chromosomes for set and new filters
+        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
+
+        # group indices between filters by chromosome and find intersection counts
+        common_index_count = 0
+        for chromosome in commom_chromosomes:
+            chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
+            chromosome_intersection = find_intersection(chromosome_group)
+            common_index_count += len(chromosome_intersection['indices'])
+
+        previews[order] = common_index_count / set_index_count
+
+    return previews
+
 
 """
 Endpoint for fetching the top paths based on a set of filters and regions.
@@ -402,43 +438,9 @@ def preview_filter():
     new_filter = request_info['newFilter']  # [{order, index}, ...]
     region = request_info['region']  # {order, chromosome, index}
 
-    # print((filters, new_filter, region), flush=True)
+    print(filters, new_filter)
 
-    
-    # get the indices for the filters we have established for each chromosome
-    # if we have regions, only get the indices for chromomsomes present in the regions
-    set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
-    set_chromosomes = np.array(list(set_chromosome_indices.keys()))
-    set_index_count = sum(len(set_chromosome_indices[chromosome]['indices']) for chromosome in set_chromosomes)
-
-    previews = {}
-    for order in range(4, 15):
-        new_filter_at_order = new_filter.copy()
-        new_filter_at_order['order'] = order
-        # get the indices for the preview filter
-        preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
-        preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
-        # print("ORDER", order, "RESULT", preview_chromosome_indices, "SET", set_chromosome_indices)
-        # print()
-
-        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
-
-        # group by chromosome
-        chromosome_intersections = {}
-        common_index_count = 0
-        # print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order, "PREVIEW KEYS", preview_chromosomes, "SET KEYS", set_chromosomes)
-        for chromosome in commom_chromosomes:
-            chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
-            chromosome_intersection = find_intersection(chromosome_group)
-            chromosome_intersections[chromosome] = chromosome_intersection
-            common_index_count += len(chromosome_intersection['indices'])
-
-        
-        # print()
-        # print("COMMON INDICES", chromosome_intersections, "RESULT COUNT", common_index_count, "SET COUNT", set_index_count)
-        # print()
-
-        previews[order] = common_index_count / set_index_count
+    previews = get_factor_filter_previews(filters, new_filter, region)
 
     return_object = json.dumps({"preview_fractions": previews})
     return return_object
