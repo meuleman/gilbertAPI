@@ -422,7 +422,7 @@ def preview_filter():
 
         # group by chromosome
         chromosome_intersection = {}
-        print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order)
+        print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order, "PREVIEW KEYS", preview_chromosomes, "SET KEYS", set_chromosomes)
         for chromosome in commom_chromosomes:
             # chromosome_group = [f for f in filter_indices if f['chromosome'] == chromosome]
             chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
