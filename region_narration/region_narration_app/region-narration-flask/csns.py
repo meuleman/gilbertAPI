@@ -418,15 +418,15 @@ def preview_filter():
         # get the indices for the preview filter
         preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
         preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
-        print("ORDER", order, "RESULT", preview_chromosome_indices, "SET", set_chromosome_indices)
-        print()
+        # print("ORDER", order, "RESULT", preview_chromosome_indices, "SET", set_chromosome_indices)
+        # print()
 
         commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
 
         # group by chromosome
         chromosome_intersections = {}
         common_index_count = 0
-        print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order, "PREVIEW KEYS", preview_chromosomes, "SET KEYS", set_chromosomes)
+        # print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order, "PREVIEW KEYS", preview_chromosomes, "SET KEYS", set_chromosomes)
         for chromosome in commom_chromosomes:
             chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
             chromosome_intersection = find_intersection(chromosome_group)
@@ -434,26 +434,11 @@ def preview_filter():
             common_index_count += len(chromosome_intersection['indices'])
 
         
-        print()
-        print("COMMON INDICES", chromosome_intersections, "RESULT COUNT", common_index_count, "SET COUNT", set_index_count)
-        print()
+        # print()
+        # print("COMMON INDICES", chromosome_intersections, "RESULT COUNT", common_index_count, "SET COUNT", set_index_count)
+        # print()
 
-    # # filter down the indices to the regions, converts indices to order of regions and checks
-    # if region is not None and len(filters) > 0:
-    #     chromosome_indices = filter_region(chromosome_indices, region)
+        previews[order] = common_index_count / set_index_count
 
-    # filter_orders = [f['order'] for f in filters]
-    # max_order = max(filter_orders) if (diversity and len(filter_orders) > 0) else -1
-    # # find the top paths based on full or factor score
-    # # print("sorting by score", flush=True)
-    # top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=max_order)      
-    
-    # # get the dehydrated paths for each index 
-    # # print("getting dehydrated paths", flush=True)
-    # dehydrated_paths = get_dehydrated_paths(top_indices, top_chromosomes)
-
-    # # generate the return list
-    # # print("generating return list", flush=True)
-    # return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts)
-
-    return #return_list
+    return_object = json.dumps({"preview_fractions": previews})
+    return return_object
