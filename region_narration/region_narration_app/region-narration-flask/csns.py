@@ -408,14 +408,14 @@ def preview_filter():
     # get the indices for the filters we have established for each chromosome
     # if we have regions, only get the indices for chromomsomes present in the regions
     set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
-    set_chromosomes = np.array(set_chromosome_indices.keys())
+    set_chromosomes = np.array(list(set_chromosome_indices.keys()))
 
     for order in range(4, 15):
         new_filter_at_order = new_filter.copy()
         new_filter_at_order['order'] = order
         # get the indices for the preview filter
         preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
-        preview_chromosomes = np.array(preview_chromosome_indices.keys())
+        preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
         print("ORDER", order, "RESULT", preview_chromosome_indices, "SET", set_chromosome_indices)
 
         commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
