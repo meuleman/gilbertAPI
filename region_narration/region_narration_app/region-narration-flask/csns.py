@@ -411,6 +411,7 @@ def preview_filter():
 
     for order in range(4, 15):
         new_filter_at_order = filters.copy()
+        print(new_filter_at_order)
         new_filter_at_order['order'] = order
         preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
         print("ORDER", order, "RESULT", preview_chromosome_indices, "SET", set_chromosome_indices)
