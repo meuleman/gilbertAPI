@@ -389,3 +389,41 @@ def top_paths():
     return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts)
 
     return return_list
+
+
+"""
+Endpoint for previewing the number of regions a filter would provide at each order if selected
+"""
+@csns_bp.route("preview_filter_percentages", methods=['POST'])
+def top_paths():
+    request_info = request.get_json()
+    
+    set_filters = request_info['set_filters']  # [{order, index}, ...]
+    new_filter = request_info['new_filter']  # [{order, index}, ...]
+    region = request_info['region']  # {order, chromosome, index}
+
+    print((set_filters, new_filter, region), flush=True)
+
+    
+    # # get the indices for the filters of each chromosome
+    # # if we have regions, only get the indices for chromomsomes present in the regions
+    # chromosome_indices = get_filtered_indices_and_scores(filters, region)
+    # # filter down the indices to the regions, converts indices to order of regions and checks
+    # if region is not None and len(filters) > 0:
+    #     chromosome_indices = filter_region(chromosome_indices, region)
+
+    # filter_orders = [f['order'] for f in filters]
+    # max_order = max(filter_orders) if (diversity and len(filter_orders) > 0) else -1
+    # # find the top paths based on full or factor score
+    # # print("sorting by score", flush=True)
+    # top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=max_order)      
+    
+    # # get the dehydrated paths for each index 
+    # # print("getting dehydrated paths", flush=True)
+    # dehydrated_paths = get_dehydrated_paths(top_indices, top_chromosomes)
+
+    # # generate the return list
+    # # print("generating return list", flush=True)
+    # return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts)
+
+    return #return_list
