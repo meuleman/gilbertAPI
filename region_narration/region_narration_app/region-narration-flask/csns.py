@@ -409,7 +409,9 @@ def preview_filter():
     # if we have regions, only get the indices for chromomsomes present in the regions
     set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
     set_chromosomes = np.array(list(set_chromosome_indices.keys()))
+    set_index_count = sum(set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes)
 
+    previews = {}
     for order in range(4, 15):
         new_filter_at_order = new_filter.copy()
         new_filter_at_order['order'] = order
@@ -417,18 +419,23 @@ def preview_filter():
         preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
         preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
         print("ORDER", order, "RESULT", preview_chromosome_indices, "SET", set_chromosome_indices)
+        print()
 
         commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
 
         # group by chromosome
-        chromosome_intersection = {}
+        chromosome_intersections = {}
+        common_index_count = 0
         print("COMMON CHROMOSOMES", commom_chromosomes, "ORDER", order, "PREVIEW KEYS", preview_chromosomes, "SET KEYS", set_chromosomes)
         for chromosome in commom_chromosomes:
-            # chromosome_group = [f for f in filter_indices if f['chromosome'] == chromosome]
             chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
-            chromosome_intersection[chromosome] = find_intersection(chromosome_group)
+            chromosome_intersection = find_intersection(chromosome_group)
+            chromosome_intersections[chromosome] = chromosome_intersection
+            common_index_count += len(chromosome_intersection['indices'])
+
         
-        print("COMMON INDICES", chromosome_intersection)
+        print()
+        print("COMMON INDICES", chromosome_intersections, "RESULT COUNT", common_index_count, "SET COUNT", set_index_count)
 
     # # filter down the indices to the regions, converts indices to order of regions and checks
     # if region is not None and len(filters) > 0:
