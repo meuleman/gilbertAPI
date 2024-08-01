@@ -394,8 +394,8 @@ def top_paths():
 """
 Endpoint for previewing the number of regions a filter would provide at each order if selected
 """
-@csns_bp.route("preview_filter_percentages", methods=['POST'])
-def top_paths():
+@csns_bp.route("preview_filter", methods=['POST'])
+def preview_filter():
     request_info = request.get_json()
     
     set_filters = request_info['set_filters']  # [{order, index}, ...]
