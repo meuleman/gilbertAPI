@@ -400,6 +400,7 @@ def get_factor_filter_previews(filters, new_filter, region, orders=range(4, 15))
 
         # if no set filters, use full genome size as background, otherwise use regions found through filters
         bg_count = set_index_count if len(filters) > 0 else sum(CHR_SIZES_UCSC.values())
+        print("ORDER", order, "COUNT", common_index_count, "BG", bg_count)
         previews[order] = common_index_count / bg_count
 
     return previews
