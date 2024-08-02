@@ -358,11 +358,12 @@ Finds the regional index overlap between established and proposed filters and re
 def get_factor_filter_previews(filters, new_filter, region, orders=range(4, 15)):
     # get the indices for the filters we have established for each chromosome
     # if we have regions, only get the indices for chromomsomes present in the regions
-    set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
-    # find the chromosomes set filters have regions for
-    set_chromosomes = np.array(list(set_chromosome_indices.keys()))
-    # count the total number of regions for set filters
-    set_index_count = sum(len(set_chromosome_indices[chromosome]['indices']) for chromosome in set_chromosomes)
+    if len(filters) > 0:  # if no filters in place, skip
+        set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
+        # find the chromosomes set filters have regions for
+        set_chromosomes = np.array(list(set_chromosome_indices.keys()))
+        # count the total number of regions for set filters
+        set_index_count = sum(len(set_chromosome_indices[chromosome]['indices']) for chromosome in set_chromosomes)
 
     # loop through each order and find the overlap between set filters and new filter
     previews = {}
@@ -375,16 +376,21 @@ def get_factor_filter_previews(filters, new_filter, region, orders=range(4, 15))
         preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
 
         # for order, find the common chromosomes for set and new filters
-        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)]
+        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)] if len(filters) > 0 else preview_chromosomes
 
         # group indices between filters by chromosome and find intersection counts
         common_index_count = 0
         for chromosome in commom_chromosomes:
-            chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
-            chromosome_intersection = find_intersection(chromosome_group)
-            common_index_count += len(chromosome_intersection['indices'])
+            if len(filters) > 0:  # find intersection if there are set filters
+                chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
+                chromosome_intersection = find_intersection(chromosome_group)
+                common_index_count += len(chromosome_intersection['indices'])
+            else:
+                common_index_count += len(preview_chromosome_indices[chromosome]['indices'])
 
-        previews[order] = common_index_count / set_index_count
+        # if no set filters, use full genome size as background, otherwise use regions found through filters
+        bg_count = set_index_count if len(filters) > 0 else np.sum(CHR_SIZES_UCSC.values())
+        previews[order] = common_index_count / bg_count
 
     return previews
 
