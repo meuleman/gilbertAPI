@@ -111,10 +111,11 @@ def get_filtered_indices_and_scores(filters, region):
         end = hilbert_pos_to_order(region["i"] + 1, region["order"], 14)
         end = min(end, CHR_SIZES_UCSC[chromosome])
         indices = np.arange(start, end)
-        print("len indices", len(indices))
+        scores = get_single_region_scores(chromosome, start, end)
+        print("len indices", len(indices), "len scores", len(scores))
         # no need to deal with other chromosomes
         return {
-            chromosome: indices
+            chromosome: {"indices": indices, "path_scores": scores}
         }
 
     # parse each filter and collect indices
@@ -196,18 +197,17 @@ def filter_region(chromosome_indices, region):
 Collects the path scores for index positions across chromosome, sorts by score,
 and returns the indices, chromosomes, and scores for the top N paths across the genome.
 """
-def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=-1):
+def sort_by_score(chromosome_indices, score_type, N, order_diversity=-1):
     indices = np.array([], dtype="int32")
-    path_scores = np.array([], dtype="float32")
-    factor_scores = np.array([], dtype="float32")
+    scores = np.array([], dtype="float32")
+    score_key = "factor_scores" if score_type == 'factor' else "path_scores"
     chromosomes = np.array([])
     seen_counts = np.array([], dtype="int32")
 
     start = time.time()
     for chromosome in chromosome_indices.keys():
         chrm_indices = chromosome_indices[chromosome]["indices"]
-        chrm_factor_scores = chromosome_indices[chromosome]["factor_scores"]
-        chrm_path_scores = chromosome_indices[chromosome]["path_scores"]
+        chrm_scores = chromosome_indices[chromosome][score_key]
 
         # diversity filter: keep only the first index we find within a segment at highest res filter order
         if order_diversity > 0:
@@ -218,26 +218,16 @@ def sort_by_score(chromosome_indices, score_type, N, filter_orders, order_divers
 
             # we lose the ordering here - we do this to match the count order and get unique original indices
             chrm_indices = chrm_indices[chrm_ops_indices] 
-            chrm_factor_scores = chrm_factor_scores[chrm_ops_indices]
-            chrm_path_scores = chrm_path_scores[chrm_ops_indices]
+            chrm_scores = chrm_scores[chrm_ops_indices]
         else:
             chrm_ops_counts = np.ones(len(chrm_indices), dtype="int32")
         
         indices = np.append(indices, chrm_indices)
-        path_scores = np.append(path_scores, chrm_path_scores)
-        factor_scores = np.append(factor_scores, chrm_factor_scores)
+        scores = np.append(scores, chrm_scores)
         chromosomes = np.append(chromosomes, np.array([chromosome] * len(chrm_indices)))
         seen_counts = np.append(seen_counts, chrm_ops_counts)
 
     print(f"Time to find diversity: {time.time() - start}", flush=True)
-
-    # get scores
-    # if ((score_type == "full" )| (score_type == "factor")):
-    #     scores = get_scores(indices, chromosomes, score_type, filter_orders)
-    if (score_type == "full"):
-        scores = path_scores
-    elif (score_type == "factor"):
-        scores = factor_scores
 
     start = time.time()
     # sort
@@ -315,6 +305,26 @@ def get_scores(
 
     print(f"Time to get scores: {time.time() - start}", flush=True)
     return np.array(scores)
+
+
+"""
+Collects path scores for a single region on a chromosome.
+"""
+def get_single_region_scores(
+    chromosome,
+    start,
+    end,
+    file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+):
+    score_t = time.time()
+    print(f"scores for {(end - start)} indices")
+    # load in h5 file and read in the scores for each position
+    with h5py.File(file_path, 'r') as f:
+        # scores for each segment
+        scores = f[chromosome][start:end]
+
+    print(f"Time to get scores: {time.time() - score_t}", flush=True)
+    return scores
 
 
 """
@@ -408,7 +418,6 @@ def top_paths():
     diversity = request_info['diversity']  # true | false
     N = request_info['N']  # number of paths to return
 
-    
     # get the indices for the filters of each chromosome
     # if we have regions, only get the indices for chromomsomes present in the regions
     chromosome_indices = get_filtered_indices_and_scores(filters, region)
@@ -418,9 +427,10 @@ def top_paths():
 
     filter_orders = [f['order'] for f in filters]
     max_order = max(filter_orders) if (diversity and len(filter_orders) > 0) else -1
+    
     # find the top paths based on full or factor score
     # print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, filter_orders, order_diversity=max_order)      
+    top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, order_diversity=max_order)      
     
     # get the dehydrated paths for each index 
     # print("getting dehydrated paths", flush=True)
