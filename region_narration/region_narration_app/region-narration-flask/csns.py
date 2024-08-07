@@ -349,16 +349,16 @@ def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_s
             })
 
     # return the filtered indices
-    return_indices = []
-    for chr in chromosome_indices.keys():
-        return_indices.append({
-            "chromosome": chr,
-            "indices": chromosome_indices[chr]["indices"][0:1000000].tolist()
-        })
+    # return_indices = []
+    # for chr in chromosome_indices.keys():
+    #     return_indices.append({
+    #         "chromosome": chr,
+    #         "indices": chromosome_indices[chr]["indices"][0:1000000].tolist()
+    #     })
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
-        "filtered_indices": return_indices,
+        # "filtered_indices": return_indices,
         "csns": return_list
     })
 
