@@ -208,7 +208,8 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity=-1):
     start = time.time()
     for chromosome in chromosome_indices.keys():
         chrm_indices = chromosome_indices[chromosome]["indices"]
-        chrm_factor_scores = chromosome_indices[chromosome]["factor_scores"]
+        if score_type == "factor":
+            chrm_factor_scores = chromosome_indices[chromosome]["factor_scores"]
         chrm_path_scores = chromosome_indices[chromosome]["path_scores"]
 
         # diversity filter: keep only the first index we find within a segment at highest res filter order
@@ -220,13 +221,15 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity=-1):
 
             # we lose the ordering here - we do this to match the count order and get unique original indices
             chrm_indices = chrm_indices[chrm_ops_indices] 
-            chrm_factor_scores = chrm_factor_scores[chrm_ops_indices]
+            if score_type == "factor":
+                chrm_factor_scores = chrm_factor_scores[chrm_ops_indices]
             chrm_path_scores = chrm_path_scores[chrm_ops_indices]
         else:
             chrm_ops_counts = np.ones(len(chrm_indices), dtype="int32")
         
         indices = np.append(indices, chrm_indices)
-        factor_scores = np.append(factor_scores, chrm_factor_scores)
+        if score_type == "factor":
+            factor_scores = np.append(factor_scores, chrm_factor_scores)
         path_scores = np.append(path_scores, chrm_path_scores)
         chromosomes = np.append(chromosomes, np.array([chromosome] * len(chrm_indices)))
         seen_counts = np.append(seen_counts, chrm_ops_counts)
