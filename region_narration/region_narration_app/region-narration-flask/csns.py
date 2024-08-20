@@ -5,6 +5,7 @@ import json
 import h5py
 import os
 import time
+from filtering import fetch_indices_scores
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -41,25 +42,6 @@ datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert
 
 def hilbert_pos_to_order(pos, frm, to):
     return np.floor(pos / pow(4, frm - to)).astype(int)
-
-"""
-Fetches the order 14 positional indices for a given order, chromosome, factor index, 
-and dataset name. Returns an empty array if the indices are not found.
-"""
-def fetch_indices_scores(
-    order, 
-    chromosome, 
-    factor_index, 
-    dataset_name, 
-    file_path=os.path.join(datadir, 'indices/indices.scores.order_14_resolution.h5')
-):
-    dataset_name = f"{order}.{chromosome}.{dataset_name}.{factor_index}"
-    with h5py.File(file_path, 'r') as f:
-        try:
-            indices_scores = f[dataset_name][:]
-        except:
-            indices_scores = np.array([], dtype="int32")
-    return indices_scores
 
 
 """
@@ -127,7 +109,13 @@ def get_filtered_indices_and_scores(filters, region):
         for chromosome in chromosomes:
             if region is not None and chromosome != region["chromosome"]:
                 continue
-            indices_scores = fetch_indices_scores(order, chromosome, index, dataset_name)
+            indices_scores = fetch_indices_scores(
+                order, 
+                chromosome, 
+                index, 
+                dataset_name, 
+                os.path.join(datadir, 'indices/indices.scores.order_14_resolution.h5')
+            )
             if len(indices_scores) > 0:
                 filter_indices.append({
                     "chromosome": chromosome, 
@@ -460,3 +448,16 @@ def preview_filter():
 
     return_object = json.dumps({"preview_fractions": previews})
     return return_object
+
+
+"""
+Endpoint for fetching the native order resolution region indices and data for any filter at any order
+"""
+@csns_bp.route("native_order_resolution_regions", methods=['POST'])
+def native_order_resolution_regions():
+    request_info = request.get_json()
+    
+    filter = request_info['filter']
+    N = request_info['N']
+
+    return
