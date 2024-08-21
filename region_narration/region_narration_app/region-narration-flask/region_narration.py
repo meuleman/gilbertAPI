@@ -14,6 +14,7 @@ from subprocess import Popen, PIPE
 
 # CSN
 from csns import csns_bp
+from data_filtering import data_filtering_bp
 
 
 app = Flask(__name__)
@@ -801,6 +802,8 @@ def get_shared_factor():
 
 ##########CSN#########
 app.register_blueprint(csns_bp, url_prefix='/api/csns') # Register the Blueprint at /api/csns
+#######Filtering######
+app.register_blueprint(data_filtering_bp, url_prefix='/api/dataFiltering') # Register the Blueprint at /api/dataFiltering
 
 
 

@@ -8,9 +8,8 @@ import time
 from filtering import fetch_indices_scores
 
 # Create a Blueprint
-csns_bp = Blueprint('csns_bp', __name__)
+data_filtering_bp = Blueprint('data_filtering_bp', __name__)
 
-baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/csn_index_files"
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 CHR_SIZES_UCSC = {"chr1": 248956422,
@@ -214,7 +213,7 @@ def generate_return_data(chromosome_indices):
 """
 Endpoint for fetching the native order resolution region indices and data for any filter at any order
 """
-@csns_bp.route("data_filtering", methods=['POST'])
+@data_filtering_bp.route("data_filtering", methods=['POST'])
 def data_filtering():
     request_info = request.get_json()
     
