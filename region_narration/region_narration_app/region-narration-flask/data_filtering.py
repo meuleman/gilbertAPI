@@ -285,7 +285,7 @@ def get_factor_filter_previews(filters, new_filter, orders=range(4, 15)):
             
         
         # if no set filters, use full genome size as background, otherwise use regions found through filters
-        bg_count = set_count if len(filters) > 0 else order_segment_counts[order]
+        bg_count = set_count if len(filters) > 0 else ORDER_SEGMENT_COUNTS[order]
         print("ORDER", order, "COUNT", common_count, "BG", bg_count)
         previews[order] = common_count / bg_count if bg_count > 0 else 0
 
