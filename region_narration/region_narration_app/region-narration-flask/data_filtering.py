@@ -171,56 +171,61 @@ def get_filtered_indices_scores(filters):
     return reduced_chromosome_groups
 
 
-# """
-# Collects the combined factor scores for index positions across chromosomes, sorts by score,
-# and returns the indices, chromosomes, and scores for the top N paths across the genome.
-# """
-# def sort_by_score(chromosome_indices, N):
-#     start = time.time()
+"""
+Using the combined factor scores for index positions across chromosomes, sorts by score
+and returns the indices, chromosomes, and scores for the top N segments across the genome.
+"""
+def sort_by_score(chromosome_indices, N):
+    start = time.time()
 
-#     # initialize arrays
-#     indices = np.array([], dtype="int32")
-#     scores = np.array([], dtype="float32")
-#     chromosomes = np.array([])
+    # initialize arrays
+    indices = np.array([], dtype="int32")
+    scores = np.array([], dtype="float32")
+    chromosomes = np.array([])
 
-#     # collect indices and scores from each chromosome
-#     for chromosome in chromosome_indices.keys():
-#         chrm_indices = chromosome_indices[chromosome]["indices"]
-#         chrm_scores = chromosome_indices[chromosome]['scores']
-#         indices = np.append(indices, chrm_indices)
-#         scores = np.append(scores, chrm_scores)
-#         chromosomes = np.append(chromosomes, np.array([chromosome] * len(chrm_indices)))
+    # collect indices and scores from each chromosome
+    for chromosome in chromosome_indices.keys():
+        chrm_indices = chromosome_indices[chromosome]["indices"]
+        chrm_scores = chromosome_indices[chromosome]['scores']
+        indices = np.append(indices, chrm_indices)
+        scores = np.append(scores, chrm_scores)
+        chromosomes = np.append(chromosomes, np.array([chromosome] * len(chrm_indices)))
 
-#     # sort by score
-#     sort_order = np.argsort(-scores)[:N]
-#     top_scores = scores[sort_order]
-#     top_indices = indices[sort_order]
-#     top_chromosomes = chromosomes[sort_order]
+    # sort by score
+    sort_order = np.argsort(-scores)[:N]
+    top_scores = scores[sort_order]
+    top_indices = indices[sort_order]
+    top_chromosomes = chromosomes[sort_order]
 
-#     print(f"Time to sort by score: {time.time() - start}", flush=True)
+    print(f"Time to sort by score: {time.time() - start}", flush=True)
 
-#     return top_indices, top_chromosomes, top_scores
+    return top_indices, top_chromosomes, top_scores
 
 
 """
 Refactors our top segments into a JSON object for return.
 """
-def generate_return_data(chromosome_indices):
+def generate_return_data(top_indices, top_chromosomes, top_scores):
     start = time.time()
 
-    # return the filtered indices
-    return_indices = []
-    for chr in chromosome_indices.keys():
-        return_indices.append({
-            "chromosome": chr,
-            "indices": chromosome_indices[chr]['indices'].tolist(),
-            "scores": chromosome_indices[chr]['scores'].tolist(),
-            "order": chromosome_indices[chr]['order']
-        })
+    # # return the filtered indices
+    # return_indices = []
+    # for chr in chromosome_indices.keys():
+    #     return_indices.append({
+    #         "chromosome": chr,
+    #         "indices": chromosome_indices[chr]['indices'].tolist(),
+    #         "scores": chromosome_indices[chr]['scores'].tolist(),
+    #         "order": chromosome_indices[chr]['order']
+    #     })
+
+    # return the top segments
+    return_segments = []
+    for index, chrm, score in zip(top_indices, top_chromosomes, top_scores):
+        return_segments.append({'chromosome': chrm, 'index': index, 'score': score})
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
-        "filtered_segments": return_indices
+        "filtered_segments": return_segments
     })
 
 
@@ -306,11 +311,11 @@ def data_filtering():
     # find the intersection of filters
     chromosome_indices = get_filtered_indices_scores(filters)
 
-    # # find the top segments based on combined factor score
-    # top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, N)
+    # find the top segments based on combined factor score
+    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, N)
 
     # generate the return list
-    return_list = generate_return_data(chromosome_indices)
+    return_list = generate_return_data(top_indices, top_chromosomes, top_scores)
     
     return return_list
 
