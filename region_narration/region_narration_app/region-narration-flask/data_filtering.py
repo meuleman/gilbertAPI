@@ -205,7 +205,7 @@ def sort_by_score(chromosome_indices, N):
 """
 Refactors our top segments into a JSON object for return.
 """
-def generate_return_data(top_indices, top_chromosomes, top_scores):
+def generate_return_data(top_indices, top_chromosomes, top_scores, chromosome_indices):
     start = time.time()
 
     # # return the filtered indices
@@ -218,6 +218,7 @@ def generate_return_data(top_indices, top_chromosomes, top_scores):
     #         "order": chromosome_indices[chr]['order']
     #     })
 
+
     # return the top segments
     return_segments = []
     for index, chrm, score in zip(top_indices, top_chromosomes, top_scores):
@@ -225,7 +226,8 @@ def generate_return_data(top_indices, top_chromosomes, top_scores):
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
-        "filtered_segments": return_segments
+        "filtered_segments": return_segments,
+        "order": list(chromosome_indices.values())[0]['order'] if len(chromosome_indices) > 0 else None
     })
 
 
@@ -315,7 +317,7 @@ def data_filtering():
     top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, N)
 
     # generate the return list
-    return_list = generate_return_data(top_indices, top_chromosomes, top_scores)
+    return_list = generate_return_data(top_indices, top_chromosomes, top_scores, chromosome_indices)
     
     return return_list
 
