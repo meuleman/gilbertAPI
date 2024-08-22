@@ -221,7 +221,7 @@ def generate_return_data(top_indices, top_chromosomes, top_scores):
     # return the top segments
     return_segments = []
     for index, chrm, score in zip(top_indices, top_chromosomes, top_scores):
-        return_segments.append({'chromosome': chrm, 'index': index, 'score': score})
+        return_segments.append({'chromosome': chrm, 'index': int(index), 'score': float(score)})
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
