@@ -37,6 +37,20 @@ CHR_SIZES_UCSC = {"chr1": 248956422,
                   "chrX": 156040895,
                   "chrY": 57227415}
 
+ORDER_SEGMENT_COUNTS = {
+    4: 2957,
+    5: 11792,
+    6: 47136,
+    7: 188505,
+    8: 753983,
+    9: 3015901,
+    10: 12063568,
+    11: 48254229,
+    12: 193016875,
+    13: 772067468,
+    14: 3088269856
+}
+
 datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20240819"
 
 def hilbert_pos_to_order(pos, frm, to):
@@ -210,6 +224,75 @@ def generate_return_data(chromosome_indices):
     })
 
 
+
+
+"""
+Finds the regional index overlap between established and proposed filters and returns fractional overlap value at each order
+"""
+def get_factor_filter_previews(filters, new_filter, orders=range(4, 15)):
+    # get the indices for the filters we have established for each chromosome
+    set_filter_order = None
+    filter_orders = [f['order'] for f in filters]
+    if len(filters) > 0:  # if no filters in place, skip
+        set_chromosome_indices = get_filtered_indices_scores(filters)
+        # find the chromosomes set filters have regions for
+        set_chromosomes = np.array(list(set_chromosome_indices.keys()))
+        # count the total number of regions for set filters
+        set_indices = [set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes]
+        # order resolution for the set filters
+        set_filter_order = set_chromosome_indices[set_chromosomes[0]]['order'] if len(set_chromosomes) > 0 else None
+
+    # loop through each order and find the overlap between set filters and new filter
+    previews = {}
+    for order in orders:
+        new_filter_at_order = new_filter.copy()
+        new_filter_at_order['order'] = order
+        # get the regional indices for the new filter
+        preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order])
+        # find the chromosomes new filter has regions for
+        preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
+
+        # for order, find the common chromosomes for set and new filters
+        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)] if len(filters) > 0 else preview_chromosomes
+
+        # group indices between filters by chromosome and find intersection counts
+        common_indices = []
+        for chromosome in commom_chromosomes:
+            if len(filters) > 0:  # find intersection if there are set filters
+                chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
+                chromosome_intersection = find_intersection(chromosome_group)
+                common_indices.append(chromosome_intersection['indices'])
+            else:
+                common_indices.append(preview_chromosome_indices[chromosome]['indices'])
+            
+        # convert common indices to the preview order
+        max_common_order = max(set_filter_order, order) if set_filter_order != None else order
+        unique_order_common_indices = [
+            np.unique(hilbert_pos_to_order(indices, max_common_order, order)) for indices in common_indices
+        ]
+        common_count = sum([len(indices) for indices in unique_order_common_indices])
+        
+        if len(filters) > 0:
+            # find number of unique indices from set filters at order
+            unique_order_set_indices = [
+                np.unique(hilbert_pos_to_order(indices, set_filter_order, order)) for indices in set_indices
+            ]
+            set_count = sum([len(indices) for indices in unique_order_set_indices])
+            # if the order for set filters is < the preview order, we need to adjust our count
+            if set_filter_order != None:
+                if set_filter_order < max_common_order:
+                    set_count = set_count * (4 ** (max_common_order - set_filter_order))
+            
+        
+        # if no set filters, use full genome size as background, otherwise use regions found through filters
+        bg_count = set_count if len(filters) > 0 else order_segment_counts[order]
+        print("ORDER", order, "COUNT", common_count, "BG", bg_count)
+        previews[order] = common_count / bg_count if bg_count > 0 else 0
+
+    return previews
+
+
+
 """
 Endpoint for fetching the native order resolution region indices and data for any filter at any order
 """
@@ -230,3 +313,19 @@ def data_filtering():
     return_list = generate_return_data(chromosome_indices)
     
     return return_list
+
+
+"""
+Endpoint for previewing the number of segments a filter would provide at each order if selected
+"""
+@data_filtering_bp.route("preview_filter", methods=['POST'])
+def preview_filter():
+    request_info = request.get_json()
+    
+    filters = request_info['filters']  # [{order, index, dataset_name}, ...]
+    new_filter = request_info['newFilter']  # [{order, index}, ...]
+
+    previews = get_factor_filter_previews(filters, new_filter)
+
+    return_object = json.dumps({"preview_fractions": previews})
+    return return_object
