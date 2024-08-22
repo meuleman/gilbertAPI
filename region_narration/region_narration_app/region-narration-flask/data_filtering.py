@@ -206,7 +206,7 @@ def generate_return_data(chromosome_indices):
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
-        "filtered_indices": return_indices
+        "filtered_segments": return_indices
     })
 
 
