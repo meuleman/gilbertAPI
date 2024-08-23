@@ -54,5 +54,6 @@ def gwas_for_positions():
                 "scores": scores
             }
         )
+    print(return_object)
 
     return json.dumps(return_object)
