@@ -25,7 +25,7 @@ def fetch_gwas(chromosome, position):
             trait_indices = data[0].astype(int)
             unique_trait_indices = np.unique(trait_indices)
             # collect trait names
-            unique_trait_names = f['traits'][unique_trait_indices]
+            unique_trait_names = f['traits'][unique_trait_indices].astype(str)
             index2trait = {i: t for i, t in zip(unique_trait_indices, unique_trait_names)}
             trait_names = list(map(index2trait.get, trait_indices))
         except:
