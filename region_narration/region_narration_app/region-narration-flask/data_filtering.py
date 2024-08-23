@@ -191,6 +191,9 @@ def sort_by_score(chromosome_indices, N):
         scores = np.append(scores, chrm_scores)
         chromosomes = np.append(chromosomes, np.array([chromosome] * len(chrm_indices)))
 
+    # count number of segments
+    segment_count = len(indices)
+
     # sort by score
     sort_order = np.argsort(-scores)[:N]
     top_scores = scores[sort_order]
@@ -199,13 +202,13 @@ def sort_by_score(chromosome_indices, N):
 
     print(f"Time to sort by score: {time.time() - start}", flush=True)
 
-    return top_indices, top_chromosomes, top_scores
+    return top_indices, top_chromosomes, top_scores, segment_count
 
 
 """
 Refactors our top segments into a JSON object for return.
 """
-def generate_return_data(top_indices, top_chromosomes, top_scores, chromosome_indices):
+def generate_return_data(top_indices, top_chromosomes, top_scores, segment_count, chromosome_indices):
     start = time.time()
 
     # # return the filtered indices
@@ -227,7 +230,8 @@ def generate_return_data(top_indices, top_chromosomes, top_scores, chromosome_in
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
         "filtered_segments": return_segments,
-        "order": list(chromosome_indices.values())[0]['order'] if len(chromosome_indices) > 0 else None
+        "order": list(chromosome_indices.values())[0]['order'] if len(chromosome_indices) > 0 else None,
+        "segment_count": segment_count
     })
 
 
@@ -314,10 +318,10 @@ def data_filtering():
     chromosome_indices = get_filtered_indices_scores(filters)
 
     # find the top segments based on combined factor score
-    top_indices, top_chromosomes, top_scores = sort_by_score(chromosome_indices, N)
+    top_indices, top_chromosomes, top_scores, segment_count = sort_by_score(chromosome_indices, N)
 
     # generate the return list
-    return_list = generate_return_data(top_indices, top_chromosomes, top_scores, chromosome_indices)
+    return_list = generate_return_data(top_indices, top_chromosomes, top_scores, segment_count, chromosome_indices)
     
     return return_list
 
