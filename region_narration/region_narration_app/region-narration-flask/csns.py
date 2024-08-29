@@ -258,7 +258,7 @@ def get_dehydrated_paths(
             for region in regions:
                 paths = []
                 for pos in region['top_positions']:
-                    paths.append(f[region['chromosome']][pos])
+                    paths.append(f[region['chromosome']][pos].tolist())
                 region['dehydrated_paths'] = paths
 
         print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
@@ -472,7 +472,7 @@ def generate_region_return(regions):
         del region['scores']
         region['top_scores'] = region['top_scores'].tolist()
         region['top_positions'] = region['top_positions'].tolist()
-        region['dehydrated_paths'] = region['dehydrated_paths'].tolist()
+        region['dehydrated_paths'] = region['dehydrated_paths']
 
     return json.dumps({"regions": regions})
 
