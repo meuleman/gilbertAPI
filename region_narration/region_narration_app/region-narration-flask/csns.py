@@ -240,23 +240,43 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity=-1):
 
     return top_indices, top_chromosomes, top_scores, top_seen_counts
 
+
 """
 Collects and returns the factor indices for each of the top paths.
 """
 def get_dehydrated_paths(
-    top_indices,
-    top_chromosomes,
+    top_indices=[],
+    top_chromosomes=[],
+    regions=[],
     file_path=os.path.join(datadir, 'paths/full_path_factors.order_14_resolution.h5')
 ):
     start = time.time()
-    dehydrated_paths = []
-    # load in h5 file and read in the exact dehydrated paths we need
-    with h5py.File(file_path, 'r') as f:
-        for chromosome, index in zip(top_chromosomes, top_indices):
-            dehydrated_paths.append(f[chromosome][index])
+
+    if len(regions) > 0:
+        # load in h5 file and read in the exact dehydrated paths we need for each region
+        with h5py.File(file_path, 'r') as f:
+            for region in regions:
+                paths = []
+                for pos in region['top_positions']:
+                    paths.append(f[region['chromosome']][pos])
+                region['dehydrated_paths'] = paths
+
+        print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
+        return regions
     
-    print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
-    return dehydrated_paths
+    elif (len(top_indices) > 0) and (len(top_chromosomes) > 0):
+        dehydrated_paths = []
+        # load in h5 file and read in the exact dehydrated paths we need
+        with h5py.File(file_path, 'r') as f:
+            for chromosome, index in zip(top_chromosomes, top_indices):
+                dehydrated_paths.append(f[chromosome][index])
+        
+        print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
+        return dehydrated_paths
+    
+    else:
+        raise ValueError("No indices or chromosomes provided for dehydrated paths")
+
 
 """
 Collects path scores for index positions on each chromosome.
@@ -270,7 +290,7 @@ def get_scores(
     factor_file_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
 ):
     start = time.time()
-     # Preallocate scores array
+    # Preallocate scores array
     scores = np.zeros(len(indices), dtype=np.float32)
     print(f"scores for {len(indices)} indices")
     # load in h5 file and read in the scores for each position
@@ -406,6 +426,58 @@ def get_factor_filter_previews(filters, new_filter, region, orders=range(4, 15))
 
 
 """
+Collect the top N scores and positions for each region
+"""
+def get_top_scores_for_regions(regions, N):
+    start_time = time.time()
+    print(f"Finding top scores for {len(regions)} regions")
+
+    for region in regions:
+        top_indices = np.argsort(-region['scores'])[:N]
+        top_scores = region['scores'][top_indices]
+        top_positions = np.arange(region['start'], region['end'])[top_indices]
+        region['top_scores'] = top_scores
+        region['top_positions'] = top_positions
+
+    print(f"Time to find top scores: {time.time() - start_time}", flush=True)
+
+    return regions
+
+
+"""
+Collects path scores for each region set. 
+"""
+def get_scores_for_regions(
+    regions,
+    file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+):
+    start_time = time.time()
+    print(f"Collecting scores for {len(regions)} regions")
+
+    # load in h5 file and read in the scores for each position
+    with h5py.File(file_path, 'r') as f:
+        for region in regions:
+            region['scores'] = f[region['chromosome']][region['start']:region['end']]
+
+    print(f"Time to collect scores: {time.time() - start_time}", flush=True)
+
+    return regions
+
+
+"""
+Create return object for regions
+"""
+def generate_region_return(regions):
+    for region in regions:
+        del region['scores']
+        region['top_scores'] = region['top_scores'].tolist()
+        region['top_positions'] = region['top_positions'].tolist()
+        region['dehydrated_paths'] = region['dehydrated_paths'].tolist()
+
+    return json.dumps({"regions": regions})
+
+
+"""
 Endpoint for fetching the top paths based on a set of filters and regions.
 """
 @csns_bp.route("top_paths", methods=['POST'])
@@ -463,13 +535,25 @@ def preview_filter():
 
 
 """
-Endpoint for fetching the native order resolution region indices and data for any filter at any order
+Endpoint for fetching the top paths for a number of regions. The top N paths for each region are returned.
 """
-@csns_bp.route("native_order_resolution_regions", methods=['POST'])
+@csns_bp.route("top_paths_for_regions", methods=['POST'])
 def native_order_resolution_regions():
     request_info = request.get_json()
     
-    filter = request_info['filter']
-    N = request_info['N']
+    regions = request_info['regions']  # [{chromosome, start, end}, ...]
+    N = request_info['N'] if 'N' in request_info else 1 # number of paths to return per region (default 1)
 
-    return
+    # get the scores for each region
+    regions = get_scores_for_regions(regions)
+
+    # find the top N positions based on path score
+    regions = get_top_scores_for_regions(regions, N)
+
+    # get the dehydrated paths for each position in each region
+    regions = get_dehydrated_paths(regions=regions)
+
+    # generate the return object
+    return_object = generate_region_return(regions)
+    
+    return return_object
