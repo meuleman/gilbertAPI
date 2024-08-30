@@ -541,8 +541,17 @@ Endpoint for fetching the top paths for a number of regions. The top N paths for
 def native_order_resolution_regions():
     request_info = request.get_json()
     
-    regions = request_info['regions']  # [{chromosome, start, end}, ...]
+    region_coordinates = request_info['regions']  # ['chr:start-end', ...]
     N = request_info['N'] if 'N' in request_info else 1 # number of paths to return per region (default 1)
+
+    # convert region coordinates to regions object
+    regions = [
+        {
+            'chromosome': r.split(':')[0],
+            'start': int(r.split(':')[1].split('-')[0]),
+            'end': int(r.split(':')[1].split('-')[1])
+        } for r in region_coordinates
+    ]
 
     # get the scores for each region
     regions = get_scores_for_regions(regions)
