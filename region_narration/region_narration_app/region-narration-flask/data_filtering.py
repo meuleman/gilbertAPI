@@ -307,7 +307,7 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
             else:
                 preview[order] = common_count
         
-        filter_preview = {'previews': preview, 'dataset_name': new_filter['dataset_name'], 'index': new_filter['index']}
+        filter_preview = {'preview': preview, 'dataset_name': new_filter['dataset_name'], 'index': new_filter['index']}
         previews.append(filter_preview)
         print(f"Time to find preview for filter {new_filter['dataset_name']}, {new_filter['index']}: {time.time() - new_filter_start}", flush=True)
     
