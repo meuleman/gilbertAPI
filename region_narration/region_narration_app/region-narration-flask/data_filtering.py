@@ -236,14 +236,13 @@ def generate_return_data(top_indices, top_chromosomes, top_scores, segment_count
 
 
 
-
 """
 Finds the regional index overlap between established and proposed filters and returns fractional overlap value at each order
 """
-def get_factor_filter_previews(filters, new_filter, orders=range(4, 15)):
+def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normalize=True):
     # get the indices for the filters we have established for each chromosome
+    established_start = time.time()
     set_filter_order = None
-    filter_orders = [f['order'] for f in filters]
     if len(filters) > 0:  # if no filters in place, skip
         set_chromosome_indices = get_filtered_indices_scores(filters)
         # find the chromosomes set filters have regions for
@@ -252,54 +251,66 @@ def get_factor_filter_previews(filters, new_filter, orders=range(4, 15)):
         set_indices = [set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes]
         # order resolution for the set filters
         set_filter_order = set_chromosome_indices[set_chromosomes[0]]['order'] if len(set_chromosomes) > 0 else None
+    print(f"Time to get established filter regions: {time.time() - established_start}", flush=True)
 
-    # loop through each order and find the overlap between set filters and new filter
-    previews = {}
-    for order in orders:
-        new_filter_at_order = new_filter.copy()
-        new_filter_at_order['order'] = order
-        # get the regional indices for the new filter
-        preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order])
-        # find the chromosomes new filter has regions for
-        preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
+    # loop through each new filter and find overlap at each order
+    previews = []
+    for new_filter in new_filters:
+        new_filter_start = time.time()
+        # loop through each order and find the overlap between set filters and new filter
+        preview = {}
+        for order in orders:
+            new_filter_at_order = new_filter.copy()
+            new_filter_at_order['order'] = order
+            # get the regional indices for the new filter
+            preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order])
+            # find the chromosomes new filter has regions for
+            preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
 
-        # for order, find the common chromosomes for set and new filters
-        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)] if len(filters) > 0 else preview_chromosomes
+            # for order, find the common chromosomes for set and new filters
+            commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)] if len(filters) > 0 else preview_chromosomes
 
-        # group indices between filters by chromosome and find intersection counts
-        common_indices = []
-        for chromosome in commom_chromosomes:
-            if len(filters) > 0:  # find intersection if there are set filters
-                chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
-                chromosome_intersection = find_intersection(chromosome_group)
-                common_indices.append(chromosome_intersection['indices'])
-            else:
-                common_indices.append(preview_chromosome_indices[chromosome]['indices'])
-            
-        # convert common indices to the preview order
-        max_common_order = max(set_filter_order, order) if set_filter_order != None else order
-        unique_order_common_indices = [
-            np.unique(hilbert_pos_to_order(indices, max_common_order, order)) for indices in common_indices
-        ]
-        common_count = sum([len(indices) for indices in unique_order_common_indices])
-        
-        if len(filters) > 0:
-            # find number of unique indices from set filters at order
-            unique_order_set_indices = [
-                np.unique(hilbert_pos_to_order(indices, set_filter_order, order)) for indices in set_indices
+            # group indices between filters by chromosome and find intersection counts
+            common_indices = []
+            for chromosome in commom_chromosomes:
+                if len(filters) > 0:  # find intersection if there are set filters
+                    chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
+                    chromosome_intersection = find_intersection(chromosome_group)
+                    common_indices.append(chromosome_intersection['indices'])
+                else:
+                    common_indices.append(preview_chromosome_indices[chromosome]['indices'])
+                
+            # convert common indices to the preview order
+            max_common_order = max(set_filter_order, order) if set_filter_order != None else order
+            unique_order_common_indices = [
+                np.unique(hilbert_pos_to_order(indices, max_common_order, order)) for indices in common_indices
             ]
-            set_count = sum([len(indices) for indices in unique_order_set_indices])
-            # if the order for set filters is < the preview order, we need to adjust our count
-            if set_filter_order != None:
-                if set_filter_order < max_common_order:
-                    set_count = set_count * (4 ** (max_common_order - set_filter_order))
+            common_count = sum([len(indices) for indices in unique_order_common_indices])
             
+            if len(filters) > 0:
+                # find number of unique indices from set filters at order
+                unique_order_set_indices = [
+                    np.unique(hilbert_pos_to_order(indices, set_filter_order, order)) for indices in set_indices
+                ]
+                set_count = sum([len(indices) for indices in unique_order_set_indices])
+                # if the order for set filters is < the preview order, we need to adjust our count
+                if set_filter_order != None:
+                    if set_filter_order < max_common_order:
+                        set_count = set_count * (4 ** (max_common_order - set_filter_order))
+                
+            
+            # if no set filters, use full genome size as background, otherwise use regions found through filters
+            bg_count = set_count if len(filters) > 0 else ORDER_SEGMENT_COUNTS[order]
+            print("ORDER", order, "COUNT", common_count, "BG", bg_count)
+            if normalize:
+                preview[order] = common_count / bg_count if bg_count > 0 else 0
+            else:
+                preview[order] = common_count
         
-        # if no set filters, use full genome size as background, otherwise use regions found through filters
-        bg_count = set_count if len(filters) > 0 else ORDER_SEGMENT_COUNTS[order]
-        print("ORDER", order, "COUNT", common_count, "BG", bg_count)
-        previews[order] = common_count / bg_count if bg_count > 0 else 0
-
+        filter_preview = {'previews': preview, 'dataset_name': new_filter['dataset_name'], 'index': new_filter['index']}
+        previews.append(filter_preview)
+        print(f"Time to find preview for filter {new_filter['dataset_name']}, {new_filter['index']}: {time.time() - new_filter_start}", flush=True)
+    
     return previews
 
 
@@ -334,9 +345,11 @@ def preview_filter():
     request_info = request.get_json()
     
     filters = request_info['filters']  # [{order, index, dataset_name}, ...]
-    new_filter = request_info['newFilter']  # [{order, index}, ...]
+    new_filters = request_info['newFilters']  # [{dataset_name, index}, ...]
+    orders = request_info['orders'] if 'orders' in request_info else range(4, 15)  # [4, 5, 6, ...]
+    normalize = request_info['normalize'] if 'normalize' in request_info else True
 
-    previews = get_factor_filter_previews(filters, new_filter)
+    previews = get_factor_filter_previews(filters, new_filters, orders, normalize)
 
-    return_object = json.dumps({"preview_fractions": previews})
+    return_object = json.dumps({"previews": previews})
     return return_object
