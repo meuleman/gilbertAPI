@@ -348,6 +348,7 @@ def preview_filter():
     new_filters = request_info['newFilters']  # [{dataset_name, index}, ...]
     orders = request_info['orders'] if 'orders' in request_info else range(4, 15)  # [4, 5, 6, ...]
     normalize = request_info['normalize'] if 'normalize' in request_info else True
+    normalize = normalize.lower() == "true" if type(normalize) == str else normalize
 
     previews = get_factor_filter_previews(filters, new_filters, orders, normalize)
 
