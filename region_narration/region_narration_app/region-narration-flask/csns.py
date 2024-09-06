@@ -6,6 +6,8 @@ import h5py
 import os
 import time
 from filtering import fetch_indices_scores
+import tabix
+from subprocess import Popen, PIPE
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -39,6 +41,17 @@ CHR_SIZES_UCSC = {"chr1": 248956422,
                   "chrY": 57227415}
 
 datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240717"
+genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"
+gene_path = os.path.join(
+    genedir, 
+    "mart_export.protein_coding.basal_plus_extension.5kb_upstream.1kb_downstream.1000kb_distal.CT20240906.bed.bgz"
+)
+# columns for gene_path
+# [
+# 'Chromosome', 'Left distal', 'Right distal', 'Gene name', 
+# 'Gene stable ID', 'Strand', 'Gene start (bp)', 'Gene end (bp)', 
+# 'Basal upstream', 'Basal downstream', 'Gene description'
+# ]
 
 def hilbert_pos_to_order(pos, frm, to):
     return np.floor(pos / pow(4, frm - to)).astype(int)
@@ -478,6 +491,55 @@ def generate_region_return(regions):
 
 
 """
+Queries a tabix file for provided genomic coordinates (chr:start-end)
+Return all the overlapping hits
+"""
+def tabix_query(query, filename):
+    # Use subprocess with tabix and return hits
+    process = Popen(['tabix', '-f', filename, query], stdout=PIPE)
+    
+    hits = []
+    for line in process.stdout:
+        hits.append(str(np.char.decode(line)).strip().split('\t'))
+    hits = np.array(hits)
+    return hits
+
+
+"""
+Collects the genes associated with each path in each region.
+"""
+def get_genes(regions, filepath=gene_path):
+    start = time.time()
+    # for each region
+    for region in regions:
+        region_genes = []
+        for pos in region['top_positions']:
+            pos_coords = f"{region['chromosome']}:{pos}-{pos}"
+            genes = tabix_query(pos_coords, filepath)
+            region_genes.append({
+                'i': pos,
+                'genes': [
+                        {
+                            'chromosome': g[0], 
+                            'domain_start': int(g[1]),
+                            'domain_end': int(g[2]),
+                            'name': g[3],
+                            'stable_ID': g[4],
+                            'strand': int(g[5]),
+                            'start': int(g[6]),
+                            'end': int(g[7]),
+                            'description': g[10],
+                            'in_gene': ((pos >= int(g[6])) & (pos <= int(g[7])))
+                        } for g in genes
+                ]
+            })
+        region['genes'] = region_genes
+
+    print(f"Time to collect gene information for regions: {time.time() - start}", flush=True)
+    return regions
+
+
+"""
 Endpoint for fetching the top paths based on a set of filters and regions.
 """
 @csns_bp.route("top_paths", methods=['POST'])
@@ -558,6 +620,9 @@ def native_order_resolution_regions():
 
     # find the top N positions based on path score
     regions = get_top_scores_for_regions(regions, N)
+
+    # get the genes for each position in each region
+    regions = get_genes(regions)
 
     # get the dehydrated paths for each position in each region
     regions = get_dehydrated_paths(regions=regions)
