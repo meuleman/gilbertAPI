@@ -6,7 +6,7 @@ import h5py
 import os
 import time
 from filtering import fetch_indices_scores
-import tabix
+# import tabix
 from subprocess import Popen, PIPE
 
 # Create a Blueprint
