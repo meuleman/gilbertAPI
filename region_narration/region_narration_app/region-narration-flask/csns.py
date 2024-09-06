@@ -485,7 +485,6 @@ def generate_region_return(regions):
         del region['scores']
         region['top_scores'] = region['top_scores'].tolist()
         region['top_positions'] = region['top_positions'].tolist()
-        region['dehydrated_paths'] = region['dehydrated_paths']
 
     return json.dumps({"regions": regions})
 
@@ -516,19 +515,19 @@ def get_genes(regions, filepath=gene_path):
             pos_coords = f"{region['chromosome']}:{pos}-{pos}"
             genes = tabix_query(pos_coords, filepath)
             region_genes.append({
-                'i': pos,
+                'i': int(pos),
                 'genes': [
                         {
-                            'chromosome': g[0], 
+                            'chromosome': str(g[0]), 
                             'domain_start': int(g[1]),
                             'domain_end': int(g[2]),
-                            'name': g[3],
-                            'stable_ID': g[4],
+                            'name': str(g[3]),
+                            'stable_ID': str(g[4]),
                             'strand': int(g[5]),
                             'start': int(g[6]),
                             'end': int(g[7]),
-                            'description': g[10],
-                            'in_gene': ((pos >= int(g[6])) & (pos <= int(g[7])))
+                            'description': str(g[10]),
+                            'in_gene': bool((pos >= int(g[6])) & (pos <= int(g[7])))
                         } for g in genes
                 ]
             })
