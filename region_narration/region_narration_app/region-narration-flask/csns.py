@@ -501,6 +501,7 @@ def tabix_query(query, filename):
     hits = []
     for line in process.stdout:
         hits.append(str(np.char.decode(line)).strip().split('\t'))
+    print(("gene query hits", hits), flush=True)
     hits = np.array(hits)
     return hits
 
