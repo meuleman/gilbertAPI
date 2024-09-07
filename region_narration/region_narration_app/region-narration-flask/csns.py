@@ -448,10 +448,8 @@ def get_top_scores_for_regions(regions, N):
     for region in regions:
         top_indices = np.argsort(-region['path_scores'])[:N]
         top_path_scores = region['path_scores'][top_indices]
-        top_factor_scores = region['factor_scores'][top_indices]
         top_positions = np.arange(region['start'], region['end'])[top_indices]
         region['top_path_scores'] = top_path_scores
-        region['top_factor_scores'] = top_factor_scores
         region['top_positions'] = top_positions
 
     print(f"Time to find top scores: {time.time() - start_time}", flush=True)
@@ -467,6 +465,7 @@ def get_scores_for_regions(
     score_type,
     factor_score_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5'),
     path_score_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+    by_position=False
 ):
     start_time = time.time()
     print(f"Collecting scores for {len(regions)} regions")
@@ -475,7 +474,16 @@ def get_scores_for_regions(
     file_path, region_key = (path_score_path, "path_scores") if score_type == "path" else (factor_score_path, "factor_scores")
     with h5py.File(file_path, 'r') as f:
         for region in regions:
-            region[region_key] = f[region['chromosome']][region['start']:region['end']]
+            # if collecting scores for top positions in region
+            if by_position:
+                region_key = "top_path_scores" if score_type == "path" else "top_factor_scores"
+                pos_scores = []
+                for pos in region['top_positions']:
+                    pos_scores.append(f[region['chromosome']][pos])
+                region[region_key] = np.array(pos_scores)
+            # if collecting scores for the entire region
+            else:
+                region[region_key] = f[region['chromosome']][region['start']:region['end']]
 
     print(f"Time to collect scores: {time.time() - start_time}", flush=True)
 
@@ -487,8 +495,10 @@ Create return object for regions
 """
 def generate_region_return(regions):
     for region in regions:
-        del region['path_scores']
-        del region['factor_scores']
+        if 'path_scores' in region:
+            del region['path_scores']
+        if 'factor_scores' in region:
+            del region['factor_scores']
         region['top_path_scores'] = region['top_path_scores'].tolist()
         region['top_factor_scores'] = region['top_factor_scores'].tolist()
         region['top_positions'] = region['top_positions'].tolist()
@@ -622,10 +632,12 @@ def native_order_resolution_regions():
 
     # get the scores for each region
     regions = get_scores_for_regions(regions, "path")
-    regions = get_scores_for_regions(regions, "factor")
 
     # find the top N positions based on path score
     regions = get_top_scores_for_regions(regions, N)
+
+    # collect factor scores for top positions
+    regions = get_scores_for_regions(regions, "factor", by_position=True)
 
     # get the genes for each position in each region
     regions = get_genes(regions)
