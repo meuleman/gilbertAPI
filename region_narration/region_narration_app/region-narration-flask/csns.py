@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 import numpy as np
-import requests
+# import requests
 import json
 import h5py
 import os
@@ -40,7 +40,7 @@ CHR_SIZES_UCSC = {"chr1": 248956422,
                   "chrX": 156040895,
                   "chrY": 57227415}
 
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240717"
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240905"
 genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"
 gene_path = os.path.join(
     genedir, 
@@ -446,10 +446,12 @@ def get_top_scores_for_regions(regions, N):
     print(f"Finding top scores for {len(regions)} regions")
 
     for region in regions:
-        top_indices = np.argsort(-region['scores'])[:N]
-        top_scores = region['scores'][top_indices]
+        top_indices = np.argsort(-region['path_scores'])[:N]
+        top_path_scores = region['path_scores'][top_indices]
+        top_factor_scores = region['factor_scores'][top_indices]
         top_positions = np.arange(region['start'], region['end'])[top_indices]
-        region['top_scores'] = top_scores
+        region['top_path_scores'] = top_path_scores
+        region['top_factor_scores'] = top_factor_scores
         region['top_positions'] = top_positions
 
     print(f"Time to find top scores: {time.time() - start_time}", flush=True)
@@ -462,15 +464,18 @@ Collects path scores for each region set.
 """
 def get_scores_for_regions(
     regions,
-    file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+    score_type,
+    factor_score_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5'),
+    path_score_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
 ):
     start_time = time.time()
     print(f"Collecting scores for {len(regions)} regions")
 
     # load in h5 file and read in the scores for each position
+    file_path, region_key = (path_score_path, "path_scores") if score_type == "path" else (factor_score_path, "factor_scores")
     with h5py.File(file_path, 'r') as f:
         for region in regions:
-            region['scores'] = f[region['chromosome']][region['start']:region['end']]
+            region[region_key] = f[region['chromosome']][region['start']:region['end']]
 
     print(f"Time to collect scores: {time.time() - start_time}", flush=True)
 
@@ -483,7 +488,8 @@ Create return object for regions
 def generate_region_return(regions):
     for region in regions:
         del region['scores']
-        region['top_scores'] = region['top_scores'].tolist()
+        region['top_path_scores'] = region['top_path_scores'].tolist()
+        region['top_factor_scores'] = region['top_factor_scores'].tolist()
         region['top_positions'] = region['top_positions'].tolist()
 
     return json.dumps({"regions": regions})
@@ -614,7 +620,8 @@ def native_order_resolution_regions():
     ]
 
     # get the scores for each region
-    regions = get_scores_for_regions(regions)
+    regions = get_scores_for_regions(regions, "path")
+    regions = get_scores_for_regions(regions, "factor")
 
     # find the top N positions based on path score
     regions = get_top_scores_for_regions(regions, N)
