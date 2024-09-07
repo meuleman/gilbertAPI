@@ -487,7 +487,8 @@ Create return object for regions
 """
 def generate_region_return(regions):
     for region in regions:
-        del region['scores']
+        del region['path_scores']
+        del region['factor_scores']
         region['top_path_scores'] = region['top_path_scores'].tolist()
         region['top_factor_scores'] = region['top_factor_scores'].tolist()
         region['top_positions'] = region['top_positions'].tolist()
