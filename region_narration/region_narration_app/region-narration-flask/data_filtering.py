@@ -144,7 +144,7 @@ def get_filtered_indices_scores(filters):
                     "order": order, 
                     "index": index, 
                     "dataset_name": dataset_name, 
-                    "indices": indices_scores[:, 0].astype(int),
+                    "indices": indices_scores.astype(int)#[:, 0].astype(int),
                     # "scores": indices_scores[:, 1],
                 })
 
