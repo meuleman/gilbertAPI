@@ -16,7 +16,7 @@ def fetch_indices_scores(
     dataset_name = f"{order}.{chromosome}.{dataset_name}.{factor_index}"
     with h5py.File(file_path, 'r') as f:
         try:
-            indices_scores = f[dataset_name][:10000]
+            indices_scores = f[dataset_name][:, 0]
         except:
             indices_scores = np.array([], dtype="int32")
     return indices_scores
