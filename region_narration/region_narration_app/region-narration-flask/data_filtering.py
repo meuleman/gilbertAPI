@@ -68,7 +68,24 @@ def preload_preview_indices(max_order=4, index_path=os.path.join(datadir, 'indic
         
         # preload indices for each dataset
         for d in datasets:
-            preloaded_indices[d] = f[d][:, 0].astype("int32")
+
+            # create chromosome independent key
+            order, chrm, dataset_name, factor_index = d.split('.')
+            key = f"{order}.{dataset_name}.{factor_index}"
+
+            # all factor instances across chromosomes are saved together in a list
+            if key not in preloaded_indices:
+                preloaded_indices[key] = []
+            
+            # add to factorXorder list
+            preloaded_indices[key].append({
+                "chromosome": chrm,
+                "order": int(order), 
+                "index": int(factor_index), 
+                "dataset_name": dataset_name, 
+                "indices": f[d][:, 0].astype("int32"), 
+                "scores": f[d][:, 1].astype("float32")
+            })
             
     print(f"Time to preload indices for filter previews: {time.time() - preload_time}", flush=True)
     return preloaded_indices
@@ -154,12 +171,19 @@ def get_filtered_indices_scores(filters, force_h5=True):
         order = f['order']
         index = f['index']
         dataset_name = f['dataset_name']
-        # fetch indices from each chromosome
-        for chromosome in chromosomes:
 
-            filter_key = f"{order}.{chromosome}.{dataset_name}.{index}"
-            # if force, load indices and scores from h5 file
-            if (force_h5 | (filter_key not in PRELOADED_INDICES)):
+        # create chromosome independent key
+        key = f"{order}.{dataset_name}.{index}"
+
+        # if not force_h5, fetch preloaded indices
+        if ((not force_h5) & (key in PRELOADED_INDICES)):
+            filter_indices.extend(PRELOADED_INDICES[key])
+
+        else:
+            # if force_h5, fetch indices from h5 file for each chromosome
+            for chromosome in chromosomes:
+
+                # load indices and scores
                 indices_scores = fetch_indices_scores(
                     order, 
                     chromosome, 
@@ -167,23 +191,18 @@ def get_filtered_indices_scores(filters, force_h5=True):
                     dataset_name, 
                     os.path.join(datadir, 'indices.scores.native_resolution.h5')
                 )
-            else:
-                # if not force, fetch preloaded indices
-                indices = PRELOADED_INDICES[filter_key].reshape(-1, 1)
-                # create dummy scores
-                scores = np.ones_like(indices, dtype="float32")
-                indices_scores = np.hstack((indices, scores))
 
-            if len(indices_scores) > 0:
-                filter_indices.append({
-                    "chromosome": chromosome, 
-                    "order": order, 
-                    "index": index, 
-                    "dataset_name": dataset_name, 
-                    "indices": indices_scores[:, 0].astype(int),
-                    "scores": indices_scores[:, 1],
-                })
+                if len(indices_scores) > 0:
+                    filter_indices.append({
+                        "chromosome": chromosome, 
+                        "order": order, 
+                        "index": index, 
+                        "dataset_name": dataset_name, 
+                        "indices": indices_scores[:, 0].astype(int),
+                        "scores": indices_scores[:, 1],
+                    })
 
+    # PRECALCULATE ALL THIS SHIT ABOVE TO SAVE TIME
     print(f"Time to fetch indices: {time.time() - start}", flush=True)
 
     start = time.time()
