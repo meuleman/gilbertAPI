@@ -56,7 +56,7 @@ datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert
 """
 Function to preload all indices to be used for filter previews up through the max order
 """
-def preload_preview_indices(max_order=13, index_path=os.path.join(datadir, 'indices.scores.native_resolution.h5')):
+def preload_preview_indices(max_order=12, index_path=os.path.join(datadir, 'indices.scores.native_resolution.h5')):
     preload_time = time.time()
     preloaded_indices = {}
     
