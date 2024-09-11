@@ -168,6 +168,7 @@ def get_filtered_indices_scores(filters, force_h5=True):
                     os.path.join(datadir, 'indices.scores.native_resolution.h5')
                 )
             else:
+                print("Using preloaded indices", flush=True)
                 # if not force, fetch preloaded indices
                 indices = PRELOADED_INDICES[filter_key].reshape(-1, 1)
                 # create dummy scores
