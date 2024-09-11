@@ -53,6 +53,31 @@ ORDER_SEGMENT_COUNTS = {
 
 datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20240819"
 
+"""
+Function to preload all indices to be used for filter previews up through the max order
+"""
+def preload_preview_indices(max_order=4, index_path=os.path.join(datadir, 'indices.scores.native_resolution.h5')):
+    preload_time = time.time()
+    preloaded_indices = {}
+    
+    with h5py.File(index_path, 'r') as f:
+
+        # find all the datasets less than or equal to the max order
+        datasets = list(f.keys())
+        datasets = [d for d in datasets if int(d.split('.')[0]) <= max_order]
+        
+        # preload indices for each dataset
+        for d in datasets:
+            preloaded_indices[d] = f[d][:, 0].astype("int32")
+            
+    print(f"Time to preload indices for filter previews: {time.time() - preload_time}", flush=True)
+    return preloaded_indices
+
+# preload all indices for filter previews
+PRELOADED_INDICES = preload_preview_indices()
+
+
+
 def hilbert_pos_to_order(pos, frm, to):
     return np.floor(pos / pow(4, frm - to)).astype(int)
 
@@ -120,7 +145,7 @@ def find_intersection(group):
     return {"indices": indices, "scores": combined_scores, 'order': current_order}
 
 
-def get_filtered_indices_scores(filters):
+def get_filtered_indices_scores(filters, force_h5=True):
     filter_indices = []
     start = time.time()
     
@@ -131,13 +156,24 @@ def get_filtered_indices_scores(filters):
         dataset_name = f['dataset_name']
         # fetch indices from each chromosome
         for chromosome in chromosomes:
-            indices_scores = fetch_indices_scores(
-                order, 
-                chromosome, 
-                index, 
-                dataset_name, 
-                os.path.join(datadir, 'indices.scores.native_resolution.h5')
-            )
+
+            filter_key = f"{order}.{chromosome}.{dataset_name}.{index}"
+            # if force, load indices and scores from h5 file
+            if (force_h5 | (filter_key not in PRELOADED_INDICES)):
+                indices_scores = fetch_indices_scores(
+                    order, 
+                    chromosome, 
+                    index, 
+                    dataset_name, 
+                    os.path.join(datadir, 'indices.scores.native_resolution.h5')
+                )
+            else:
+                # if not force, fetch preloaded indices
+                indices = PRELOADED_INDICES[filter_key].reshape(-1, 1)
+                # create dummy scores
+                scores = np.ones_like(indices, dtype="float32")
+                indices_scores = np.hstack((indices, scores))
+
             if len(indices_scores) > 0:
                 filter_indices.append({
                     "chromosome": chromosome, 
@@ -244,10 +280,10 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
     established_start = time.time()
     set_filter_order = None
     if len(filters) > 0:  # if no filters in place, skip
-        set_chromosome_indices = get_filtered_indices_scores(filters)
+        set_chromosome_indices = get_filtered_indices_scores(filters, force_h5=False)
         # find the chromosomes set filters have regions for
         set_chromosomes = np.array(list(set_chromosome_indices.keys()))
-        # count the total number of regions for set filters
+        # to count the total number of regions for set filters at each new order later
         set_indices = [set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes]
         # order resolution for the set filters
         set_filter_order = set_chromosome_indices[set_chromosomes[0]]['order'] if len(set_chromosomes) > 0 else None
@@ -263,7 +299,7 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
             new_filter_at_order = new_filter.copy()
             new_filter_at_order['order'] = order
             # get the regional indices for the new filter
-            preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order])
+            preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order], force_h5=False)
             # find the chromosomes new filter has regions for
             preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
 
