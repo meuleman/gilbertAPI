@@ -280,7 +280,7 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
     established_start = time.time()
     set_filter_order = None
     if len(filters) > 0:  # if no filters in place, skip
-        set_chromosome_indices = get_filtered_indices_scores(filters, force_h5=True)
+        set_chromosome_indices = get_filtered_indices_scores(filters, force_h5=False)
         # find the chromosomes set filters have regions for
         set_chromosomes = np.array(list(set_chromosome_indices.keys()))
         # to count the total number of regions for set filters at each new order later
@@ -299,7 +299,7 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
             new_filter_at_order = new_filter.copy()
             new_filter_at_order['order'] = order
             # get the regional indices for the new filter
-            preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order], force_h5=True)
+            preview_chromosome_indices = get_filtered_indices_scores([new_filter_at_order], force_h5=False)
             # find the chromosomes new filter has regions for
             preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
 
