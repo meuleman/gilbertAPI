@@ -205,8 +205,7 @@ def get_filtered_indices_scores(filters, force_h5=True):
                         "scores": indices_scores[:, 1],
                     })
 
-    # PRECALCULATE ALL THIS SHIT ABOVE TO SAVE TIME
-    print(f"Time to fetch indices: {time.time() - start}", flush=True)
+    # print(f"Time to fetch indices: {time.time() - start}", flush=True)
 
     start = time.time()
     # group by chromosome
@@ -225,7 +224,7 @@ def get_filtered_indices_scores(filters, force_h5=True):
         if len(group_intersection["indices"]) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
     
-    print(f"Time to find intersection: {time.time() - start}", flush=True)
+    # print(f"Time to find intersection: {time.time() - start}", flush=True)
     return reduced_chromosome_groups
 
 
@@ -359,7 +358,7 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
             
             # if no set filters, use full genome size as background, otherwise use regions found through filters
             bg_count = set_count if len(filters) > 0 else ORDER_SEGMENT_COUNTS[order]
-            print("ORDER", order, "COUNT", common_count, "BG", bg_count)
+            # print("ORDER", order, "COUNT", common_count, "BG", bg_count)
             if normalize:
                 preview[order] = common_count / bg_count if bg_count > 0 else 0
             else:
@@ -367,7 +366,7 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
         
         filter_preview = {'preview': preview, 'dataset_name': new_filter['dataset_name'], 'index': new_filter['index']}
         previews.append(filter_preview)
-        print(f"Time to find preview for filter {new_filter['dataset_name']}, {new_filter['index']}: {time.time() - new_filter_start}", flush=True)
+        # print(f"Time to find preview for filter {new_filter['dataset_name']}, {new_filter['index']}: {time.time() - new_filter_start}", flush=True)
     
     return previews
 
