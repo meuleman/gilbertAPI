@@ -400,6 +400,7 @@ Endpoint for previewing the number of segments a filter would provide at each or
 @data_filtering_bp.route("preview_filter", methods=['POST'])
 def preview_filter():
     request_info = request.get_json()
+    print("REQUEST:", request.method)
     
     filters = request_info['filters']  # [{order, index, dataset_name}, ...]
     new_filters = request_info['newFilters']  # [{dataset_name, index}, ...]
