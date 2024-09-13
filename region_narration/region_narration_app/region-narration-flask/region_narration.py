@@ -20,6 +20,7 @@ from gwas import gwas_bp
 
 app = Flask(__name__)
 CORS(app)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB
 
 
 current_name = (__file__)
