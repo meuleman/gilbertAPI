@@ -387,13 +387,13 @@ def filter_region(chromosome_indices, regions):
     region_chromosome_indices = {}
     for region in regions:
         if region['chromosome'] not in region_chromosome_indices:
-            region_chromosome_indices[region['chromosome']] = [{
+            region_chromosome_indices[region['chromosome']] = {
                 "chromosome": region['chromosome'], 
                 "order": region['order'],
                 "indices": np.array([]).astype(int),
-            }]
-        region_chromosome_indices[region['chromosome']][0]['indices'] = np.append(
-            region_chromosome_indices[region['chromosome']][0]['indices'], region['index']
+            }
+        region_chromosome_indices[region['chromosome']]['indices'] = np.append(
+            region_chromosome_indices[region['chromosome']]['indices'], region['index']
         )
 
     # group by chromosome
