@@ -546,6 +546,8 @@ def preview_filter():
     normalize = request_info['normalize'] if 'normalize' in request_info else True
     normalize = normalize.lower() == "true" if type(normalize) == str else normalize
 
+    print(regions, flush=True)
+
     preview_start = time.time()
     previews = get_factor_filter_previews(regions, new_filters, orders, normalize)
     print("total time to find overlap of all factors", time.time() - preview_start, flush=True)
