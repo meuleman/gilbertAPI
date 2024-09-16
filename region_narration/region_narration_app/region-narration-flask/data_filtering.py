@@ -402,7 +402,7 @@ def filter_region(chromosome_indices, regions):
         # only keep if regions on this chromosome
         if chrm in region_chromosome_indices:
             chromosome_group = [chromosome_indices[chrm], region_chromosome_indices[chrm]]
-            chromosome_groups[chromosome] = chromosome_group
+            chromosome_groups[chrm] = chromosome_group
 
 
     # reduce chromosome groups to common indices
