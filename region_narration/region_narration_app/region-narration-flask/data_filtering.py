@@ -284,16 +284,26 @@ def generate_return_data(top_indices, top_chromosomes, top_scores, segment_count
     #         "order": chromosome_indices[chr]['order']
     #     })
 
+    order = int(list(chromosome_indices.values())[0]['order']) if len(chromosome_indices) > 0 else None
+    starts = hilbert_pos_to_order(top_indices, order, 14) if order is not None else []
+    ends = hilbert_pos_to_order(top_indices + 1, order, 14) if order is not None else []
 
     # return the top segments
     return_segments = []
-    for index, chrm, score in zip(top_indices, top_chromosomes, top_scores):
-        return_segments.append({'chromosome': chrm, 'index': int(index), 'score': float(score)})
+    for i, chrm, score, start, end in zip(top_indices, top_chromosomes, top_scores, starts, ends):
+        return_segments.append({
+            'chromosome': chrm, 
+            'i': int(i), 
+            'score': float(score),
+            'order': order,
+            'start': int(start),
+            'end': int(end)
+        })
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps({
         "filtered_segments": return_segments,
-        "order": list(chromosome_indices.values())[0]['order'] if len(chromosome_indices) > 0 else None,
+        "order": order,
         "segment_count": segment_count
     })
 
@@ -469,7 +479,7 @@ def regions_to_chrm_groups(regions):
                 "indices": np.array([]).astype(int),
             }
         region_chromosome_indices[region['chromosome']]['indices'] = np.append(
-            region_chromosome_indices[region['chromosome']]['indices'], region['index']
+            region_chromosome_indices[region['chromosome']]['indices'], region['i']
         )
 
     return region_chromosome_indices
@@ -513,7 +523,7 @@ def data_filtering():
     request_info = request.get_json()
     
     filters = request_info['filters']  # [{order, index, dataset_name}, ...]
-    regions = request_info['regions'] if 'regions' in request_info else None  # [{chromosome, order, index}, ...]
+    regions = request_info['regions'] if 'regions' in request_info else None  # [{chromosome, order, i}, ...]
     N = request_info['N'] if 'N' in request_info else None  # number of segments to return
 
     # find the intersection of filters
@@ -539,7 +549,7 @@ def preview_filter():
     request_info = request.get_json()
     
     # filters = request_info['filters']  # [{order, index, dataset_name}, ...]
-    regions = request_info['regions'] if 'regions' in request_info else [] # [{chromosome, order, index}, ...]
+    regions = request_info['regions'] if 'regions' in request_info else [] # [{chromosome, order, i}, ...]
     new_filters = request_info['newFilters']  # [{dataset_name, index}, ...]
     orders = request_info['orders'] if 'orders' in request_info else range(4, 15)  # [4, 5, 6, ...]
     normalize = request_info['normalize'] if 'normalize' in request_info else True
