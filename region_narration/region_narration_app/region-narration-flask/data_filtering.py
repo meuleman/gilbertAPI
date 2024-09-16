@@ -497,7 +497,6 @@ def filter_region(chromosome_indices, regions):
     # reduce chromosome groups to common indices
     reduced_chromosome_groups = {}
     for chromosome, group in chromosome_groups.items():
-        print(("GROUP", group), flush=True)
         group_intersection = find_intersection(group)
         if len(group_intersection["indices"]) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
@@ -538,7 +537,6 @@ Endpoint for previewing the number of segments a filter would provide at each or
 @data_filtering_bp.route("preview_filter", methods=['POST'])
 def preview_filter():
     request_info = request.get_json()
-    print("REQUEST:", request.method)
     
     # filters = request_info['filters']  # [{order, index, dataset_name}, ...]
     regions = request_info['regions'] if 'regions' in request_info else [] # [{chromosome, order, index}, ...]
