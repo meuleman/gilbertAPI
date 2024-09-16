@@ -152,7 +152,7 @@ def find_intersection(group):
         # expand the combined scores to match the position occurrences of the new order
         if np.count_nonzero(g_indices_base_unique != indices_g_order) > 0:
             print((g_indices_base_unique, indices_g_order), flush=True)
-            raise ValueError(f"Inconsistent mapping between order {current_order} and order {g['order']} for {g['chromosome']} when calculating intersection")
+            raise ValueError(f"Inconsistent mapping between order {current_order} and order {g['order']} when calculating intersection")
         combined_scores = np.repeat(combined_scores, g_indices_base_counts) if combined_scores is not None else None
 
         indices = g_indices[g_mask]
