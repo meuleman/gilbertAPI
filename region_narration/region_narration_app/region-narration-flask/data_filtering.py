@@ -539,7 +539,7 @@ def preview_filter():
     request_info = request.get_json()
     print("REQUEST:", request.method)
     
-    filters = request_info['filters']  # [{order, index, dataset_name}, ...]
+    # filters = request_info['filters']  # [{order, index, dataset_name}, ...]
     regions = request_info['regions'] if 'regions' in request_info else [] # [{chromosome, order, index}, ...]
     new_filters = request_info['newFilters']  # [{dataset_name, index}, ...]
     orders = request_info['orders'] if 'orders' in request_info else range(4, 15)  # [4, 5, 6, ...]
