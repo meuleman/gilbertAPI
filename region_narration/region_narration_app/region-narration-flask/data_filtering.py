@@ -408,6 +408,7 @@ def filter_region(chromosome_indices, regions):
     # reduce chromosome groups to common indices
     reduced_chromosome_groups = {}
     for chromosome, group in chromosome_groups.items():
+        print(("GROUP", group), flush=True)
         group_intersection = find_intersection(group)
         if len(group_intersection["indices"]) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
