@@ -112,8 +112,8 @@ def find_intersection(group):
     indices = group[0]["indices"]
     indices_sort_order = np.argsort(indices)
     indices = indices[indices_sort_order]
-    combined_scores = group[0]["scores"][indices_sort_order]
-
+    combined_scores = group[0]["scores"][indices_sort_order] if "scores" in group[0] else None
+    score_counter = sum([1 for g in group if "scores" in g])
     current_order = group[0]['order']
 
     # add other groups to the combined indices and scores
@@ -121,7 +121,7 @@ def find_intersection(group):
         g_indices = g["indices"]
         g_sort_order = np.argsort(g_indices)
         g_indices = g_indices[g_sort_order]
-        g_scores = g["scores"][g_sort_order]
+        g_scores = g["scores"][g_sort_order] if "scores" in g else None
 
         # convert current indices at current order to new order
         indices_g_order = hilbert_pos_to_order(indices, current_order, g['order'])
@@ -140,28 +140,33 @@ def find_intersection(group):
         # find overlap in indices
         common_mask = np.isin(indices_g_order, g_indices_base)
         indices_g_order = indices_g_order[common_mask]
-        combined_scores = combined_scores[common_mask]
+        combined_scores = combined_scores[common_mask] if combined_scores is not None else None
 
         # combine scores
         g_mask = np.isin(g_indices_base, indices_g_order)
         g_indices_base = g_indices_base[g_mask]
-        g_scores = g_scores[g_mask]
+        g_scores = g_scores[g_mask] if g_scores is not None else None
 
         # count how many times each base position is found with new order indices
         g_indices_base_unique, g_indices_base_counts = np.unique(g_indices_base, return_counts=True)
         # expand the combined scores to match the position occurrences of the new order
         if np.count_nonzero(g_indices_base_unique != indices_g_order) > 0:
             raise ValueError(f"Inconsistent mapping between order {current_order} and order {g['order']} for {g['chromosome']} when calculating intersection")
-        combined_scores = np.repeat(combined_scores, g_indices_base_counts)
+        combined_scores = np.repeat(combined_scores, g_indices_base_counts) if combined_scores is not None else None
 
         indices = g_indices[g_mask]
-        combined_scores += g_scores
+        if ((combined_scores is not None) & (g_scores is not None)):
+            combined_scores += g_scores
+        elif (combined_scores is not None):
+            combined_scores = combined_scores
+        else:
+            combined_scores = g_scores
 
         # update current order
         current_order = g['order']
 
     # average combined factor scores
-    combined_scores = combined_scores / len(group)
+    combined_scores = combined_scores / score_counter
     return {"indices": indices, "scores": combined_scores, 'order': current_order}
 
 
@@ -371,6 +376,45 @@ def get_factor_filter_previews(filters, new_filters, orders=range(4, 15), normal
     return previews
 
 
+"""
+Takes in a dictionary of chromosome indices and filters them by regions.
+This assumes all input regions exist at the same order and all filter regions
+exist at the same order.
+"""
+def filter_region(chromosome_indices, regions):
+
+    # convert regions to chromosome groups
+    region_chromosome_indices = {}
+    for region in regions:
+        if region['chromosome'] not in region_chromosome_indices:
+            region_chromosome_indices[region['chromosome']] = [{
+                "chromosome": region['chromosome'], 
+                "order": region['order'],
+                "indices": np.array([]).astype(int),
+            }]
+        region_chromosome_indices[region['chromosome']][0]['indices'] = np.append(
+            region_chromosome_indices[region['chromosome']][0]['indices'], region['index']
+        )
+
+    # group by chromosome
+    chromosome_groups = {}
+    for chrm in chromosome_indices:
+        # only keep if regions on this chromosome
+        if chrm in region_chromosome_indices:
+            chromosome_group = [chromosome_indices[chrm], region_chromosome_indices[chrm]]
+            chromosome_groups[chromosome] = chromosome_group
+
+
+    # reduce chromosome groups to common indices
+    reduced_chromosome_groups = {}
+    for chromosome, group in chromosome_groups.items():
+        group_intersection = find_intersection(group)
+        if len(group_intersection["indices"]) > 0:
+            reduced_chromosome_groups[chromosome] = group_intersection
+
+    return reduced_chromosome_groups
+
+
 
 """
 Endpoint for fetching the native order resolution region indices and data for any filter at any order
@@ -380,10 +424,14 @@ def data_filtering():
     request_info = request.get_json()
     
     filters = request_info['filters']  # [{order, index, dataset_name}, ...]
+    regions = request_info['regions'] if 'regions' in request_info else None  # [{chromosome, order, index}, ...]
     N = request_info['N'] if 'N' in request_info else None  # number of segments to return
 
     # find the intersection of filters
     chromosome_indices = get_filtered_indices_scores(filters)
+
+    # filter the indices by regions
+    chromosome_indices = filter_region(chromosome_indices, regions) if regions is not None else chromosome_indices
 
     # find the top segments based on combined factor score
     top_indices, top_chromosomes, top_scores, segment_count = sort_by_score(chromosome_indices, N)
