@@ -16,6 +16,7 @@ from subprocess import Popen, PIPE
 from csns import csns_bp
 from data_filtering import data_filtering_bp
 from gwas import gwas_bp
+from geneset_enrichment import geneset_enrichment_bp
 
 
 app = Flask(__name__)
@@ -808,6 +809,8 @@ app.register_blueprint(csns_bp, url_prefix='/api/csns') # Register the Blueprint
 app.register_blueprint(data_filtering_bp, url_prefix='/api/dataFiltering') # Register the Blueprint at /api/dataFiltering
 #########GWAS#########
 app.register_blueprint(gwas_bp, url_prefix='/api/gwas') # Register the Blueprint at /api/gwas
+##Geneset Enrichment##
+app.register_blueprint(geneset_enrichment_bp, url_prefix='/api/genesetEnrichment') # Register the Blueprint at /api/genesetEnrichment
 
 
 
