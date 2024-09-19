@@ -318,6 +318,7 @@ def get_factor_filter_previews(filters, regions, new_filters, orders=range(4, 15
     set_region_order = None
 
     if len(regions) > 0:  # if no regions in place, skip
+        print("Defining background regions through provided region set", flush=True)
         set_chromosome_indices = regions_to_chrm_groups(regions)
         # find the chromosomes for set regions
         set_chromosomes = np.array(list(set_chromosome_indices.keys()))
@@ -327,6 +328,7 @@ def get_factor_filter_previews(filters, regions, new_filters, orders=range(4, 15
         set_region_order = set_chromosome_indices[set_chromosomes[0]]['order'] if len(set_chromosomes) > 0 else None
 
     elif len(filters) > 0:  # if no filters in place, skip
+        print("Defining background regions through filters", flush=True)
         set_chromosome_indices = get_filtered_indices_scores(filters, force_h5=False)
         # find the chromosomes set filters have regions for
         set_chromosomes = np.array(list(set_chromosome_indices.keys()))
