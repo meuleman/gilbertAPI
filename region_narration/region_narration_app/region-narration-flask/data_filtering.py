@@ -478,9 +478,11 @@ def regions_to_chrm_groups(regions):
                 "order": region['order'],
                 "indices": np.array([]).astype(int),
             }
-        region_chromosome_indices[region['chromosome']]['indices'] = np.append(
-            region_chromosome_indices[region['chromosome']]['indices'], region['i']
-        )
+        # prevent duplicate indices
+        if region['i'] not in region_chromosome_indices[region['chromosome']]['indices']:
+            region_chromosome_indices[region['chromosome']]['indices'] = np.append(
+                region_chromosome_indices[region['chromosome']]['indices'], region['i']
+            )
 
     return region_chromosome_indices
 
