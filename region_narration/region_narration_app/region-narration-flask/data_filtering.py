@@ -312,10 +312,11 @@ def generate_return_data(top_indices, top_chromosomes, top_scores, segment_count
 """
 Finds the regional index overlap between established and proposed filters and returns fractional overlap value at each order
 """
-def get_factor_filter_previews(regions, new_filters, orders=range(4, 15), normalize=True):
+def get_factor_filter_previews(filters, regions, new_filters, orders=range(4, 15), normalize=True):
     # get the indices for the regions we have established for each chromosome
     established_start = time.time()
     set_region_order = None
+
     if len(regions) > 0:  # if no regions in place, skip
         set_chromosome_indices = regions_to_chrm_groups(regions)
         # find the chromosomes for set regions
@@ -324,7 +325,17 @@ def get_factor_filter_previews(regions, new_filters, orders=range(4, 15), normal
         set_indices = [set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes]
         # order resolution for the set regions
         set_region_order = set_chromosome_indices[set_chromosomes[0]]['order'] if len(set_chromosomes) > 0 else None
-    print(f"Time to get established filter regions: {time.time() - established_start}", flush=True)
+
+    elif len(filters) > 0:  # if no filters in place, skip
+        set_chromosome_indices = get_filtered_indices_scores(filters, force_h5=False)
+        # find the chromosomes set filters have regions for
+        set_chromosomes = np.array(list(set_chromosome_indices.keys()))
+        # to count the total number of regions for set filters at each new order later
+        set_indices = [set_chromosome_indices[chromosome]['indices'] for chromosome in set_chromosomes]
+        # order resolution for the set filters
+        set_region_order = set_chromosome_indices[set_chromosomes[0]]['order'] if len(set_chromosomes) > 0 else None
+    
+    print(f"Time to get established regions: {time.time() - established_start}", flush=True)
 
     # loop through each new filter and find overlap at each order
     previews = []
@@ -550,7 +561,7 @@ Endpoint for previewing the number of segments a filter would provide at each or
 def preview_filter():
     request_info = request.get_json()
     
-    # filters = request_info['filters']  # [{order, index, dataset_name}, ...]
+    filters = request_info['filters'] if 'filters' in request_info else [] # [{order, index, dataset_name}, ...]
     regions = request_info['regions'] if 'regions' in request_info else [] # [{chromosome, order, i}, ...]
     new_filters = request_info['newFilters']  # [{dataset_name, index}, ...]
     orders = request_info['orders'] if 'orders' in request_info else range(4, 15)  # [4, 5, 6, ...]
@@ -558,7 +569,7 @@ def preview_filter():
     normalize = normalize.lower() == "true" if type(normalize) == str else normalize
 
     preview_start = time.time()
-    previews = get_factor_filter_previews(regions, new_filters, orders, normalize)
+    previews = get_factor_filter_previews(filters, regions, new_filters, orders, normalize)
     print("total time to find overlap of all factors", time.time() - preview_start, flush=True)
 
     return_object = json.dumps({"previews": previews})
