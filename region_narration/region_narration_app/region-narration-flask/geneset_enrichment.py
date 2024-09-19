@@ -72,6 +72,15 @@ def generate_return_data(p, genesets=genesets, threshold=0.05):
 
 
 """
+Collects the genes in a geneset
+"""
+def get_geneset_genes(geneset):
+    geneset_genes = genes[gsXgene[genesets == geneset][0]]
+    return geneset_genes.tolist()
+
+
+
+"""
 Endpoint for calculating enrichment for genesets given a list of genes
 """
 @geneset_enrichment_bp.route("geneset_enrichment", methods=['POST'])
@@ -87,3 +96,17 @@ def geneset_enrichmenr():
     return_list = generate_return_data(p, threshold=threshold)
 
     return return_list
+
+
+"""
+Endpoint for inverse geneset search, where a geneset is provided and a list of genes is returned
+"""
+@geneset_enrichment_bp.route("geneset_to_genes", methods=['POST'])
+def geneset_to_genes():
+    request_info = request.get_json()
+    geneset = request_info['geneset']
+
+    # get genes in geneset
+    geneset_genes = get_geneset_genes(geneset)
+
+    return json.dumps(geneset_genes)
