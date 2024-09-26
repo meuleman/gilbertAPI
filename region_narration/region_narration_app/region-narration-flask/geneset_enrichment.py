@@ -47,8 +47,8 @@ def perform_geneset_hypergeometric_test(genes_for_test, gsXgene=gsXgene, genes=g
     # Perform the hypergeometric test
     p = hypergeom.sf(k-1, M, n, N)
 
-    # bonferroni correction
-    p = (p * len(genesets)).clip(max=1)
+    # # bonferroni correction
+    # p = (p * len(genesets)).clip(max=1)
 
     print(f"Time to calculate enrichments for each geneset: {time.time() - start}", flush=True)
     return p
