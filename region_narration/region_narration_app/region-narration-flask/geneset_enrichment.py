@@ -38,6 +38,9 @@ Returns a list of p-values for each geneset.
 def perform_geneset_hypergeometric_test(genes_for_test, gsXgene=gsXgene, genes=genes, genesets=genesets):
     start = time.time()
 
+    # take the unique genes (in case neighboring regions point to the same gene)
+    genes_for_test = np.unique(genes_for_test)
+
     # perform hypergeometric test for each geneset
     M = len(genes)  # total number of genes
     N = len(genes_for_test)  # number of provided genes to test geneset enrichment with
