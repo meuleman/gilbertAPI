@@ -12,7 +12,7 @@ from subprocess import Popen, PIPE
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
 
-baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/csn_index_files"
+# baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/csn_index_files"  # dataset removed from s3
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 
 CHR_SIZES_UCSC = {"chr1": 248956422,

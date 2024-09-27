@@ -48,29 +48,29 @@ else:
 # Given a scale, build a path name for the search space
 def build_search_space_path(scale, method='sliding_window'):
     if method == 'sliding_window':
-        path = os.path.join(data_dir, 'sliding_window/regions_{}kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+        path = os.path.join(data_dir, 'sliding_window/regions_{}kb_CT20230427.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))  # removed
     elif method == 'hilbert':
-        path = os.path.join(data_dir, 'hilbert/hilbert_regions_order_{}_CT20230606.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))
+        path = os.path.join(data_dir, 'hilbert/hilbert_regions_order_{}_CT20230606.DHS.factornormNMF.sum_enrich_corank.epilogos.statesum_rank.percentiles.limited_search_space_top_1000_no_overlap.npz'.format(scale))  # removed
     elif method == 'hilbert_sfc':
         # path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230630.dhs.cs.sfc.ranks.limited_search_space_top_1000_no_overlap.npz'.format(scale))
-        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230718.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.npz'.format(scale))
+        path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}_CT20230718.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.npz'.format(scale))  # removed
     return path
 
 
 # Given a scale, build a path name for the search space
 def build_geneset_bin_path(scale):
-    path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.mapped_extended_domain_GREATv4_gene_c5GOBP_selected_genesets.bin.compressed.CT20231023.npz'.format(scale))
+    path = os.path.join(data_dir, 'hilbert_sfc/hilbert_regions_order_{}.dhs.cs.sfc.ranks.search_space.ft_2.rt_21.mapped_extended_domain_GREATv4_gene_c5GOBP_selected_genesets.bin.compressed.CT20231023.npz'.format(scale))  # removed
     return path
 
 
 # Given a scale, build a path name for the tabix query
 def build_tabix_path(scale, method='sliding_window'):
     if method == 'sliding_window':
-        filename = 'sliding_window/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+        filename = 'sliding_window/hg38.{}kb.regions.CT20230427.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)  # removed
     elif method == 'hilbert':
-        filename = 'hilbert/hilbert_order_{}_windows.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)
+        filename = 'hilbert/hilbert_order_{}_windows.sorted.rownum4.factorranks5t38.bed.gz'.format(scale)  # removed
     elif method == 'hilbert_sfc':
-        filename = 'hilbert_sfc/20230718/hilbert_order_{}_windows.sorted.rownum4.sfc.ranks5t38.bed.gz'.format(scale)
+        filename = 'hilbert_sfc/20230718/hilbert_order_{}_windows.sorted.rownum4.sfc.ranks5t38.bed.gz'.format(scale)  # removed
     if production:
         path = 'http://explore.altius.org/tabix/ng/'
     else:
@@ -109,10 +109,10 @@ hilbert_sfc_geneset_bin = {}
 #     region_method = 'hilbert'
 #     hilbert_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
 
-for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
-    region_method = 'hilbert_sfc'
-    hilbert_sfc_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
-    hilbert_sfc_geneset_bin[scale] = load_geneset_bin(build_geneset_bin_path(scale))
+# for scale in [4, 5, 6, 7, 8, 9, 10, 11]:
+#     region_method = 'hilbert_sfc'
+#     hilbert_sfc_search_spaces[scale] = load_ranks(build_search_space_path(scale, region_method), region_method)
+#     hilbert_sfc_geneset_bin[scale] = load_geneset_bin(build_geneset_bin_path(scale))
 
 # Functions for narration
 # run tabix query
