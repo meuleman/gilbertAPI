@@ -626,7 +626,6 @@ import numpy as np
 import pandas as pd
 import h5py
 
-# GilbertSFCH5_DIR = '/home/ychoi/projects/hilbert-genome/data/20240328_GilbertDataInH5'
 GilbertSFCH5_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5/20240328_GilbertDataInH5'
 
 # Map chromosome location to index at specific Gilbert order
@@ -780,7 +779,7 @@ class ComponentNarrationLoader():
         self.load_component(model_dir)
     #
         # Load indices where each chromosome begins
-        FILE_DIR = f'{GilbertSFCH5_DIR}/chromosome_indices.csv'
+        FILE_DIR = f'{model_dir}/chromosome_indices.csv'
         self.df_indices = pd.read_csv(FILE_DIR,index_col=0)
     #
     def load_component(self,model_dir):
@@ -788,9 +787,9 @@ class ComponentNarrationLoader():
         Input
             model_dir: directory containing the model with whole genome components and component narration
         """
-        h5dir = os.path.join(model_dir,'WholeGenome/component.h5')
-        comp_meta_dir = os.path.join(model_dir,'BasicAnalysis/CompAnnotFull.csv')
-        dom_dir = os.path.join(model_dir,f'WholeGenome/top_10_component_per_segment-raw.h5')
+        h5dir = os.path.join(model_dir,'component.h5')
+        comp_meta_dir = os.path.join(model_dir,'CompAnnotFull.csv')
+        dom_dir = os.path.join(model_dir,f'top_10_component_per_segment-raw.h5')
         comp_narr_full = pd.read_csv(comp_meta_dir,index_col=0)
         self.comp_narr_full = comp_narr_full
         hf = h5py.File(h5dir,'r')
@@ -815,10 +814,8 @@ class ComponentNarrationLoader():
         narr = narr[narr.Support >= min_support]
         return narr
 
-
-model_dir = '/home/ychoi/projects/hilbert-genome/MultiscaleModel/DeepNMTF/out/WholeGenomeSets/241008/raw-0.0/k2=200_l1_reg=1.0_orthogonal=0.1_sample_set=0_prune=True'
 sgdl = ScaledGilbertDataLoader()
-cnl  = ComponentNarrationLoader(model_dir)
+cnl  = ComponentNarrationLoader(GilbertSFCH5_DIR)
 
 # find the top regions for selected factors
 @app.route('/get_shared_factor', methods=['POST'])
