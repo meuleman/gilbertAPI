@@ -851,7 +851,7 @@ def narrate_regions():
     chr_strs = request_info['chr_strs']
     df_narr = cnl.narrate_region(chr_strs)
     json_return = json.dumps({
-        "CopmonentNarration": list(df_narr.CompNarr.values),
+        "ComponentNarration": list(df_narr.CompNarr.values),
         "Support": list(df_narr.Support.values),
         }
     )
