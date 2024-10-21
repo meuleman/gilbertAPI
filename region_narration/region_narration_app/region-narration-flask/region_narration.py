@@ -630,12 +630,14 @@ def geneset_enrichment():
 # YC240401 Shared factor anaylsis for UMAP
 # =======================================================================================
 
+import os
 import numpy as np
 import pandas as pd
 import h5py
 
 # GilbertSFCH5_DIR = '/home/ychoi/projects/hilbert-genome/data/20240328_GilbertDataInH5'
 GilbertSFCH5_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5/20240328_GilbertDataInH5'
+COMP_MODEL_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5'
 
 # Map chromosome location to index at specific Gilbert order
 def map_to_order_indice(chr_str, order, df_indices):
@@ -655,7 +657,7 @@ def fancy_indexing(hf, index):
     index_sorted = np.sort(np.unique(index)) # index for hf
     hfidx2idx = dict(zip(index_sorted,np.arange(len(index_sorted))))
     # Get array from hf then reindex
-    arr_hf = np.array(hf['arr'][index_sorted],dtype='float32')
+    arr_hf = np.array(hf[index_sorted],dtype='float32')
     arr = arr_hf[[hfidx2idx[i] for i in index]]
     return arr
 
@@ -762,7 +764,7 @@ class ScaledGilbertDataLoader():
             for order in self.orders:
                 idx = [map_to_order_indice(chr_str=chr_str,order=order,df_indices=self.df_indices) for chr_str in chr_strs]
                 hf = self.h5_dict[f"{ds}-{order}"]
-                arr_ = fancy_indexing(hf,idx)
+                arr_ = fancy_indexing(hf['arr'],idx)
                 arrs.append(arr_)
         arrs = np.concatenate(arrs,axis=1)
         return arrs
@@ -781,6 +783,7 @@ class ScaledGilbertDataLoader():
             var.append(df_var)
         self.var = pd.concat(var)
 
+
 class ComponentNarrationLoader():
     #
     def __init__(self, model_dir):
@@ -788,7 +791,7 @@ class ComponentNarrationLoader():
         self.load_component(model_dir)
     #
         # Load indices where each chromosome begins
-        FILE_DIR = f'{model_dir}/chromosome_indices.csv'
+        FILE_DIR = f'{GilbertSFCH5_DIR}/chromosome_indices.csv'
         self.df_indices = pd.read_csv(FILE_DIR,index_col=0)
     #
     def load_component(self,model_dir):
@@ -802,7 +805,7 @@ class ComponentNarrationLoader():
         comp_narr_full = pd.read_csv(comp_meta_dir,index_col=0)
         self.comp_narr_full = comp_narr_full
         hf = h5py.File(h5dir,'r')
-        self.comp_hf = hf['components']
+        self.comp_hf = hf['component']
         hf = h5py.File(dom_dir,'r')
         self.dom_hf = hf['component_index']
     #
@@ -817,7 +820,7 @@ class ComponentNarrationLoader():
         narr = pd.Series(dom[:,:5].flatten()).value_counts()
         narr = narr.reset_index()
         narr.columns = ['CompIndex','Count']
-        narr['CompNarr'] = self.comp_narr_full.FullNarration.values[narr.CompIndex]
+        narr['CompNarr'] = self.comp_narr_full.FullNarration.values[narr.CompIndex.astype('int').values]
         narr['Support']  = narr.Count / len(chr_strs)
         narr = narr.iloc[:max_n_comp]
         narr = narr[narr.Support >= min_support]
@@ -825,7 +828,7 @@ class ComponentNarrationLoader():
 
 
 sgdl = ScaledGilbertDataLoader()
-cnl  = ComponentNarrationLoader(GilbertSFCH5_DIR)
+cnl  = ComponentNarrationLoader(COMP_MODEL_DIR)
 
 # find the top regions for selected factors
 @app.route('/get_shared_factor', methods=['POST'])
@@ -846,7 +849,7 @@ def get_shared_factor():
 def narrate_regions():
     request_info = request.get_json()
     chr_strs = request_info['chr_strs']
-    df_narr = cnl(chr_strs)
+    df_narr = cnl.narrate_region(chr_strs)
     json_return = json.dumps({
         "CopmonentNarration": list(df_narr.CompNarr.values),
         "Support": list(df_narr.Support.values),
