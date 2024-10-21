@@ -781,7 +781,51 @@ class ScaledGilbertDataLoader():
             var.append(df_var)
         self.var = pd.concat(var)
 
+class ComponentNarrationLoader():
+    #
+    def __init__(self, model_dir):
+        self.model_dir = model_dir
+        self.load_component(model_dir)
+    #
+        # Load indices where each chromosome begins
+        FILE_DIR = f'{model_dir}/chromosome_indices.csv'
+        self.df_indices = pd.read_csv(FILE_DIR,index_col=0)
+    #
+    def load_component(self,model_dir):
+        """
+        Input
+            model_dir: directory containing the model with whole genome components and component narration
+        """
+        h5dir = os.path.join(model_dir,'component.h5')
+        comp_meta_dir = os.path.join(model_dir,'CompAnnotFull.csv')
+        dom_dir = os.path.join(model_dir,f'top_10_component_per_segment-raw.h5')
+        comp_narr_full = pd.read_csv(comp_meta_dir,index_col=0)
+        self.comp_narr_full = comp_narr_full
+        hf = h5py.File(h5dir,'r')
+        self.comp_hf = hf['components']
+        hf = h5py.File(dom_dir,'r')
+        self.dom_hf = hf['component_index']
+    #
+    def load_segments(self, chr_strs, order=12):
+        idx = [map_to_order_indice(chr_str=chr_str,order=order,df_indices=self.df_indices) for chr_str in chr_strs]
+        hf = self.dom_hf
+        dom = fancy_indexing(hf,idx)
+        return dom
+    #    
+    def narrate_region(self, chr_strs, min_support=0.2, max_n_comp=5):
+        dom = self.load_segments(chr_strs)
+        narr = pd.Series(dom[:,:5].flatten()).value_counts()
+        narr = narr.reset_index()
+        narr.columns = ['CompIndex','Count']
+        narr['CompNarr'] = self.comp_narr_full.FullNarration.values[narr.CompIndex]
+        narr['Support']  = narr.Count / len(chr_strs)
+        narr = narr.iloc[:max_n_comp]
+        narr = narr[narr.Support >= min_support]
+        return narr
+
+
 sgdl = ScaledGilbertDataLoader()
+cnl  = ComponentNarrationLoader(GilbertSFCH5_DIR)
 
 # find the top regions for selected factors
 @app.route('/get_shared_factor', methods=['POST'])
@@ -798,6 +842,17 @@ def get_shared_factor():
     )
     return json_return
 
+@app.route('/narrate_regions', methods=['POST'])
+def narrate_regions():
+    request_info = request.get_json()
+    chr_strs = request_info['chr_strs']
+    df_narr = cnl(chr_strs)
+    json_return = json.dumps({
+        "CopmonentNarration": list(df_narr.CompNarr.values),
+        "Support": list(df_narr.Support.values),
+        }
+    )
+    return json_return
 
 
 
