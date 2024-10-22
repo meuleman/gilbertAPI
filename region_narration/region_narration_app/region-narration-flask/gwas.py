@@ -9,14 +9,14 @@ import time
 # Create a Blueprint
 gwas_bp = Blueprint('gwas_bp', __name__)
 
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20240823"
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20241021"
 
 """
 Fetches the traits associated with any genomic position
 """
 def fetch_gwas(chromosome, position):
     dataset_name = f"{chromosome}:{position}"
-    with h5py.File(os.path.join(datadir, "sig_associations.v1.0.1e-8.h5"), 'r') as f:
+    with h5py.File(os.path.join(datadir, "ukbb.94_traits.0.5_pip.h5"), 'r') as f:
         try:
             data = f[dataset_name][:]
             # scores
