@@ -40,7 +40,7 @@ CHR_SIZES_UCSC = {"chr1": 248956422,
                   "chrX": 156040895,
                   "chrY": 57227415}
 
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20240905"
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20241021"
 genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"
 gene_path = os.path.join(
     genedir, 

@@ -51,7 +51,7 @@ ORDER_SEGMENT_COUNTS = {
     14: 3088269856
 }
 
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20240819"
+datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241021"
 
 """
 Function to preload all indices to be used for filter previews up through the max order
