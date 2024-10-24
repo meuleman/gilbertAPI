@@ -541,17 +541,33 @@ def data_filtering():
     regions = request_info['regions'] if 'regions' in request_info else None  # [{chromosome, order, i}, ...]
     N = request_info['N'] if 'N' in request_info else None  # number of segments to return
 
+    print("FILTERS", filters, flush=True)
+    print("REGIONS", regions, flush=True)
+    print("N", N, flush=True)
+    print()
+
     # find the intersection of filters
     chromosome_indices = get_filtered_indices_scores(filters)
+
+    print("CHROMOSOME INDICES 1", chromosome_indices, flush=True)
 
     # filter the indices by regions
     chromosome_indices = filter_region(chromosome_indices, regions) if regions is not None else chromosome_indices
 
+    print("CHROMOSOME INDICES 2", chromosome_indices, flush=True)
+
     # find the top segments based on combined factor score
     top_indices, top_chromosomes, top_scores, segment_count = sort_by_score(chromosome_indices, N)
 
+    print("TOP INDICES", top_indices, flush=True)
+    print("TOP CHROMOSOMES", top_chromosomes, flush=True)
+    print("TOP SCORES", top_scores, flush=True)
+    print("SEGMENT COUNT", segment_count, flush=True)
+
     # generate the return list
     return_list = generate_return_data(top_indices, top_chromosomes, top_scores, segment_count, chromosome_indices)
+
+    print("RETURN LIST", return_list, flush=True)
     
     return return_list
 
