@@ -102,7 +102,7 @@ def geneset_enrichmenr():
     request_info = request.get_json()
     genes_for_test = request_info['genes']  # ["gene1", "gene2", ...]
     threshold = request_info.get('threshold', 0.05)  # default threshold is 0.05
-    membership = request_info.get('membership', "False").lower() == "true"  # default membership is False, convert to boolean
+    membership = str(request_info.get('membership', "False")).lower() == "true"  # default membership is False, convert to boolean
 
     # test enrichment of genes (if membership, p is bool array)
     p = perform_geneset_hypergeometric_test(genes_for_test, membership=membership)
