@@ -510,6 +510,8 @@ def filter_region(chromosome_indices, regions):
     # convert regions to chromosome groups
     region_chromosome_indices = regions_to_chrm_groups(regions)
 
+    print("\tREGION CHROMOSOME INDICES", region_chromosome_indices, flush=True)
+
     # group by chromosome
     chromosome_groups = {}
     for chrm in chromosome_indices:
@@ -518,6 +520,7 @@ def filter_region(chromosome_indices, regions):
             chromosome_group = [chromosome_indices[chrm], region_chromosome_indices[chrm]]
             chromosome_groups[chrm] = chromosome_group
 
+    print("\tCHROMOSOME GROUPS", chromosome_groups, flush=True)
 
     # reduce chromosome groups to common indices
     reduced_chromosome_groups = {}
@@ -525,6 +528,8 @@ def filter_region(chromosome_indices, regions):
         group_intersection = find_intersection(group)
         if len(group_intersection["indices"]) > 0:
             reduced_chromosome_groups[chromosome] = group_intersection
+
+    print("\tREDUCED CHROMOSOME GROUPS", reduced_chromosome_groups, flush=True)
 
     return reduced_chromosome_groups
 
@@ -550,11 +555,13 @@ def data_filtering():
     chromosome_indices = get_filtered_indices_scores(filters)
 
     print("CHROMOSOME INDICES 1", chromosome_indices, flush=True)
+    print()
 
     # filter the indices by regions
     chromosome_indices = filter_region(chromosome_indices, regions) if regions is not None else chromosome_indices
 
     print("CHROMOSOME INDICES 2", chromosome_indices, flush=True)
+    print()
 
     # find the top segments based on combined factor score
     top_indices, top_chromosomes, top_scores, segment_count = sort_by_score(chromosome_indices, N)
@@ -563,11 +570,13 @@ def data_filtering():
     print("TOP CHROMOSOMES", top_chromosomes, flush=True)
     print("TOP SCORES", top_scores, flush=True)
     print("SEGMENT COUNT", segment_count, flush=True)
+    print()
 
     # generate the return list
     return_list = generate_return_data(top_indices, top_chromosomes, top_scores, segment_count, chromosome_indices)
 
     print("RETURN LIST", return_list, flush=True)
+    print()
     
     return return_list
 
