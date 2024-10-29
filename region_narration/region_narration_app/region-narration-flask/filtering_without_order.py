@@ -4,6 +4,7 @@ import numpy as np
 import h5py
 import os
 import time
+import json
 from constants import chromosomes, PRELOADED_INDICES, orders, csn_dir as datadir, filtering_path
 
 # Create a Blueprint
@@ -217,14 +218,14 @@ def generate_return(top_paths, top_csn_paths, top_csn_path_scores, min_order):
 
             return_array.append({
                 "chromosome": chrm,
-                "i": p[p_max_o, 0],
-                "order": p_max_o + min_order,
-                "max_score_order": np.nanargmax(p[:, 1]) + min_order,
+                "i": int(p[p_max_o, 0]),
+                "order": int(p_max_o + min_order),
+                "max_score_order": int(np.nanargmax(p[:, 1]) + min_order),
                 "csn": p_csn.tolist(),
                 "csn_scores": p_scores.tolist()
             })
 
-    return return_array
+    return json.dumps({"top_paths": return_array})
 
 
 """
