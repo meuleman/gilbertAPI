@@ -117,7 +117,7 @@ def construct_paths(factorInd, dataset):
 """
 Function to find the top non-overlapping paths for a factor.
 """
-def get_top_paths(paths, min_order, num_top_paths=100):
+def get_top_paths(paths, min_order, num_top_paths=None):
     start = time.time()
 
     # chromosomes with at least 1 path
@@ -136,7 +136,7 @@ def get_top_paths(paths, min_order, num_top_paths=100):
     count = 0
     i = 0
 
-    while ((count < num_top_paths) & (i < len(winning_scores))):
+    while (((num_top_paths == None) or (count < num_top_paths)) and (i < len(winning_scores))):
 
         ind = top_winning_score_inds[i]  # sorted by score
         i += 1
@@ -168,51 +168,13 @@ def get_top_paths(paths, min_order, num_top_paths=100):
 
 
 """
-Collect CSN paths for each provided top_path constructed from segments
-"""
-def get_csn_paths(top_paths, min_order, to_order=14):
-    start = time.time()
-
-    top_csn_paths = {}
-    top_csn_path_scores = {}
-    # each key is a chromosome
-    for k in list(top_paths.keys()):
-
-        top_csn_paths[k] = []
-        top_csn_path_scores[k] = []
-        # each path within a chromosome
-        for p in top_paths[k]:
-            # max order position in which we see factor
-            p_max_o = np.where(~np.isnan(p[:, 0]))[0][-1]
-            # convert to order
-            p_max_order = p_max_o + min_order
-            # position at highest order
-            p_order_ind = int(p[p_max_o, 0])
-            # convert to order 14
-            p_14_ind = hilbert_pos_to_order(p_order_ind, p_max_order, to_order)
-
-            # get the true path and scores
-            true_p = load_path(k, p_14_ind, dataset='factor')
-            true_p_scores = load_path(k, p_14_ind, dataset='score')
-
-            top_csn_paths[k].append(true_p)
-            top_csn_path_scores[k].append(true_p_scores)
-            
-    print(f"Time to collect CSN paths for segment paths: {time.time() - start}", flush=True)
-    return top_csn_paths, top_csn_path_scores
-
-
-"""
 Refactors top paths for return
 """
-def generate_return(top_paths, top_csn_paths, top_csn_path_scores, min_order):
+def generate_return(top_paths, min_order):
     return_array = []
     for chrm in top_paths:
-        chrm_paths = top_paths[chrm]
-        chrm_csn_paths = top_csn_paths[chrm]
-        chrm_csn_path_scores = top_csn_path_scores[chrm]
 
-        for p, p_csn, p_scores in zip(chrm_paths, chrm_csn_paths, chrm_csn_path_scores):
+        for p in top_paths[chrm]:
             # max order position in which we see factor
             p_max_o = np.where(~np.isnan(p[:, 0]))[0][-1]
 
@@ -220,9 +182,8 @@ def generate_return(top_paths, top_csn_paths, top_csn_path_scores, min_order):
                 "chromosome": chrm,
                 "i": int(p[p_max_o, 0]),
                 "order": int(p_max_o + min_order),
-                "max_score_order": int(np.nanargmax(p[:, 1]) + min_order),
-                "csn": p_csn.tolist(),
-                "csn_scores": p_scores.tolist()
+                "max_score_order": int(np.nanargmax(p[:, 1]) + min_order),  # not necessarily same as "order"
+                "max_score": float(np.nanmax(p[:, 1])),
             })
 
     return json.dumps({"top_paths": return_array})
@@ -242,9 +203,7 @@ def filtering_without_order():
     paths, min_order, max_order = construct_paths(factorInd, dataset)
     # find the top non-overlapping segment paths
     top_paths = get_top_paths(paths, min_order)
-    # collect CSN paths for each top segment path
-    top_csn_paths, top_csn_path_scores = get_csn_paths(top_paths, min_order)
     # refactor for return
-    return_array = generate_return(top_paths, top_csn_paths, top_csn_path_scores, min_order)
+    return_array = generate_return(top_paths, min_order)
 
     return return_array
