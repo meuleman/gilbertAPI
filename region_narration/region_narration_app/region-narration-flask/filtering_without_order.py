@@ -185,9 +185,8 @@ def generate_return(top_paths, min_order):
                 "max_score_order": int(np.nanargmax(p[:, 1]) + min_order),  # not necessarily same as "order"
                 "max_score": float(np.nanmax(p[:, 1])),
             })
-            
     print(f"Returning {len(return_array)} regions when filtering without order", flush=True)
-    return json.dumps({"top_paths": return_array})
+    return json.dumps({"regions": return_array})
 
 
 """
