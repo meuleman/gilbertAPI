@@ -2,104 +2,14 @@ from flask import Blueprint, request
 import numpy as np
 import requests
 import json
-import h5py
 import os
 import time
-from filtering import fetch_indices_scores
+from common import fetch_indices_scores, hilbert_pos_to_order
+from constants import CHR_SIZES_UCSC, ORDER_SEGMENT_COUNTS, chromosomes, PRELOADED_INDICES, filtering_path
+
 
 # Create a Blueprint
 data_filtering_bp = Blueprint('data_filtering_bp', __name__)
-
-chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
-
-CHR_SIZES_UCSC = {"chr1": 248956422,
-                  "chr10": 133797422,
-                  "chr11": 135086622,
-                  "chr12": 133275309,
-                  "chr13": 114364328,
-                  "chr14": 107043718,
-                  "chr15": 101991189,
-                  "chr16": 90338345,
-                  "chr17": 83257441,
-                  "chr18": 80373285,
-                  "chr19": 58617616,
-                  "chr2": 242193529,
-                  "chr20": 64444167,
-                  "chr21": 46709983,
-                  "chr22": 50818468,
-                  "chr3": 198295559,
-                  "chr4": 190214555,
-                  "chr5": 181538259,
-                  "chr6": 170805979,
-                  "chr7": 159345973,
-                  "chr8": 145138636,
-                  "chr9": 138394717,
-                  "chrX": 156040895,
-                  "chrY": 57227415}
-
-ORDER_SEGMENT_COUNTS = {
-    4: 2957,
-    5: 11792,
-    6: 47136,
-    7: 188505,
-    8: 753983,
-    9: 3015901,
-    10: 12063568,
-    11: 48254229,
-    12: 193016875,
-    13: 772067468,
-    14: 3088269856
-}
-
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241021"
-
-"""
-Function to preload all indices to be used for filter previews up through the max order
-"""
-def preload_preview_indices(max_order=12, index_path=os.path.join(datadir, 'indices.scores.native_resolution.h5')):
-    preload_time = time.time()
-    preloaded_indices = {}
-    
-    with h5py.File(index_path, 'r') as f:
-
-        # find all the datasets less than or equal to the max order
-        datasets = list(f.keys())
-        datasets = [d for d in datasets if int(d.split('.')[0]) <= max_order]
-        
-        # preload indices for each dataset
-        for d in datasets:
-
-            # create chromosome independent key
-            order, chrm, dataset_name, factor_index = d.split('.')
-            key = f"{order}.{dataset_name}.{factor_index}"
-
-            # all factor instances across chromosomes are saved together in a list
-            if key not in preloaded_indices:
-                preloaded_indices[key] = []
-            
-            # add to factorXorder list
-            preloaded_indices[key].append({
-                "chromosome": chrm,
-                "order": int(order), 
-                "index": int(factor_index), 
-                "dataset_name": dataset_name, 
-                "indices": f[d][:, 0].astype("int32"), 
-                "scores": f[d][:, 1].astype("float32")
-            })
-
-    # save the order through which indices have been preloaded
-    preloaded_indices['max_order'] = max_order
-            
-    print(f"Time to preload indices for filter previews: {time.time() - preload_time}", flush=True)
-    return preloaded_indices
-
-# preload all indices for filter previews
-PRELOADED_INDICES = preload_preview_indices()
-
-
-
-def hilbert_pos_to_order(pos, frm, to):
-    return np.floor(pos / pow(4, frm - to)).astype(int)
 
 
 """
@@ -198,7 +108,7 @@ def get_filtered_indices_scores(filters, force_h5=True):
                     chromosome, 
                     index, 
                     dataset_name, 
-                    os.path.join(datadir, 'indices.scores.native_resolution.h5')
+                    filtering_path
                 )
 
                 if len(indices_scores) > 0:

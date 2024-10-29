@@ -5,11 +5,10 @@ import json
 import h5py
 import os
 import time
+from constants import gwas_dir as datadir
 
 # Create a Blueprint
 gwas_bp = Blueprint('gwas_bp', __name__)
-
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20241021"
 
 """
 Fetches the traits associated with any genomic position

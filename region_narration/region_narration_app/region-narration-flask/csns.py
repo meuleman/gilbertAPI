@@ -5,56 +5,15 @@ import json
 import h5py
 import os
 import time
-from filtering import fetch_indices_scores
+from common import fetch_indices_scores, hilbert_pos_to_order
 # import tabix
 from subprocess import Popen, PIPE
+from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir, full_gene_path as gene_path
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
 
 # baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/csn_index_files"  # dataset removed from s3
-chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
-
-CHR_SIZES_UCSC = {"chr1": 248956422,
-                  "chr10": 133797422,
-                  "chr11": 135086622,
-                  "chr12": 133275309,
-                  "chr13": 114364328,
-                  "chr14": 107043718,
-                  "chr15": 101991189,
-                  "chr16": 90338345,
-                  "chr17": 83257441,
-                  "chr18": 80373285,
-                  "chr19": 58617616,
-                  "chr2": 242193529,
-                  "chr20": 64444167,
-                  "chr21": 46709983,
-                  "chr22": 50818468,
-                  "chr3": 198295559,
-                  "chr4": 190214555,
-                  "chr5": 181538259,
-                  "chr6": 170805979,
-                  "chr7": 159345973,
-                  "chr8": 145138636,
-                  "chr9": 138394717,
-                  "chrX": 156040895,
-                  "chrY": 57227415}
-
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20241023"
-genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"
-gene_path = os.path.join(
-    genedir, 
-    "mart_export.protein_coding.basal_plus_extension.5kb_upstream.1kb_downstream.1000kb_distal.CT20240906.bed.bgz"
-)
-# columns for gene_path
-# [
-# 'Chromosome', 'Left distal', 'Right distal', 'Gene name', 
-# 'Gene stable ID', 'Strand', 'Gene start (bp)', 'Gene end (bp)', 
-# 'Basal upstream', 'Basal downstream', 'Gene description'
-# ]
-
-def hilbert_pos_to_order(pos, frm, to):
-    return np.floor(pos / pow(4, frm - to)).astype(int)
 
 
 """

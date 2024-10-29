@@ -5,14 +5,11 @@ import h5py
 import os
 import time
 from scipy.stats import hypergeom
+from constants import geneset_bin_path as bin_path
 
 
 # Create a Blueprint
 geneset_enrichment_bp = Blueprint('geneset_enrichment_bp', __name__)
-
-# Path to binary matrix file
-datadir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/geneset_enrichment/20240918"
-bin_path = os.path.join(datadir, "c5.go.bp.v2024.1.bin.h5")
 
 
 """
