@@ -69,4 +69,4 @@ def preload_preview_indices(index_path, max_order=12):
 Converts an array of hilbert positions from one order to another
 """
 def hilbert_pos_to_order(pos, frm, to):
-    return np.floor(pos / pow(4, frm - to)).astype(int)
+    return np.floor(pos / pow(4.0, frm - to)).astype(int)
