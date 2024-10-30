@@ -278,7 +278,7 @@ def filtering_without_order():
     paths, min_order, max_order = construct_paths(factorInd, dataset)
 
     # if regions present, make sure paths overlap at least one region
-    paths = region_filter(paths, regions) if regions is not None else paths
+    paths = region_filter(paths, regions, min_order) if regions is not None else paths
 
     # find the top non-overlapping segment paths
     top_paths = get_top_paths(paths, min_order)
