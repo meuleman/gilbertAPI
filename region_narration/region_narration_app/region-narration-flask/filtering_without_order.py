@@ -64,6 +64,76 @@ def generate_empty_path(length=11):
 
 
 """
+Filters paths down by if there is overlap with any regions. If there is overlap with a 
+region and the region is higher resolution than the path, the path is adjusted to include
+the region.
+"""
+def region_filter(paths, regions, min_order):
+    start = time.time()
+
+    # group regions by chromosome
+    regions_grouped = {}
+    for r in regions:
+        if r["chromosome"] not in regions_grouped:
+            regions_grouped[r["chromosome"]] = []
+        regions_grouped[r["chromosome"]].append({"order": r["order"], "i": r["i"]})
+    
+    confirmed_paths = {}
+    for chrm in paths:
+        chrm_regions = regions_grouped[chrm] if chrm in regions_grouped else []
+        chrm_paths = paths[chrm]
+
+        # seperate orders and positions for paths
+        chrm_path_os = np.array([np.where(~np.isnan(p[:, 0]))[0][-1] for p in chrm_paths])
+        chrm_path_orders = chrm_path_os + min_order
+        chrm_path_positions = np.array([int(p[chrm_path_os[i], 0]) for i, p in enumerate(chrm_paths)])
+
+        # seperate orders and positions for regions
+        chrm_region_orders = np.array([r["order"] for r in chrm_regions])
+        chrm_region_positions = np.array([r["i"] for r in chrm_regions])
+
+        # for each path, filter by regions
+        for i, path_pos, path_order in zip(range(len(chrm_path_positions)), chrm_path_positions, chrm_path_orders):
+            r_gt_p_i = np.where(chrm_region_orders > path_order)[0]
+            r_lte_p_i = np.where(chrm_region_orders <= path_order)[0]
+
+            # for regions in which order is greater than path order
+            # convert regions with order greater than path order to path order
+            r_gt_p = chrm_region_positions[r_gt_p_i]
+            r_gt_p_orders = chrm_region_orders[r_gt_p_i]
+            r_gt_p_converted = hilbert_pos_to_order(r_gt_p, r_gt_p_orders, path_order)
+
+            # get the original regions where the converted regions are matching segment position
+            matching_regions = r_gt_p[np.where(r_gt_p_converted == path_pos)[0]]
+            matching_region_orders = r_gt_p_orders[np.where(r_gt_p_converted == path_pos)[0]]
+
+            for mr, mro in zip(matching_regions, matching_region_orders):
+                if chrm not in confirmed_paths:
+                    confirmed_paths[chrm] = []
+
+                # adjust the path to include the region index at the region order
+                p = chrm_paths[i].copy()
+                p = np.vstack((p, generate_empty_path(length=(mro - min_order + 1 - len(p)))))
+                p[mro - min_order] = [mr, 0]  #TODO: incorporate true score?
+                confirmed_paths[chrm].append(p)
+
+            # for regions in which order is less than or equal to path order
+            r_lte_p = chrm_region_positions[r_lte_p_i]
+            r_lte_p_orders = chrm_region_orders[r_lte_p_i]
+
+            # convert path position to region orders
+            p_converted = hilbert_pos_to_order(path_pos, path_order, r_lte_p_orders)
+            if np.count_nonzero(p_converted == r_lte_p):
+                if chrm not in confirmed_paths:
+                    confirmed_paths[chrm] = []
+
+                confirmed_paths[chrm].append(chrm_paths[i])
+
+    print(f"Time to filter segments by regions: {time.time() - start}", flush=True)
+    return confirmed_paths
+
+
+"""
 Collects all segments containing the factor and creates paths from them
 """
 def construct_paths(factorInd, dataset):
@@ -154,9 +224,13 @@ def get_top_paths(paths, min_order, num_top_paths=None):
             top_paths[chrm] = [p]
             count += 1
         else:
-            chrm_paths = top_paths[chrm]
             # test for matches with previous path
-            matches = [np.count_nonzero(cp[:, 0] == p[:, 0]) > 0 for cp in chrm_paths]
+            matches = [
+                np.count_nonzero(
+                    # pad with nans to make same length (in case region was included in path)
+                    np.pad(cp[:, 0], (0, max(0, len(p) - len(cp))), constant_values=np.nan) == np.pad(p[:, 0], (0, max(0, len(cp) - len(p))), constant_values=np.nan)
+                ) > 0 for cp in top_paths[chrm]
+            ]
 
             # if not positive matches
             if np.count_nonzero(matches) == 0:
@@ -198,11 +272,17 @@ def filtering_without_order():
     request_info = request.get_json()
     factorInd = request_info['factorInd']
     dataset = request_info['dataset']
+    regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
 
     # construct paths for all segments containing factor
     paths, min_order, max_order = construct_paths(factorInd, dataset)
+
+    # if regions present, make sure paths overlap at least one region
+    paths = region_filter(paths, regions) if regions is not None else paths
+
     # find the top non-overlapping segment paths
     top_paths = get_top_paths(paths, min_order)
+
     # refactor for return
     return_array = generate_return(top_paths, min_order)
 
