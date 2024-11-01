@@ -485,7 +485,7 @@ def data_filtering():
     # generate the return list
     return_list = generate_return_data(top_indices, top_chromosomes, top_scores, segment_count, chromosome_indices)
 
-    print("RETURN LIST", return_list, flush=True)
+    print("RETURN LIST LENGTH", len(return_list), flush=True)
     print()
     
     return return_list
