@@ -27,7 +27,7 @@ def fetch_indices_scores(
 """
 Function to preload all indices to be used for filter previews up through the max order
 """
-def preload_preview_indices(index_path, max_order=12):
+def preload_preview_indices(index_path, max_order=11):
     preload_time = time.time()
     preloaded_indices = {}
     
