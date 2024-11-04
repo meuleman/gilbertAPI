@@ -3,8 +3,8 @@ import os
 from common import preload_preview_indices
 
 ### DATA DIRECTORIES ###
-filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241021/indices.scores.native_resolution.h5"
-csn_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20241023"
+filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241101/indices.scores.native_resolution.h5"
+csn_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20241101"
 gwas_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20241021"
 genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"
 full_gene_path = os.path.join(
