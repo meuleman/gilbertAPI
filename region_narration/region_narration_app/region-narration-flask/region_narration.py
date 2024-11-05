@@ -973,9 +973,9 @@ class filtered_UMAP_generator():
                                             order=self.current_order,
                                             df_indices=self.df_indices) for chr_str in chr_strs]
         df_chr_target = gsh.convert_order(np.array(current_idx), order_in=self.current_order, order_out=self.target_order)
-        df_chr_target['Start'] = df_chr_target.ChrIndex * 4**(14-self.target_order)
-        df_chr_target['End']   = df_chr_target.Start + 4**(14-self.target_order)
-        df_chr_target.rename(columns={'chr':'Chromosome'},inplace=True)
+        df_chr_target['start'] = df_chr_target.ChrIndex * 4**(14-self.target_order)
+        df_chr_target['end']   = df_chr_target.Start + 4**(14-self.target_order)
+        df_chr_target.rename(columns={'chr':'chromosome'},inplace=True)
         idx = df_chr_target.AbsIndex.values
     #
         # Load components
@@ -1047,7 +1047,7 @@ def get_filtered_umap():
 #
     # Test
     # results = {'current_order': current_order, 'target_order': target_order,'v':1}
-    json_return = json.dumps(results
+    json_return = json.dumps(results¥
     )
     return json_return
 
