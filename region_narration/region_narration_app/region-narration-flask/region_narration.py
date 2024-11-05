@@ -1036,11 +1036,11 @@ def get_filtered_umap():
                                       )
     # # Format results
     df_umap, df_annot = umapgen.generate_umap(chr_strs)
-    # results = {col:list(v) for col,v in df_umap.items()}
-    # results['all'] = list(df_annot.all)
-    # results['DHS'] = list(df_annot.DHS_ENR)
-    # results['TF'] = list(df_annot.TF_ENR)
-    # results['chromatin_states'] = list(df_annot.chromatin_states_OCCR)
+    results = {col:list(v) for col,v in df_umap.items()}
+    results['all'] = list(df_annot.all)
+    results['DHS'] = list(df_annot.DHS_ENR)
+    results['TF'] = list(df_annot.TF_ENR)
+    results['chromatin_states'] = list(df_annot.chromatin_states_OCCR)
     # Test
     results = {'current_order': current_order, 'target_order': target_order,'v':1}
     json_return = json.dumps(results
