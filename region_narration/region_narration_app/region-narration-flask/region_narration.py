@@ -975,7 +975,11 @@ class filtered_UMAP_generator():
         df_chr_target = gsh.convert_order(np.array(current_idx), order_in=self.current_order, order_out=self.target_order)
         df_chr_target['start'] = df_chr_target.ChrIndex * 4**(14-self.target_order)
         df_chr_target['end']   = df_chr_target.Start + 4**(14-self.target_order)
-        df_chr_target.rename(columns={'chr':'chromosome'},inplace=True)
+        df_chr_target['Start'] = df_chr_target['start']
+        df_chr_target['End'] = df_chr_target['end']
+        df_chr_target['Chromosome'] = df_chr_target['chr']
+        df_chr_target['chromosome'] = df_chr_target['chr']
+        # df_chr_target.rename(columns={'chr':'chromosome'},inplace=True)
         idx = df_chr_target.AbsIndex.values
     #
         # Load components
