@@ -1051,8 +1051,7 @@ def get_filtered_umap():
 #
     # Test
     # results = {'current_order': current_order, 'target_order': target_order,'v':1}
-    json_return = json.dumps(results¥
-    )
+    json_return = json.dumps(results)
     return json_return
 
 
