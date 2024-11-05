@@ -1027,15 +1027,13 @@ def get_filtered_umap():
     # Get request info
     request_info = request.get_json()
     chr_strs = request_info['chr_strs']
-    current_order = request_info['current_order']
-    target_order  = request_info['target_order']
-    # current_order=4
-    # target_order=5
-    # # UMAP 
-    # umapgen = filtered_UMAP_generator(model_dir=COMP_MODEL_DIR, 
-    #                                     current_order=current_order, 
-    #                                     target_order=target_order
-    #                                     )
+    current_order = int(request_info['current_order'])
+    target_order  = int(request_info['target_order'])
+    # UMAP 
+    umapgen = filtered_UMAP_generator(model_dir=COMP_MODEL_DIR, 
+                                      current_order=current_order, 
+                                      target_order=target_order
+                                      )
     # # Format results
     # df_umap, df_annot = umapgen.generate_umap(chr_strs)
     # results = {col:list(v) for col,v in df_umap.items()}
