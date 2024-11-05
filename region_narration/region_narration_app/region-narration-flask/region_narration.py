@@ -634,6 +634,7 @@ import os
 import numpy as np
 import pandas as pd
 import h5py
+import umap
 
 # GilbertSFCH5_DIR = '/home/ychoi/projects/hilbert-genome/data/20240328_GilbertDataInH5'
 GilbertSFCH5_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5/20240328_GilbertDataInH5'
@@ -695,6 +696,7 @@ def get_top_factor(arr, var, n=1, ordered=True, exclude_LAD=False, **kwargs):
     topargs[zero_idx] = -1
     return topargs, var_idx
 
+
 def shared_factor_percentage(top_factors, n_shared=10):
     """
     per factor, show percentage of the samples the factor was top factor in
@@ -702,6 +704,7 @@ def shared_factor_percentage(top_factors, n_shared=10):
     top_shared_factor_counts = pd.Series(top_factors.reshape(-1)).value_counts()
     top_shared_factor_counts_per_sample = top_shared_factor_counts / len(top_factors)
     return top_shared_factor_counts_per_sample
+
 
 def perform_shared_factor_analysis(arr, var, n=10, min_percentage=0.2):
     """
@@ -826,16 +829,188 @@ class ComponentNarrationLoader():
         narr = narr[narr.Support >= min_support]
         return narr
 
+def do_umap(X, umap_params):
+    reducer = umap.UMAP(**umap_params)
+    X_umap = reducer.fit_transform(X)
+    return X_umap
+
+class GilbertSegmentHandler():
+    """
+    Convert between 
+    """
+    def __init__(
+        self,
+        chromosome_indices_dir = f'{GilbertSFCH5_DIR}/chromosome_indices.csv'
+    ):
+        self.df_chr_indices = pd.read_csv(chromosome_indices_dir,index_col=0)
+        self.df_chr_indices.columns = self.df_chr_indices.columns.astype('int')
+    #
+    def get_chr_pos(self, index, order=12):
+        """
+        Get chromosome and position for indexed segments at specified order
+        """
+        chr_idx = self.df_chr_indices[order]
+        df_rel = self._get_chr_relative_pos(index,order)
+        segment_size = 4**(14-order)
+        df_rel['start'] = segment_size * df_rel.ChrIndex
+        df_rel['end']   = segment_size * (df_rel.ChrIndex + 1)
+        df_rel['AbsIndex'] = index
+        columns = ['chr','start','end','AbsIndex','ChrIndex']
+        df_rel = df_rel[columns]
+        return df_rel
+    #
+    def generate_whole_genome_indices(self, order=12):
+        """
+        Generate indices for whole genome at specified order
+        """
+        chr_idx = self.df_chr_indices[order]
+        Chromosome = [np.repeat(chr,chr_len) for chr,chr_len in chr_idx.items()]
+        Chromosome = np.concatenate(Chromosome)
+    #
+    def convert_order(self, index, order_in, order_out=12):
+        """
+        Convert index at order_in to index at order_out
+        e.g.
+        if order_in < order_out
+            order_in = 4
+            order_out = 5
+            index_in  = [0 1]
+            index_out = [0 1 2 3 4 5 6 7]
+        else:
+            order_in  = 12
+            order_out = 11
+            index_in  = [0 1 2 3 4 5 6 7 8 9]
+            index_out = [0 0 0 0 1 1 1 1 2 2]
+        
+        """
+        if order_in == order_out:
+            df_rel_out = index
+        elif order_in > order_out:
+            df_rel = self._get_chr_relative_pos(index,order_in)
+            ChrIndexIn  = df_rel.ChrIndex.values
+            ChrIndexOut = (ChrIndexIn // 4**(order_in-order_out))
+            AbsIndexOut = self.df_chr_indices[order_out].loc[df_rel.chr].values + ChrIndexOut
+            df_rel['AbsIndex'] = AbsIndexOut
+            df_rel['ChrIndex'] = ChrIndexOut
+            df_rel_out = df_rel
+        else:
+            df_rel = self._get_chr_relative_pos(index,order_in)
+    #
+            # Get relative position within chromosome for order_in then convert to order_out
+            ChrIndexIn = df_rel.ChrIndex.values
+            n_repeat = 4**(order_out-order_in)
+            ChrIndexOut = np.repeat(ChrIndexIn,n_repeat)*n_repeat + np.tile(np.arange(n_repeat),len(ChrIndexIn))
+    #
+            # Get absolute position for order_out
+            chrs = df_rel.chr
+            AbsIndexOut = np.repeat(self.df_chr_indices[order_out].loc[chrs].values,n_repeat) + ChrIndexOut
+            df_rel_out = pd.DataFrame({'chr': np.repeat(chrs,n_repeat), 
+                                        'ChrIndex': ChrIndexOut, 
+                                        'AbsIndex': AbsIndexOut}
+                                        )
+        return df_rel_out
+    #
+    def _get_chr(self, index, order):
+        """
+        Get which chromosome for indexed segments at specified order
+        """
+        chr_idx = self.df_chr_indices[int(order)]
+        index_chr = np.zeros(len(index),dtype='int')
+        for i, (chr, start) in enumerate(chr_idx.items()):
+            index_chr[index >= start] = i
+        index_chr = chr_idx.index.values[index_chr]
+        return index_chr
+    #
+    def _get_chr_relative_pos(self, index, order):
+        """
+        Get relative position within chromosome for indexed segments at specified order
+        """
+        chr_idx = self.df_chr_indices[int(order)]
+        index_chr = self._get_chr(index,order)
+        rel_index = index - chr_idx.loc[index_chr].values
+        df_rel = pd.DataFrame({'chr': index_chr, 'ChrIndex': rel_index})
+        return df_rel
+
+
+class filtered_UMAP_generator():
+    #
+    def __init__(self, model_dir, 
+                 current_order=4,
+                 target_order=5):
+        self.current_order=current_order
+        self.target_order=target_order
+        self.model_dir = model_dir
+        self.load_component()
+    #
+        # Load indices where each chromosome begins
+        FILE_DIR = f'{GilbertSFCH5_DIR}/chromosome_indices.csv'
+        self.df_indices = pd.read_csv(FILE_DIR,index_col=0)
+    #
+    def load_component(self):
+        """
+        Input
+            model_dir: directory containing the model with whole genome components and component narration
+        """
+        h5dir = os.path.join(self.model_dir,'SimulatedSegments',f'WholeGenomeSimulatedSegments-Order={self.target_order}.h5')
+        comp_meta_dir = os.path.join(self.model_dir,'CompAnnotFull.csv')
+        comp_narr_full = pd.read_csv(comp_meta_dir,index_col=0)
+        self.comp_narr_full = comp_narr_full
+        hf = h5py.File(h5dir,'r')
+        self.comp_hf = hf['components']
+        self.df_annot_factor = pd.read_parquet(os.path.join(self.model_dir,'SimulatedSegments',f"Order-{self.target_order}","YC20241104-annot-all-factor.parquet"))
+        self.df_annot_comp   = pd.read_parquet(os.path.join(self.model_dir,'SimulatedSegments',f"Order-{self.target_order}","YC20241104-annot-all-component.parquet"))
+    #
+    def generate_umap(self, chr_strs):
+        """
+        Return
+            df_umap: UMAP data frame with chromosome, start, end, and UMAP coordinates
+            df_annot: gilbert annotations per segment
+        """
+    #
+        #
+        current_idx = [map_to_order_indice(chr_str=chr_str,
+                                            order=self.current_order,
+                                            df_indices=self.df_indices) for chr_str in chr_strs]
+        df_chr_target = gsh.convert_order(np.array(current_idx), order_in=self.current_order, order_out=self.target_order)
+        df_chr_target['Start'] = df_chr_target.ChrIndex * 4**(14-self.target_order)
+        df_chr_target['End']   = df_chr_target.Start + 4**(14-self.target_order)
+        df_chr_target.rename(columns={'chr':'Chromosome'},inplace=True)
+        idx = df_chr_target.AbsIndex.values
+    #
+        # Load components
+        comp = fancy_indexing(self.comp_hf,idx)
+    #
+        # Perform UMAP
+        X_umap = do_umap(comp,umap_params)
+        df_umap = pd.DataFrame(X_umap,columns=['UMAP-1','UMAP-2'])
+        df_umap = pd.concat([df_chr_target.reset_index(drop=True),df_umap],axis=1)
+    #
+        # Get matching annotations
+        df_annot = self.df_annot_factor.iloc[idx]
+        return df_umap, df_annot
+
+
+
+
+umap_params = {'n_neighbors': 20,
+                'min_dist': 0.8,
+                'metric': 'euclidean',
+                'random_state': 234,
+                'n_components': 2,
+                'verbose': True,
+                }
 
 sgdl = ScaledGilbertDataLoader()
 cnl  = ComponentNarrationLoader(COMP_MODEL_DIR)
+gsh  = GilbertSegmentHandler()
 
 # find the top regions for selected factors
 @app.route('/get_shared_factor', methods=['POST'])
 def get_shared_factor():
     request_info = request.get_json()
     chr_strs = request_info['chr_strs']
-    arr = sgdl.load_segments(chr_strs)
+    order = request_info['order']
+    arr = sgdl.load_segments(chr_strs,order=order)
     results = perform_shared_factor_analysis(arr=arr,var=sgdl.var)
     json_return = json.dumps({
         "SharedFactor": list(results[2].index.values),
@@ -844,6 +1019,31 @@ def get_shared_factor():
         }
     )
     return json_return
+
+# Generate a new umap at selected segments mapped to target order
+@app.route('/get_filtered_umap', methods=['POST'])
+def get_filtered_umap():
+    # Get request info
+    request_info = request.get_json()
+    chr_strs = request_info['chr_strs']
+    current_order = request_info['current_order']
+    target_order  = request_info['target_order']
+    # UMAP 
+    umapgen = filtered_UMAP_generator(model_dir=COMP_MODEL_DIR, 
+                                        current_order=current_order, 
+                                        target_order=target_order
+                                        )
+    #
+    df_umap, df_annot = umapgen.generate_umap(chr_strs)
+    results = {col:list(v) for col,v in df_umap.items()}
+    results['all'] = list(df_annot.all)
+    results['DHS'] = list(df_annot.DHS_ENR)
+    results['TF'] = list(df_annot.TF_ENR)
+    results['chromatin_states'] = list(df_annot.chromatin_states_OCCR)
+    json_return = json.dumps(results
+    )
+    return json_return
+
 
 @app.route('/narrate_regions', methods=['POST'])
 def narrate_regions():
