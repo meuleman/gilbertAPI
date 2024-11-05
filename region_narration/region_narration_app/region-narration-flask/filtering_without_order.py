@@ -1,27 +1,27 @@
 from flask import Blueprint, request
 from common import hilbert_pos_to_order, fetch_indices_scores
 import numpy as np
-import h5py
-import os
+# import h5py
+# import os
 import time
 import json
-from constants import chromosomes, PRELOADED_INDICES, orders, csn_dir as datadir, filtering_path
+from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path
 
 # Create a Blueprint
 filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
 
 
-"""
-Function to load path for a position
-"""
-def load_path(chrm, position, dataset='factor'):
+# """
+# Function to load path for a position
+# """
+# def load_path(chrm, position, dataset='factor'):
     
-    path = os.path.join(datadir, 'paths/full_path_factors.order_14_resolution.h5') if dataset == 'factor' else os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
+#     path = os.path.join(datadir, 'paths/full_path_factors.order_14_resolution.h5') if dataset == 'factor' else os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
     
-    with h5py.File(path, 'r') as f:
-        path_data = f[chrm][position]
+#     with h5py.File(path, 'r') as f:
+#         path_data = f[chrm][position]
     
-    return path_data
+#     return path_data
 
 
 """
@@ -39,8 +39,7 @@ def load_filters(factorInd, dataset, force_h5=False):
             for chrm_s in s_across_chrm:
                 s = np.hstack((
                     chrm_s['indices'].reshape(-1, 1),
-                    chrm_s['scores'].reshape(-1, 1),
-                    np.zeros(len(chrm_s['indices'])).reshape(-1, 1)
+                    chrm_s['scores'].reshape(-1, 1)
                 ))
                 segments[f"{chrm_s['order']}.{chrm_s['chromosome']}"] = s
                 
@@ -49,7 +48,6 @@ def load_filters(factorInd, dataset, force_h5=False):
             for chrm in chromosomes:
                 s = fetch_indices_scores(order, chrm, factorInd, dataset, filtering_path)
                 if len(s) > 0:
-                    s = np.hstack((s, np.zeros(len(s)).reshape(-1, 1)))
                     segments[f"{order}.{chrm}"] = s
 
     print(f"Time to load filters: {time.time() - start}", flush=True)
@@ -57,209 +55,114 @@ def load_filters(factorInd, dataset, force_h5=False):
 
 
 """
-Generates an empty path of specified length
+Collects all segments for a factor and returns them in an array
 """
-def generate_empty_path(length=11):
-    return np.zeros((length, 2)) * np.nan
-
-
-"""
-Filters paths down by if there is overlap with any regions. If there is overlap with a 
-region and the region is higher resolution than the path, the path is adjusted to include
-the region.
-"""
-def region_filter(paths, regions, min_order):
+def get_segments(factor, dataset):
     start = time.time()
 
-    # group regions by chromosome
-    regions_grouped = {}
-    for r in regions:
-        if r["chromosome"] not in regions_grouped:
-            regions_grouped[r["chromosome"]] = []
-        regions_grouped[r["chromosome"]].append({"order": r["order"], "i": r["i"]})
-    
-    confirmed_paths = {}
-    for chrm in paths:
-        chrm_regions = regions_grouped[chrm] if chrm in regions_grouped else []
-        chrm_paths = paths[chrm]
+    # collect segments
+    segments = load_filters(factor, dataset)
 
-        # seperate orders and positions for paths
-        chrm_path_os = np.array([np.where(~np.isnan(p[:, 0]))[0][-1] for p in chrm_paths])
-        chrm_path_orders = chrm_path_os + min_order
-        chrm_path_positions = np.array([int(p[chrm_path_os[i], 0]) for i, p in enumerate(chrm_paths)])
-
-        # seperate orders and positions for regions
-        chrm_region_orders = np.array([r["order"] for r in chrm_regions])
-        chrm_region_positions = np.array([r["i"] for r in chrm_regions])
-
-        # for each path, filter by regions
-        for i, path_pos, path_order in zip(range(len(chrm_path_positions)), chrm_path_positions, chrm_path_orders):
-            r_gt_p_i = np.where(chrm_region_orders > path_order)[0]
-            r_lte_p_i = np.where(chrm_region_orders <= path_order)[0]
-
-            # for regions in which order is greater than path order
-            # convert regions with order greater than path order to path order
-            r_gt_p = chrm_region_positions[r_gt_p_i]
-            r_gt_p_orders = chrm_region_orders[r_gt_p_i]
-            r_gt_p_converted = hilbert_pos_to_order(r_gt_p, r_gt_p_orders, path_order)
-
-            # get the original regions where the converted regions are matching segment position
-            matching_regions = r_gt_p[np.where(r_gt_p_converted == path_pos)[0]]
-            matching_region_orders = r_gt_p_orders[np.where(r_gt_p_converted == path_pos)[0]]
-
-            for mr, mro in zip(matching_regions, matching_region_orders):
-                if chrm not in confirmed_paths:
-                    confirmed_paths[chrm] = []
-
-                # adjust the path to include the region index at the region order
-                p = chrm_paths[i].copy()
-                p = np.vstack((p, generate_empty_path(length=(mro - min_order + 1 - len(p)))))
-                p[mro - min_order] = [mr, 0]  #TODO: incorporate true score?
-                confirmed_paths[chrm].append(p)
-
-            # for regions in which order is less than or equal to path order
-            r_lte_p = chrm_region_positions[r_lte_p_i]
-            r_lte_p_orders = chrm_region_orders[r_lte_p_i]
-
-            # convert path position to region orders
-            p_converted = hilbert_pos_to_order(path_pos, path_order, r_lte_p_orders)
-            if np.count_nonzero(p_converted == r_lte_p):
-                if chrm not in confirmed_paths:
-                    confirmed_paths[chrm] = []
-
-                confirmed_paths[chrm].append(chrm_paths[i])
-
-    print(f"Time to filter segments by regions: {time.time() - start}", flush=True)
-    return confirmed_paths
-
-
-"""
-Collects all segments containing the factor and creates paths from them
-"""
-def construct_paths(factorInd, dataset):
-    start = time.time()
-
-    # collect all filters for factor
-    segments = load_filters(factorInd, dataset)
-    segments_dropdown = segments.copy()
-
-    # what is the max order with results
-    segment_keys = list(segments.keys())
-    max_order = max([int(k.split('.')[0]) for k in segment_keys])
-    min_order = 4
-    max_o = max_order - min_order
-
-    # start search with the highest orders first as lower order segments 
-    # can occur within multiple higher order segments
-    paths = {}
-    for k in np.flip(segment_keys):
+    # create segments array
+    all_segments = np.array([]).reshape(0, 4)
+    for k in list(segments):
         order, chrm = k.split('.')
         order = int(order)
-        o = order - min_order
 
-        # add chrm if not yet represented
-        if chrm not in paths:
-            paths[chrm] = []
+        k_segments = np.hstack((
+            np.array([order] * len(segments[k])).reshape(-1, 1),
+            np.array([chrm] * len(segments[k])).reshape(-1, 1),
+            segments[k]
+        ), dtype=object)
 
-        chrm_paths = paths[chrm]
+        all_segments = np.vstack((all_segments, k_segments))
 
-        # first go through current paths and add what is available
-        for p in chrm_paths:
-            p_o = np.where(~np.isnan(p[:, 0]))[0][-1]
-            p_i = p[p_o, 0]
-            p_i_converted = hilbert_pos_to_order(p_i, min_order + p_o, order)
-            matching = np.where(segments_dropdown[k][:, 0] == p_i_converted)[0]
-            if len(matching) == 1:
-                p[o] = segments_dropdown[k][matching[0]][:2]
-                segments_dropdown[k][matching[0]][-1] = 1  # mark as added
+    # sort segments array
+    all_segments = all_segments[np.argsort(-all_segments[:, 3])]
 
-        # for all unadded segments at order, start a new path and add
-        for s in segments_dropdown[k][segments_dropdown[k][:, 2] != 1]:
-            new_path = generate_empty_path(length=max_o + 1)
-            new_path[o] = s[:2]
-            chrm_paths.append(new_path)
+    print(f"Time to collect all segments for factor: {time.time() - start}", flush=True)
+    return all_segments
 
-    print(f"Time to construct segment paths: {time.time() - start}", flush=True)
+
+"""
+For a given segment, tests overlap with background region set. Region set must be in the format:
+np.array([[order, chromosome, position], ...])
+If keep_overlapping is True, returns True if there is overlap. If False, returns True if there is no overlap.
+If return_s is True, returns the segment and if the segment overlaps a higher resolution region (or multiple higher resolution regions), 
+replaces the segment with the higher resolution region(s).
+"""
+def test_overlap(s, against, keep_overlapping=False, return_s=False):
+    below_mask = (against[:, 0] < s[0]) & (against[:, 1] == s[1])
+    above_mask = (against[:, 0] >= s[0]) & (against[:, 1] == s[1])
+
+    # below
+    s_converted = hilbert_pos_to_order(s[2], s[0], against[below_mask][:, 0])
+    below_count = np.count_nonzero(against[below_mask][:, 2] == s_converted)
+
+    # above
+    above_converted = hilbert_pos_to_order(against[above_mask][:, 2], against[above_mask][:, 0], s[0])
+    above_count = np.count_nonzero(above_converted == s[2])
     
-    return paths, min_order, max_order
+    overlap = ((below_count > 0) or (above_count > 0)) if keep_overlapping else ((below_count == 0) and (above_count == 0))
+    
+    # replace s with higher resolution region
+    if return_s:
+        if above_count > 0:
+            above_matching = against[above_mask][above_converted == s[2]]
+            s = np.hstack((
+                above_matching,
+                np.array([s[3]] * len(above_matching)).reshape(-1, 1)
+            ))
+        else:
+            s = np.array([s])
+
+    return (overlap, s) if return_s else overlap
 
 
 """
-Function to find the top non-overlapping paths for a factor.
+Reduces segments to those non-overlapping. Also tests for overlap with background regions if provided.
 """
-def get_top_paths(paths, min_order, num_top_paths=None):
+def test_segments_for_overlap(segments, regions=None):
     start = time.time()
 
-    # chromosomes with at least 1 path
-    path_chrms = np.array(list(paths.keys()))
-    # max factor scores in each path
-    winning_scores = np.array([np.nanmax(p[:, 1]) for k in path_chrms for p in paths[k]])
-    # sort scores
-    top_winning_score_inds = np.argsort(-winning_scores)
-    # the number of paths for each chromosome
-    chrm_lens = np.array([len(paths[k]) for k in path_chrms])
-    # in order, cumulative sum of all results across chromosomes
-    chrm_lens_cumsum = np.cumsum(chrm_lens)
+    # flatten regions
+    regions_flat = np.array([[r['order'], r['chromosome'], r['i']] for r in regions], dtype=object) if regions is not None else []
+    
+    # initialize non overlapping array
+    no_segments = np.array([], dtype=object).reshape(0, segments.shape[1])
 
-    # add paths if not overlapping previously added
-    top_paths = {}
-    count = 0
-    i = 0
+    for s in segments:
+        # make sure segment does not overlap previously added segments
+        if test_overlap(s, no_segments):
+            # if background regions provided
+            if len(regions_flat) > 0:
+                # make sure segment overlaps at least one region
+                region_overlap, s_arr = test_overlap(s, regions_flat, keep_overlapping=True, return_s=True)
+                if region_overlap:
+                    no_segments = np.append(no_segments, s_arr, axis=0)
+            else:
+                no_segments = np.append(no_segments, s.reshape(1, -1), axis=0)
 
-    while (((num_top_paths == None) or (count < num_top_paths)) and (i < len(winning_scores))):
-
-        ind = top_winning_score_inds[i]  # sorted by score
-        i += 1
-
-        # determine chromosome and position in chromosome results
-        c = np.count_nonzero(chrm_lens_cumsum <= ind)
-        chrm = path_chrms[c]
-        chrm_ind = ind - (chrm_lens_cumsum[c - 1] if c > 0 else 0)
-
-        # path
-        p = paths[chrm][chrm_ind]
-
-        # test for overlap with previously added paths
-        if chrm not in top_paths:
-            top_paths[chrm] = [p]
-            count += 1
-        else:
-            # test for matches with previous path
-            matches = [
-                np.count_nonzero(
-                    # pad with nans to make same length (in case region was included in path)
-                    np.pad(cp[:, 0], (0, max(0, len(p) - len(cp))), constant_values=np.nan) == np.pad(p[:, 0], (0, max(0, len(cp) - len(p))), constant_values=np.nan)
-                ) > 0 for cp in top_paths[chrm]
-            ]
-
-            # if not positive matches
-            if np.count_nonzero(matches) == 0:
-                top_paths[chrm].append(p)
-                count += 1
-            
-    print(f"Time to find top paths: {time.time() - start}", flush=True)
-    return top_paths
+    print(f"Time to test segments for overlap: {time.time() - start}", flush=True)
+    return no_segments
 
 
 """
-Refactors top paths for return
+Refactors segments for return
 """
-def generate_return(top_paths, min_order):
+def generate_return(segments):
+    start = time.time()
     return_array = []
-    for chrm in top_paths:
+    for s in segments:
+        return_array.append({
+            "chromosome": s[1],
+            "i": int(s[2]),
+            "order": int(s[0]),
+            "score": float(s[3]),
+        })
 
-        for p in top_paths[chrm]:
-            # max order position in which we see factor
-            p_max_o = np.where(~np.isnan(p[:, 0]))[0][-1]
-
-            return_array.append({
-                "chromosome": chrm,
-                "i": int(p[p_max_o, 0]),
-                "order": int(p_max_o + min_order),
-                "max_score_order": int(np.nanargmax(p[:, 1]) + min_order),  # not necessarily same as "order"
-                "max_score": float(np.nanmax(p[:, 1])),
-            })
     print(f"Returning {len(return_array)} regions when filtering without order", flush=True)
+    print(f"Time to generate return array: {time.time() - start}", flush=True)
     return json.dumps({"regions": return_array})
 
 
@@ -274,16 +177,13 @@ def filtering_without_order():
     dataset = request_info['dataset']
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
 
-    # construct paths for all segments containing factor
-    paths, min_order, max_order = construct_paths(factorInd, dataset)
+    # get segments
+    segments = get_segments(factorInd, dataset)
 
-    # if regions present, make sure paths overlap at least one region
-    paths = region_filter(paths, regions, min_order) if regions is not None else paths
-
-    # find the top non-overlapping segment paths
-    top_paths = get_top_paths(paths, min_order)
+    # test segments for overlap with each other and with background regions
+    no_segments = test_segments_for_overlap(segments, regions)
 
     # refactor for return
-    return_array = generate_return(top_paths, min_order)
+    return_array = generate_return(no_segments)
 
     return return_array
