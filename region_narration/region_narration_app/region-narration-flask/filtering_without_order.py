@@ -5,7 +5,7 @@ import numpy as np
 # import os
 import time
 import json
-from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path
+from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, CHR_SIZES_UCSC
 
 # Create a Blueprint
 filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
@@ -84,39 +84,79 @@ def get_segments(factor, dataset):
     return all_segments
 
 
-"""
-For a given segment, tests overlap with background region set. Region set must be in the format:
-np.array([[order, chromosome, position], ...])
-If keep_overlapping is True, returns True if there is overlap. If False, returns True if there is no overlap.
-If return_s is True, returns the segment and if the segment overlaps a higher resolution region (or multiple higher resolution regions), 
-replaces the segment with the higher resolution region(s).
-"""
-def test_overlap(s, against, keep_overlapping=False, return_s=False):
-    below_mask = (against[:, 0] < s[0]) & (against[:, 1] == s[1])
-    above_mask = (against[:, 0] >= s[0]) & (against[:, 1] == s[1])
+# """
+# For a given segment, tests overlap with background region set. Region set must be in the format:
+# np.array([[order, chromosome, position], ...])
+# If keep_overlapping is True, returns True if there is overlap. If False, returns True if there is no overlap.
+# If return_s is True, returns the segment and if the segment overlaps a higher resolution region (or multiple higher resolution regions), 
+# replaces the segment with the higher resolution region(s).
+# """
+# def test_overlap(s, against, keep_overlapping=False, return_s=False):
+#     below_mask = (against[:, 0] < s[0]) & (against[:, 1] == s[1])
+#     above_mask = (against[:, 0] >= s[0]) & (against[:, 1] == s[1])
 
-    # below
-    s_converted = hilbert_pos_to_order(s[2], s[0], against[below_mask][:, 0])
-    below_count = np.count_nonzero(against[below_mask][:, 2] == s_converted)
+#     # below
+#     s_converted = hilbert_pos_to_order(s[2], s[0], against[below_mask][:, 0])
+#     below_count = np.count_nonzero(against[below_mask][:, 2] == s_converted)
 
-    # above
-    above_converted = hilbert_pos_to_order(against[above_mask][:, 2], against[above_mask][:, 0], s[0])
-    above_count = np.count_nonzero(above_converted == s[2])
+#     # above
+#     above_converted = hilbert_pos_to_order(against[above_mask][:, 2], against[above_mask][:, 0], s[0])
+#     above_count = np.count_nonzero(above_converted == s[2])
     
-    overlap = ((below_count > 0) or (above_count > 0)) if keep_overlapping else ((below_count == 0) and (above_count == 0))
+#     overlap = ((below_count > 0) or (above_count > 0)) if keep_overlapping else ((below_count == 0) and (above_count == 0))
     
-    # replace s with higher resolution region
-    if return_s:
-        if above_count > 0:
-            above_matching = against[above_mask][above_converted == s[2]]
-            s = np.hstack((
-                above_matching,
-                np.array([s[3]] * len(above_matching)).reshape(-1, 1)
-            ))
-        else:
-            s = np.array([s])
+#     # replace s with higher resolution region
+#     if return_s:
+#         if above_count > 0:
+#             above_matching = against[above_mask][above_converted == s[2]]
+#             s = np.hstack((
+#                 above_matching,
+#                 np.array([s[3]] * len(above_matching)).reshape(-1, 1)
+#             ))
+#         else:
+#             s = np.array([s])
 
-    return (overlap, s) if return_s else overlap
+#     return (overlap, s) if return_s else overlap
+
+
+# """
+# Reduces segments to those non-overlapping. Also tests for overlap with background regions if provided.
+# """
+# def test_segments_for_overlap(segments, regions=None):
+#     start = time.time()
+
+#     # flatten regions
+#     regions_flat = np.array([[r['order'], r['chromosome'], r['i']] for r in regions], dtype=object) if regions is not None else []
+    
+#     # initialize non overlapping array
+#     no_segments = np.array([], dtype=object).reshape(0, segments.shape[1])
+
+#     for s in segments:
+#         # make sure segment does not overlap previously added segments
+#         if test_overlap(s, no_segments):
+#             # if background regions provided
+#             if len(regions_flat) > 0:
+#                 # make sure segment overlaps at least one region
+#                 region_overlap, s_arr = test_overlap(s, regions_flat, keep_overlapping=True, return_s=True)
+#                 if region_overlap:
+#                     no_segments = np.append(no_segments, s_arr, axis=0)
+#             else:
+#                 no_segments = np.append(no_segments, s.reshape(1, -1), axis=0)
+
+#     print(f"Time to test segments for overlap: {time.time() - start}", flush=True)
+#     return no_segments
+
+
+"""
+A more efficient test_overlap function that uses a bp tracker to keep track of overlapping regions.
+Cannot update a segment that overlaps with higher resolution region(s).
+"""
+def test_overlap(chrm, start, end, tracker, keep_overlapping=False):
+    if np.count_nonzero(tracker[chrm][start:end]) == 0:
+        return False if keep_overlapping else True
+    else:
+        return True if keep_overlapping else False
+    
 
 
 """
@@ -125,23 +165,39 @@ Reduces segments to those non-overlapping. Also tests for overlap with backgroun
 def test_segments_for_overlap(segments, regions=None):
     start = time.time()
 
-    # flatten regions
-    regions_flat = np.array([[r['order'], r['chromosome'], r['i']] for r in regions], dtype=object) if regions is not None else []
-    
-    # initialize non overlapping array
+    # find set of non-overlapping segments
     no_segments = np.array([], dtype=object).reshape(0, segments.shape[1])
+    overlap_tracker = {
+        chrm: np.zeros(CHR_SIZES_UCSC[chrm], dtype=bool) for chrm in np.unique(segments[:, 1])
+    }
+
+    # create and fill region tracker
+    if regions is not None:
+        regions_tracker = {
+            chrm: np.zeros(CHR_SIZES_UCSC[chrm], dtype=bool) for chrm in np.unique(segments[:, 1])
+        }
+        for r in regions:
+            r_chrm = r['chromosome']
+            r_start = hilbert_pos_to_order(r['i'], r['order'], 14)
+            r_end = hilbert_pos_to_order(r['i'] + 1, r['order'], 14)
+            regions_tracker[r_chrm][r_start:r_end] = 1
 
     for s in segments:
-        # make sure segment does not overlap previously added segments
-        if test_overlap(s, no_segments):
-            # if background regions provided
-            if len(regions_flat) > 0:
-                # make sure segment overlaps at least one region
-                region_overlap, s_arr = test_overlap(s, regions_flat, keep_overlapping=True, return_s=True)
-                if region_overlap:
-                    no_segments = np.append(no_segments, s_arr, axis=0)
+        # bounds of s
+        s_chrm = s[1]
+        s_start = hilbert_pos_to_order(s[2], s[0], 14)
+        s_end = hilbert_pos_to_order(s[2] + 1, s[0], 14)
+        
+        # test for overlap
+        if test_overlap(s_chrm, s_start, s_end, overlap_tracker):
+            if regions is not None:
+                if test_overlap(s_chrm, s_start, s_end, regions_tracker, keep_overlapping=True):
+                    no_segments = np.append(no_segments, s.reshape(1, -1), axis=0)
+                    overlap_tracker[s_chrm][s_start:s_end] = 1
+                    
             else:
                 no_segments = np.append(no_segments, s.reshape(1, -1), axis=0)
+                overlap_tracker[s_chrm][s_start:s_end] = 1
 
     print(f"Time to test segments for overlap: {time.time() - start}", flush=True)
     return no_segments
