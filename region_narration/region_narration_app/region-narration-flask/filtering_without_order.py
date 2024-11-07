@@ -77,8 +77,8 @@ def get_segments(factor, dataset):
 
         all_segments = np.vstack((all_segments, k_segments))
 
-    # sort segments array
-    all_segments = all_segments[np.argsort(-all_segments[:, 3])]
+    # sort segments array first by score, then by order (lowest order first)
+    all_segments = all_segments[np.lexsort((all_segments[:, 0], -all_segments[:, 3]))]
 
     print(f"Time to collect all segments for factor: {time.time() - start}", flush=True)
     return all_segments
