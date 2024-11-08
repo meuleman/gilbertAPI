@@ -166,7 +166,8 @@ def test_segments_for_overlap(segments, regions=None):
     start = time.time()
 
     # find set of non-overlapping segments
-    no_segments = np.array([], dtype=object).reshape(0, segments.shape[1])
+    # no_segments = np.array([], dtype=object).reshape(0, segments.shape[1])
+    no_segments = []
     overlap_tracker = {
         chrm: np.zeros(CHR_SIZES_UCSC[chrm], dtype=bool) for chrm in np.unique(segments[:, 1])
     }
@@ -193,13 +194,14 @@ def test_segments_for_overlap(segments, regions=None):
         if test_overlap(s_chrm, s_start, s_end, overlap_tracker):
             if regions is not None:
                 if test_overlap(s_chrm, s_start, s_end, regions_tracker, keep_overlapping=True):
-                    no_segments = np.append(no_segments, s.reshape(1, -1), axis=0)
+                    no_segments.append(s)
                     overlap_tracker[s_chrm][s_start:s_end] = 1
                     
             else:
-                no_segments = np.append(no_segments, s.reshape(1, -1), axis=0)
+                no_segments.append(s)
                 overlap_tracker[s_chrm][s_start:s_end] = 1
 
+    no_segments = np.vstack(no_segments)
     print(f"Time to test segments for overlap: {time.time() - start}", flush=True)
     return no_segments
 
