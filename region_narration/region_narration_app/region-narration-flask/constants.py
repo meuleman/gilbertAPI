@@ -4,6 +4,7 @@ from common import preload_preview_indices
 
 ### DATA DIRECTORIES ###
 filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241101/indices.scores.native_resolution.h5"
+order_independent_filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/order_independent_filtering/20241108/overlap_merged.h5"
 csn_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_csn/20241101"
 gwas_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20241021"
 genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"

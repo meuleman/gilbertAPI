@@ -1,12 +1,13 @@
 from flask import Blueprint, request
 from common import hilbert_pos_to_order, fetch_indices_scores
 import numpy as np
-# import h5py
+import h5py
+import pickle
 # import os
 import time
 import json
 from collections import defaultdict
-from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, CHR_SIZES_UCSC
+from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, order_independent_filtering_path, CHR_SIZES_UCSC
 
 # Create a Blueprint
 filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
@@ -224,6 +225,20 @@ def convert_segments(segments, regions):
 
 
 """
+Loads precalculated, non-overlapping segments for factor and dataset
+"""
+def load_precalculated_segments(order_independent_filtering_path, factor, dataset):
+    start = time.time()
+
+    # load precalculated segments for factor and dataset
+    with h5py.File(order_independent_filtering_path, 'r') as f:
+        segments = pickle.loads(f[f"{dataset}.{factor}"][()].tobytes())
+        
+    print(f"Time to load precalculated segments: {time.time() - start}")
+    return segments
+
+
+"""
 Endpoint for filtering on a factor without a specified order
 """
 @filtering_without_order_bp.route("filtering_without_order", methods=['POST'])
@@ -233,16 +248,24 @@ def filtering_without_order():
     factorInd = request_info['factorInd']
     dataset = request_info['dataset']
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
+    force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
+    force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
 
-    # get segments
-    segments = get_segments(factorInd, dataset)
+    # get segments and test for overlap
+    if force_recalculation or regions is not None:
+        # get segments
+        segments = get_segments(factorInd, dataset)
 
-    # test segments for overlap with each other and with background regions
-    no_segments = test_segments_for_overlap(segments, regions)
+        # test segments for overlap with each other and with background regions
+        no_segments = test_segments_for_overlap(segments, regions)
 
-    # convert segments to higher resolution regions
-    if regions is not None:
-        no_segments = convert_segments(no_segments, regions)
+        # convert segments to higher resolution regions
+        if regions is not None:
+            no_segments = convert_segments(no_segments, regions)
+    
+    # load precalculated, non-overlapping segments
+    else:
+        no_segments = load_precalculated_segments(order_independent_filtering_path, factorInd, dataset)
 
     # refactor for return
     return_array = generate_return(no_segments)
