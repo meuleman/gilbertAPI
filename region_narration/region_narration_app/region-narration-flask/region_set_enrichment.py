@@ -98,7 +98,7 @@ def get_top_factors(enr, N, factor_exclusion):
 Refactors factors for return
 """
 def generate_return_data(top_factors, top_enr):
-    return json.dumps([{"factor": f, "enrichment": e} for f, e in zip(top_factors, top_enr)])
+    return json.dumps([{"dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "enrichment": e} for f, e in zip(top_factors, top_enr)])
 
 
 """
