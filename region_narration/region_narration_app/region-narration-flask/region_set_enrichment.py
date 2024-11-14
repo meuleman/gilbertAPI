@@ -109,7 +109,7 @@ def filtering_without_order():
 
     request_info = request.get_json()
     regions = request_info['regions']  # [{chromosome, i, order}, ...]
-    N = request_info['numfactors'] if 'numfactors' in request_info else 10  # number of factors to suggest
+    N = request_info['N'] if 'N' in request_info else 10  # number of factors to suggest
     factor_exclusion = request_info['factor_exclusion'] if 'factor_exclusion' in request_info else []  # factors to exclude [{dataset, index}, ...]
 
     # test factors for enrichment within region set
