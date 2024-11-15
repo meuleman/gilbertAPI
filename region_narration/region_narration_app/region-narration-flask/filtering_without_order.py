@@ -257,15 +257,20 @@ def filtering_without_order():
     force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
     force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
 
-    # get segments and test for overlap
-    if force_recalculation or regions is not None or len(filters) > 1:
-        
+    if len(filters) > 1:
         # order the filters for optimal performance
-        num_segments_per_filter = [len(load_precalculated_segments(f['factor'], f['dataset'])) for f in filters]
-        filter_order = np.argsort(num_segments_per_filter)
-        
-        for fi in filter_order:
-            filter = filters[fi]
+        num_segments_per_filter = np.array([len(load_precalculated_segments(f['factor'], f['dataset'])) for f in filters])
+        # filter with most segments goes first so we can use the precalculated results (if no regions also provided)
+        filter_order = np.argsort(-num_segments_per_filter)
+    else:
+        filter_order = [0]
+    
+    # iterate through filters
+    for fi in filter_order:
+        filter = filters[fi]
+
+        # regions will not be None after the first filter
+        if force_recalculation or regions is not None:
 
             # get segments
             segments = get_segments(filter['factor'], filter['dataset'])
@@ -276,13 +281,14 @@ def filtering_without_order():
             # convert segments to higher resolution regions
             if regions is not None:
                 no_segments = convert_segments(no_segments, regions)
+        
+        # can only use precalculated segments for the first filter
+        else:
+            # load precalculated, non-overlapping segments
+            no_segments = load_precalculated_segments(filter['factor'], filter['dataset'])
 
-            # update regions in case of multiple filters
-            regions = no_segments
-    
-    # load precalculated, non-overlapping segments
-    else:
-        no_segments = load_precalculated_segments(filters[0]['factor'], filters[0]['dataset'])
+        # update regions in case of multiple filters
+        regions = no_segments
 
     # refactor for return
     return_array = generate_return(no_segments)
