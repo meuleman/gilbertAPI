@@ -221,7 +221,7 @@ def convert_segments(segments, regions):
     segments_updated = []
     for split in list(segments_split.values()):
         chrm = split[0, 1]
-        segments_updated.extend(convert_segments(split, regions_chrm_split[chrm]))
+        segments_updated.extend(convert_segment_split(split, regions_chrm_split[chrm]))
 
     segments_updated = np.vstack(segments_updated)
     # sort first by score, then by order (lowest order first)
