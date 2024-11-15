@@ -245,27 +245,30 @@ Endpoint for filtering on a factor without a specified order
 def filtering_without_order():
 
     request_info = request.get_json()
-    factorInd = request_info['factorInd']
-    dataset = request_info['dataset']
+    filters = request_info['filters']  # [{dataset, factorInd}, ...]
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
     force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
     force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
 
     # get segments and test for overlap
-    if force_recalculation or regions is not None:
-        # get segments
-        segments = get_segments(factorInd, dataset)
+    if force_recalculation or regions is not None or len(filters) > 1:
+        for filter in filters:
+            # get segments
+            segments = get_segments(filter['factorInd'], filter['dataset'])
 
-        # test segments for overlap with each other and with background regions
-        no_segments = test_segments_for_overlap(segments, regions)
+            # test segments for overlap with each other and with background regions
+            no_segments = test_segments_for_overlap(segments, regions)
 
-        # convert segments to higher resolution regions
-        if regions is not None:
-            no_segments = convert_segments(no_segments, regions)
+            # convert segments to higher resolution regions
+            if regions is not None:
+                no_segments = convert_segments(no_segments, regions)
+
+            # update regions in case of multiple filters
+            regions = no_segments
     
     # load precalculated, non-overlapping segments
     else:
-        no_segments = load_precalculated_segments(order_independent_filtering_path, factorInd, dataset)
+        no_segments = load_precalculated_segments(order_independent_filtering_path, filters[0]['factorInd'], filters[0]['dataset'])
 
     # refactor for return
     return_array = generate_return(no_segments)
