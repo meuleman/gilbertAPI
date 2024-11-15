@@ -207,7 +207,12 @@ def convert_segments(segments, regions):
     segments_split = {k: v for k, v in segments_split.items() if len(v) > 0}
 
     # create region split
-    regions_flat = np.array([[r['order'], r['chromosome'], r['i']] for r in regions], dtype=object)
+    if len(regions) > 0 and type(regions[0]) == dict:
+        regions_flat = np.array([[r['order'], r['chromosome'], r['i']] for r in regions], dtype=object)
+    else:
+        # segments from previous filter
+        regions_flat = regions[:, :3]
+
     regions_chrm_split = {
         chrm: regions_flat[regions_flat[:, 1] == chrm] if chrm in segment_chrms else None for chrm in chromosomes
     }
