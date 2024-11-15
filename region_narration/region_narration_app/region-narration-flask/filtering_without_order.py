@@ -103,10 +103,12 @@ def test_segments_for_overlap(segments, regions=None):
             chrm: np.zeros(CHR_SIZES_UCSC[chrm], dtype=bool) for chrm in np.unique(segments[:, 1])
         }
         for r in regions:
-            r_chrm = r['chromosome']
+            r_chrm = r['chromosome'] if type(r) == dict else r[1]
+            r_i = r['i'] if type(r) == dict else r[2]
+            r_order = r['order'] if type(r) == dict else r[0]
             if r_chrm in regions_tracker:
-                r_start = hilbert_pos_to_order(r['i'], r['order'], 14)
-                r_end = hilbert_pos_to_order(r['i'] + 1, r['order'], 14)
+                r_start = hilbert_pos_to_order(r_i, r_order, 14)
+                r_end = hilbert_pos_to_order(r_i + 1, r_order, 14)
                 regions_tracker[r_chrm][r_start:r_end] = 1
 
     for s in segments:
