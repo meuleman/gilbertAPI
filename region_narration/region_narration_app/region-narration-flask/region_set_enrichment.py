@@ -6,7 +6,7 @@ import h5py
 # import os
 import time
 import json
-from constants import order_independent_filtering_path
+from constants import order_independent_filtering_path, CHR_SIZES_UCSC
 
 # Create a Blueprint
 region_set_enrichment_bp = Blueprint('region_set_enrichment_bp', __name__)
@@ -55,7 +55,9 @@ def get_region_set_factor_enrichments(regions):
     for r in regions:
         r_chrm = r['chromosome']
         r_start = hilbert_pos_to_order(r["i"], r["order"], 14)
-        r_end = hilbert_pos_to_order(r["i"] + 1, r["order"], 14)
+        # r_end = hilbert_pos_to_order(r["i"] + 1, r["order"], 14)
+        # cap to end of chromosome for proper normalization
+        r_end = min(hilbert_pos_to_order(r["i"] + 1, r["order"], 14), CHR_SIZES_UCSC[r_chrm])
 
         # collect coverage for each factor within region
         r_factor_coverage = load_slice_coverage(r_chrm, r_start, r_end)
