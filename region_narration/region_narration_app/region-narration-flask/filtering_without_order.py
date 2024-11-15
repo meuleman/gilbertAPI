@@ -227,7 +227,7 @@ def convert_segments(segments, regions):
 """
 Loads precalculated, non-overlapping segments for factor and dataset
 """
-def load_precalculated_segments(order_independent_filtering_path, factor, dataset):
+def load_precalculated_segments(factor, dataset):
     start = time.time()
 
     # load precalculated segments for factor and dataset
@@ -252,7 +252,14 @@ def filtering_without_order():
 
     # get segments and test for overlap
     if force_recalculation or regions is not None or len(filters) > 1:
-        for filter in filters:
+        
+        # order the filters for optimal performance
+        num_segments_per_filter = [len(load_precalculated_segments(f['factor'], f['dataset'])) for f in filters]
+        filter_order = np.argsort(num_segments_per_filter)
+        
+        for fi in filter_order:
+            filter = filters[fi]
+
             # get segments
             segments = get_segments(filter['factor'], filter['dataset'])
 
@@ -268,7 +275,7 @@ def filtering_without_order():
     
     # load precalculated, non-overlapping segments
     else:
-        no_segments = load_precalculated_segments(order_independent_filtering_path, filters[0]['factor'], filters[0]['dataset'])
+        no_segments = load_precalculated_segments(filters[0]['factor'], filters[0]['dataset'])
 
     # refactor for return
     return_array = generate_return(no_segments)
