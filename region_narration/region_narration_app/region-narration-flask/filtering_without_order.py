@@ -16,14 +16,14 @@ filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
 """
 Function to load all filters for a single factor
 """
-def load_filters(factorInd, dataset, force_h5=False):
+def load_filters(factor, dataset, force_h5=False):
     start = time.time()
     
     segments = {}
     for order in orders:
         # if not force_h5, fetch preloaded indices
         if ((not force_h5) & (int(order) <= PRELOADED_INDICES['max_order'])):
-            key = f"{order}.{dataset}.{factorInd}"
+            key = f"{order}.{dataset}.{factor}"
             s_across_chrm = PRELOADED_INDICES[key] if key in PRELOADED_INDICES else []
             for chrm_s in s_across_chrm:
                 s = np.hstack((
@@ -35,7 +35,7 @@ def load_filters(factorInd, dataset, force_h5=False):
         # otherwise, fetch from h5 (slower)
         else:
             for chrm in chromosomes:
-                s = fetch_indices_scores(order, chrm, factorInd, dataset, filtering_path)
+                s = fetch_indices_scores(order, chrm, factor, dataset, filtering_path)
                 if len(s) > 0:
                     segments[f"{order}.{chrm}"] = s
 
@@ -245,7 +245,7 @@ Endpoint for filtering on a factor without a specified order
 def filtering_without_order():
 
     request_info = request.get_json()
-    filters = request_info['filters']  # [{dataset, factorInd}, ...]
+    filters = request_info['filters']  # [{dataset, factor}, ...]
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
     force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
     force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
@@ -254,7 +254,7 @@ def filtering_without_order():
     if force_recalculation or regions is not None or len(filters) > 1:
         for filter in filters:
             # get segments
-            segments = get_segments(filter['factorInd'], filter['dataset'])
+            segments = get_segments(filter['factor'], filter['dataset'])
 
             # test segments for overlap with each other and with background regions
             no_segments = test_segments_for_overlap(segments, regions)
@@ -268,7 +268,7 @@ def filtering_without_order():
     
     # load precalculated, non-overlapping segments
     else:
-        no_segments = load_precalculated_segments(order_independent_filtering_path, filters[0]['factorInd'], filters[0]['dataset'])
+        no_segments = load_precalculated_segments(order_independent_filtering_path, filters[0]['factor'], filters[0]['dataset'])
 
     # refactor for return
     return_array = generate_return(no_segments)
