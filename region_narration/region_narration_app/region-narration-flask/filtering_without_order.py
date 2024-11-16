@@ -131,7 +131,7 @@ def test_segments_for_overlap(segments, regions=None):
             no_segments.append(s)
             overlap_tracker[s_chrm][s_start:s_end] = 1
 
-    no_segments = np.vstack(no_segments)
+    no_segments = np.vstack(no_segments) if len(no_segments) > 0 else np.array([]).reshape(0, 4).astype(object)
     print(f"Time to test segments for overlap: {time.time() - start}", flush=True)
     return no_segments
 
@@ -279,7 +279,7 @@ def filtering_without_order():
             no_segments = test_segments_for_overlap(segments, regions)
 
             # convert segments to higher resolution regions
-            if regions is not None:
+            if regions is not None and len(regions) > 0:
                 no_segments = convert_segments(no_segments, regions)
         
         # can only use precalculated segments for the first filter
