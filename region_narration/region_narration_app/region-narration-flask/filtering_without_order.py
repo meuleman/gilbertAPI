@@ -279,7 +279,7 @@ def filtering_without_order():
             no_segments = test_segments_for_overlap(segments, regions)
 
             # convert segments to higher resolution regions
-            if regions is not None and len(regions) > 0:
+            if regions is not None and len(no_segments) > 0:
                 no_segments = convert_segments(no_segments, regions)
         
         # can only use precalculated segments for the first filter
