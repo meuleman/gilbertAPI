@@ -128,7 +128,7 @@ def filtering_without_order():
     request_info = request.get_json()
     regions = request_info['regions']  # [{chromosome, i, order}, ...]
     N = request_info['N'] if 'N' in request_info else 10  # number of factors to suggest
-    factor_exclusion = request_info['factor_exclusion'] if 'factor_exclusion' in request_info else []  # factors to exclude [{dataset, index}, ...]
+    factor_exclusion = request_info['factorExclusion'] if 'factorExclusion' in request_info else []  # factors to exclude [{dataset, index}, ...]
     allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
     allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
 
