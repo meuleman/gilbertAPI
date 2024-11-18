@@ -132,6 +132,8 @@ def filtering_without_order():
     allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
     allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
 
+    print("FACTOR EXCLUSION", factor_exclusion, flush=True)
+
     # test factors for enrichment within region set
     enr = get_region_set_factor_enrichments(regions, allow_precalculated=allow_precalculated)
     # collect the top N factors by enrichment
