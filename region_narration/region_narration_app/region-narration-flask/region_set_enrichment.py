@@ -6,7 +6,7 @@ import h5py
 # import os
 import time
 import json
-from constants import order_independent_filtering_path, CHR_SIZES_UCSC
+from constants import order_independent_filtering_path, CHR_SIZES_UCSC, precalculated_region_set_enrichment_orders as precalculated_orders
 
 # Create a Blueprint
 region_set_enrichment_bp = Blueprint('region_set_enrichment_bp', __name__)
@@ -41,10 +41,20 @@ def load_gw_coverage():
 
 
 """
+Load coverage counts for each factor for segment at order. Each row contains
+the counts for a full segment at the given order.
+"""
+def load_precalculated_factor_coverage(chrm, order, i):
+    with h5py.File(order_independent_filtering_path, 'r') as f:
+        coverage = f[f"{chrm}.{order}.counts"][i]
+    return coverage
+
+
+"""
 Calculates the enrichment of bp coverage for each factor within a region set. Returns 
 the log2 of the observed over expected coverage for each factor.
 """
-def get_region_set_factor_enrichments(regions):
+def get_region_set_factor_enrichments(regions, allow_precalculated=True):
     start = time.time()
     # load the genome-wide coverage of each factor
     gw_factor_coverage = load_gw_coverage()
@@ -54,13 +64,19 @@ def get_region_set_factor_enrichments(regions):
     factor_coverage = np.zeros(len(gw_factor_coverage))
     for r in regions:
         r_chrm = r['chromosome']
-        r_start = hilbert_pos_to_order(r["i"], r["order"], 14)
-        # r_end = hilbert_pos_to_order(r["i"] + 1, r["order"], 14)
+        r_order = r["order"]
+        r_i = r["i"]
+        r_start = hilbert_pos_to_order(r_i, r_order, 14)
         # cap to end of chromosome for proper normalization
-        r_end = min(hilbert_pos_to_order(r["i"] + 1, r["order"], 14), CHR_SIZES_UCSC[r_chrm])
+        r_end = min(hilbert_pos_to_order(r_i + 1, r_order, 14), CHR_SIZES_UCSC[r_chrm])
 
         # collect coverage for each factor within region
-        r_factor_coverage = load_slice_coverage(r_chrm, r_start, r_end)
+        if r_order not in precalculated_orders or not allow_precalculated:
+            # load data from slice
+            r_factor_coverage = load_slice_coverage(r_chrm, r_start, r_end)
+        else:
+            # load precalculated data for entire segment
+            r_factor_coverage = load_precalculated_factor_coverage(r_chrm, r_order, r_i)
 
         # update coverage trackers
         factor_coverage += r_factor_coverage
@@ -113,9 +129,11 @@ def filtering_without_order():
     regions = request_info['regions']  # [{chromosome, i, order}, ...]
     N = request_info['N'] if 'N' in request_info else 10  # number of factors to suggest
     factor_exclusion = request_info['factor_exclusion'] if 'factor_exclusion' in request_info else []  # factors to exclude [{dataset, index}, ...]
+    allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
+    allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
 
     # test factors for enrichment within region set
-    enr = get_region_set_factor_enrichments(regions)
+    enr = get_region_set_factor_enrichments(regions, allow_precalculated=allow_precalculated)
     # collect the top N factors by enrichment
     top_factors, top_enr = get_top_factors(enr, N, factor_exclusion)
     # refactor for return

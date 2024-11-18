@@ -70,6 +70,7 @@ ORDER_SEGMENT_COUNTS = {
 
 chromosomes = np.append([f"chr{c}" for c in range(1, 23)], ['chrX', 'chrY'])
 orders = np.arange(4, 15)
+precalculated_region_set_enrichment_orders = [4, 5]
 #################
 
 ### DATA ###
