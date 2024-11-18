@@ -99,7 +99,7 @@ def get_top_factors(enr, N, factor_exclusion):
     factors = load_all_factors()
     
     # exclude factors
-    factor_exclusion = np.array([f"{f['dataset']}.{f['index']}" for f in factor_exclusion])
+    factor_exclusion = np.array([f"{f['dataset']}.{f['factor']}" for f in factor_exclusion])
     exclusion_mask = ~np.isin(factors, factor_exclusion)
     factors = factors[exclusion_mask]
     enr = enr[exclusion_mask]
@@ -128,7 +128,7 @@ def filtering_without_order():
     request_info = request.get_json()
     regions = request_info['regions']  # [{chromosome, i, order}, ...]
     N = request_info['N'] if 'N' in request_info else 10  # number of factors to suggest
-    factor_exclusion = request_info['factorExclusion'] if 'factorExclusion' in request_info else []  # factors to exclude [{dataset, index}, ...]
+    factor_exclusion = request_info['factorExclusion'] if 'factorExclusion' in request_info else []  # factors to exclude [{dataset, factor}, ...]
     allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
     allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
 
