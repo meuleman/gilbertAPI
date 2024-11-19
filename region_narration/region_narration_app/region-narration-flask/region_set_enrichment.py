@@ -126,7 +126,7 @@ def generate_return_data(top_factors, top_enr, top_counts):
     return json.dumps(
         [
             {
-                "dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "enrichment": e, "count": c
+                "dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "enrichment": float(e), "count": int(c)
             } for f, e, c in zip(top_factors, top_enr, top_counts)
         ]
     )
