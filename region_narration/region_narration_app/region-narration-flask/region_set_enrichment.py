@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from common import hilbert_pos_to_order
 import numpy as np
 import h5py
+from scipy.stats import rankdata
 # import pickle
 # import os
 import time
@@ -62,6 +63,7 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True):
     # for each region in region set, determine coverage of each factor
     region_coverage = 0
     factor_coverage = np.zeros(len(gw_factor_coverage))
+    segment_bin_count = np.zeros(len(gw_factor_coverage), dtype=int)
     for r in regions:
         r_chrm = r['chromosome']
         r_order = r["order"]
@@ -81,6 +83,7 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True):
         # update coverage trackers
         factor_coverage += r_factor_coverage
         region_coverage += (r_end - r_start)
+        segment_bin_count += (r_factor_coverage != 0).astype(int)
 
     # calculate factor enrichment
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -88,35 +91,45 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True):
         enr = np.log2(ooe)
 
     print(f"Time to calculate factor enrichments for region set: {time.time() - start}", flush=True)
-    return enr
+    return enr, segment_bin_count
 
 
 """
 Collects the top N factors by enrichment value. Filters out excluded factors. 
 """
-def get_top_factors(enr, N, factor_exclusion):
+def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=True):
     # collect all factors
     factors = load_all_factors()
     
     # exclude factors
     factor_exclusion = np.array([f"{f['dataset']}.{f['factor']}" for f in factor_exclusion])
-    exclusion_mask = ~np.isin(factors, factor_exclusion)
+    exclusion_mask = ~np.isin(factors, factor_exclusion) & (enr > 0)
     factors = factors[exclusion_mask]
     enr = enr[exclusion_mask]
+    segment_bin_count = segment_bin_count[exclusion_mask]
     
-    # sort by enrichment
-    sort_order = np.argsort(-enr)
-    # choose top N (ensuring positive enrichment)
-    top_factor_inds = sort_order[enr[sort_order] > 0][:N]
+    if corank:
+        enr_corank = rankdata(enr)
+        count_corank = rankdata(segment_bin_count)
+        top_factor_inds = np.argsort(-(enr_corank + count_corank))[:N]
+    else:
+        # sort by enrichment and take the top N
+        top_factor_inds = np.argsort(-enr)[:N]
 
-    return factors[top_factor_inds], enr[top_factor_inds]
+    return factors[top_factor_inds], enr[top_factor_inds], segment_bin_count[top_factor_inds]
 
 
 """
 Refactors factors for return
 """
-def generate_return_data(top_factors, top_enr):
-    return json.dumps([{"dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "enrichment": e} for f, e in zip(top_factors, top_enr)])
+def generate_return_data(top_factors, top_enr, top_counts):
+    return json.dumps(
+        [
+            {
+                "dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "enrichment": e, "count": c
+            } for f, e, c in zip(top_factors, top_enr, top_counts)
+        ]
+    )
 
 
 """
@@ -135,10 +148,10 @@ def filtering_without_order():
     print("FACTOR EXCLUSION", factor_exclusion, flush=True)
 
     # test factors for enrichment within region set
-    enr = get_region_set_factor_enrichments(regions, allow_precalculated=allow_precalculated)
+    enr, segment_bin_count = get_region_set_factor_enrichments(regions, allow_precalculated=allow_precalculated)
     # collect the top N factors by enrichment
-    top_factors, top_enr = get_top_factors(enr, N, factor_exclusion)
+    top_factors, top_enr, top_counts = get_top_factors(enr, segment_bin_count, N, factor_exclusion)
     # refactor for return
-    return_arr = generate_return_data(top_factors, top_enr)
+    return_arr = generate_return_data(top_factors, top_enr, top_counts)
 
     return return_arr
