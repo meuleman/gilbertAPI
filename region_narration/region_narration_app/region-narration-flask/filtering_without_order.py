@@ -266,14 +266,25 @@ def filtering_without_order():
         filter_order = [0]
     
     # iterate through filters
-    for fi in filter_order:
-        filter = filters[fi]
+    for i in filter_order:
+        fi = filters[i]
 
         # regions will not be None after the first filter
         if force_recalculation or regions is not None:
 
             # get segments
-            segments = get_segments(filter['factor'], filter['dataset'])
+            if (
+                (
+                    ('ooc' in fi['dataset']) or ('variants' in fi['dataset']) or ('ukbb' in fi['dataset'])
+                ) and (
+                    not force_recalculation
+                )
+            ):
+                # load precalculated, non-overlapping segments for OCC
+                segments = load_precalculated_segments(fi['factor'], fi['dataset'])
+            else:
+                # collect all segments for non-OCC
+                segments = get_segments(fi['factor'], fi['dataset'])
 
             # test segments for overlap with each other and with background regions
             no_segments = test_segments_for_overlap(segments, regions)
@@ -285,7 +296,7 @@ def filtering_without_order():
         # can only use precalculated segments for the first filter
         else:
             # load precalculated, non-overlapping segments
-            no_segments = load_precalculated_segments(filter['factor'], filter['dataset'])
+            no_segments = load_precalculated_segments(fi['factor'], fi['dataset'])
 
         # update regions in case of multiple filters
         regions = no_segments
