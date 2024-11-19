@@ -275,7 +275,7 @@ def filtering_without_order():
             # get segments
             if (
                 (
-                    ('ooc' in fi['dataset']) or ('variants' in fi['dataset']) or ('ukbb' in fi['dataset'])
+                    ('occ' in fi['dataset']) or ('variants' in fi['dataset']) or ('ukbb' in fi['dataset'])
                 ) and (
                     not force_recalculation
                 )
