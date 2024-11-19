@@ -280,9 +280,11 @@ def filtering_without_order():
                     not force_recalculation
                 )
             ):
+                print("Loading precalculated segments for filter", fi, flush=True)
                 # load precalculated, non-overlapping segments for OCC
                 segments = load_precalculated_segments(fi['factor'], fi['dataset'])
             else:
+                print("Collecting all segments for filter", fi, flush=True)
                 # collect all segments for non-OCC
                 segments = get_segments(fi['factor'], fi['dataset'])
 
