@@ -2,6 +2,8 @@ import h5py
 import numpy as np
 import time
 import os
+from subprocess import Popen, PIPE
+from constants import full_gene_path
 
 
 """
@@ -70,3 +72,17 @@ Converts an array of hilbert positions from one order to another
 """
 def hilbert_pos_to_order(pos, frm, to):
     return np.floor(pos / pow(4.0, frm - to)).astype(int)
+
+
+"""
+Queries a tabix file for provided genomic coordinates (chr:start-end)
+Return all the overlapping hits
+"""
+def gene_tabix_query(query):
+    # Use subprocess with tabix and return hits
+    process = Popen(['tabix', '-f', full_gene_path, query], stdout=PIPE)
+    
+    hits = []
+    for line in process.stdout:
+        hits.append(str(np.char.decode(line)).strip().split('\t'))
+    return hits

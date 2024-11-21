@@ -5,10 +5,9 @@ import json
 import h5py
 import os
 import time
-from common import fetch_indices_scores, hilbert_pos_to_order
+from common import fetch_indices_scores, hilbert_pos_to_order, gene_tabix_query
 # import tabix
-from subprocess import Popen, PIPE
-from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir, full_gene_path as gene_path
+from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -466,45 +465,31 @@ def generate_region_return(regions):
 
 
 """
-Queries a tabix file for provided genomic coordinates (chr:start-end)
-Return all the overlapping hits
-"""
-def tabix_query(query, filename):
-    # Use subprocess with tabix and return hits
-    process = Popen(['tabix', '-f', filename, query], stdout=PIPE)
-    
-    hits = []
-    for line in process.stdout:
-        hits.append(str(np.char.decode(line)).strip().split('\t'))
-    return hits
-
-
-"""
 Collects the genes associated with each path in each region.
 """
-def get_genes(regions, filepath=gene_path):
+def get_genes(regions):
     start = time.time()
     # for each region
     for region in regions:
         region_genes = []
         for pos in region['top_positions']:
             pos_coords = f"{region['chromosome']}:{pos}-{pos}"
-            genes = tabix_query(pos_coords, filepath)
+            genes = gene_tabix_query(pos_coords)
             region_genes.append({
                 'i': int(pos),
                 'genes': [
-                        {
-                            'chromosome': str(g[0]), 
-                            'domain_start': int(g[1]),
-                            'domain_end': int(g[2]),
-                            'name': str(g[3]),
-                            'stable_ID': str(g[4]),
-                            'strand': int(g[5]),
-                            'start': int(g[6]),
-                            'end': int(g[7]),
-                            'description': str(g[10]),
-                            'in_gene': bool((pos >= int(g[6])) & (pos <= int(g[7])))
-                        } for g in genes
+                    {
+                        'chromosome': str(g[0]), 
+                        'domain_start': int(g[1]),
+                        'domain_end': int(g[2]),
+                        'name': str(g[3]),
+                        'stable_ID': str(g[4]),
+                        'strand': int(g[5]),
+                        'start': int(g[6]),
+                        'end': int(g[7]),
+                        'description': str(g[10]),
+                        'in_gene': bool((pos >= int(g[6])) & (pos <= int(g[7])))
+                    } for g in genes
                 ]
             })
         region['genes'] = region_genes
