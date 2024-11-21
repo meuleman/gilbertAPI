@@ -3,7 +3,6 @@ import numpy as np
 import time
 import os
 from subprocess import Popen, PIPE
-from constants import full_gene_path
 
 
 """
@@ -78,9 +77,9 @@ def hilbert_pos_to_order(pos, frm, to):
 Queries a tabix file for provided genomic coordinates (chr:start-end)
 Return all the overlapping hits
 """
-def gene_tabix_query(query):
+def tabix_query(query, path):
     # Use subprocess with tabix and return hits
-    process = Popen(['tabix', '-f', full_gene_path, query], stdout=PIPE)
+    process = Popen(['tabix', '-f', path, query], stdout=PIPE)
     
     hits = []
     for line in process.stdout:

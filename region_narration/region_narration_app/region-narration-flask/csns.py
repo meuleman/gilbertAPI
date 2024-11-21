@@ -5,9 +5,9 @@ import json
 import h5py
 import os
 import time
-from common import fetch_indices_scores, hilbert_pos_to_order, gene_tabix_query
+from common import fetch_indices_scores, hilbert_pos_to_order, tabix_query
 # import tabix
-from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir
+from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir, full_gene_path
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -474,7 +474,7 @@ def get_genes(regions):
         region_genes = []
         for pos in region['top_positions']:
             pos_coords = f"{region['chromosome']}:{pos}-{pos}"
-            genes = gene_tabix_query(pos_coords)
+            genes = tabix_query(pos_coords, full_gene_path)
             region_genes.append({
                 'i': int(pos),
                 'genes': [

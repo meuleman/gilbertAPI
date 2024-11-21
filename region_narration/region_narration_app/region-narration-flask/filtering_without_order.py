@@ -7,8 +7,8 @@ import pickle
 import time
 import json
 from collections import defaultdict
-from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, order_independent_filtering_path, CHR_SIZES_UCSC
-from common import gene_tabix_query, hilbert_pos_to_order
+from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, order_independent_filtering_path, CHR_SIZES_UCSC, full_gene_path
+from common import tabix_query, hilbert_pos_to_order
 
 # Create a Blueprint
 filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
@@ -163,7 +163,7 @@ def generate_return(segments, max_regions=None, attach_genes=True):
 
         # attach genes overlapping region
         if attach_genes:
-            genes = gene_tabix_query(f"{s_chrm}:{s_i_start}-{s_i_end}")
+            genes = tabix_query(f"{s_chrm}:{s_i_start}-{s_i_end}", full_gene_path)
             genes_parsed = [
                 {
                     'chromosome': str(g[0]), 
