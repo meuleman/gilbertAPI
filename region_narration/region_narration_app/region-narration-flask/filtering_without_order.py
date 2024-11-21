@@ -147,11 +147,11 @@ def generate_return(segments, max_regions=None, attach_genes=True):
     return_array = []
 
     for s in segments:
+        s_order = int(s[0])
         s_chrm = s[1]
         s_i = int(s[2])
         s_i_start = hilbert_pos_to_order(s_i, s_order, 14)
         s_i_end = hilbert_pos_to_order(s_i + 1, s_order, 14)
-        s_order = int(s[0])
         s_score = float(s[3])
 
         s_return = {
