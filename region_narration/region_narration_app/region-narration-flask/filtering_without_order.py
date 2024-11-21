@@ -137,9 +137,11 @@ def test_segments_for_overlap(segments, regions=None):
 
 
 """
-Refactors segments for return
+Refactors segments for return. If more segments than max_regions, raises an error.
 """
-def generate_return(segments):
+def generate_return(segments, max_regions=None):
+    if ((max_regions is not None) and (len(segments) > max_regions)):
+        raise ValueError(f"Number of segments ({len(segments)}) exceeds the maximum allowed for return ({max_regions}).")
     start = time.time()
     return_array = []
     for s in segments:
@@ -254,6 +256,7 @@ def filtering_without_order():
     request_info = request.get_json()
     filters = request_info['filters']  # [{dataset, factor}, ...]
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
+    max_regions = request_info['max_regions'] if 'max_regions' in request_info else 100000
     force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
     force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
 
@@ -304,6 +307,6 @@ def filtering_without_order():
         regions = no_segments
 
     # refactor for return
-    return_array = generate_return(no_segments)
+    return_array = generate_return(no_segments, max_regions)
 
     return return_array
