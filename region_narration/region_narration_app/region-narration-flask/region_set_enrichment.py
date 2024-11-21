@@ -97,7 +97,7 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True):
 """
 Collects the top N factors by enrichment value. Filters out excluded factors. 
 """
-def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=True):
+def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False):
     # collect all factors
     factors = load_all_factors()
     
