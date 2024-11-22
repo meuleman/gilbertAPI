@@ -8,7 +8,6 @@ import time
 import json
 from collections import defaultdict
 from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, order_independent_filtering_path, CHR_SIZES_UCSC, full_gene_path
-from common import tabix_query, hilbert_pos_to_order
 
 # Create a Blueprint
 filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
@@ -140,7 +139,7 @@ def test_segments_for_overlap(segments, regions=None):
 """
 Refactors segments for return. If more segments than max_regions, raises an error.
 """
-def generate_return(segments, max_regions=None, attach_genes=True):
+def generate_return(segments, max_regions=None):
     if ((max_regions is not None) and (len(segments) > max_regions)):
         raise ValueError(f"Number of segments ({len(segments)}) exceeds the maximum allowed for return ({max_regions}).")
     start = time.time()
@@ -150,8 +149,6 @@ def generate_return(segments, max_regions=None, attach_genes=True):
         s_order = int(s[0])
         s_chrm = s[1]
         s_i = int(s[2])
-        s_i_start = hilbert_pos_to_order(s_i, s_order, 14)
-        s_i_end = hilbert_pos_to_order(s_i + 1, s_order, 14)
         s_score = float(s[3])
 
         s_return = {
@@ -160,32 +157,6 @@ def generate_return(segments, max_regions=None, attach_genes=True):
             "order": s_order,
             "score": s_score,
         }
-
-        # attach genes overlapping region
-        if attach_genes:
-            genes = tabix_query(f"{s_chrm}:{s_i_start}-{s_i_end}", full_gene_path)
-            genes_parsed = [
-                {
-                    'chromosome': str(g[0]), 
-                    'domain_start': int(g[1]),
-                    'domain_end': int(g[2]),
-                    'name': str(g[3]),
-                    'stable_ID': str(g[4]),
-                    'strand': int(g[5]),
-                    'start': int(g[6]),
-                    'end': int(g[7]),
-                    'description': str(g[10]),
-                    'in_gene': bool(
-                        (
-                            ((s_i_start <= int(g[6])) and (s_i_end > int(g[6]))) or 
-                            ((s_i_start < int(g[7])) and (s_i_end >= int(g[7]))) or 
-                            ((s_i_start > int(g[6])) and (s_i_end < int(g[7])))
-                        )
-                    )
-                } for g in genes
-            ]
-
-            s_return['genes'] = genes_parsed
 
         return_array.append(s_return)
 
@@ -296,8 +267,6 @@ def filtering_without_order():
     max_regions = request_info['max_regions'] if 'max_regions' in request_info else 100000
     force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
     force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
-    attach_genes = request_info['attach_genes'] if 'attach_genes' in request_info else True
-    attach_genes = attach_genes.lower() == "true" if type(attach_genes) == str else attach_genes
 
     if len(filters) > 1:
         # order the filters for optimal performance
@@ -346,6 +315,6 @@ def filtering_without_order():
         regions = no_segments
 
     # refactor for return
-    return_array = generate_return(no_segments, max_regions, attach_genes)
+    return_array = generate_return(no_segments, max_regions)
 
     return return_array
