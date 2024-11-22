@@ -56,7 +56,7 @@ def get_genes_for_segments(segments):
 """
 Endpoint to collect genes for each segment
 """
-@genes_bp.route("get_genes", methods=['POST'])
+@genes_bp.route("fetch_genes", methods=['POST'])
 def filtering_without_order():
 
     request_info = request.get_json()
