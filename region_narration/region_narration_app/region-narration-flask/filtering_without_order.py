@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from common import hilbert_pos_to_order, fetch_indices_scores
 import numpy as np
 import h5py
@@ -315,6 +315,12 @@ def filtering_without_order():
         regions = no_segments
 
     # refactor for return
-    return_array = generate_return(no_segments, max_regions)
+    try:
+        return_array = generate_return(no_segments, max_regions)
+        return return_array
+    
+    except ValueError as e:
+        return jsonify({"error": "ValueError", "message": str(e)}), 400
 
-    return return_array
+    except Exception as e:
+        return jsonify({"error": "ServerError", "message": "An unexpected error occurred"}), 500
