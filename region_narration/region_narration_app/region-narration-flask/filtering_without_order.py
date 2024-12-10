@@ -264,7 +264,7 @@ def filtering_without_order():
     request_info = request.get_json()
     filters = request_info['filters']  # [{dataset, factor}, ...]
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
-    max_regions = request_info['max_regions'] if 'max_regions' in request_info else 100000
+    max_regions = request_info['max_regions'] if 'max_regions' in request_info else 20000
     force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
     force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
 
