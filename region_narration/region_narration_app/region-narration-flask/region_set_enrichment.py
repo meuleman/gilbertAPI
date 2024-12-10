@@ -136,7 +136,7 @@ def generate_return_data(top_factors, top_enr, top_counts):
 Endpoint for calculating factor enrichment within a region set
 """
 @region_set_enrichment_bp.route("region_set_enrichment", methods=['POST'])
-def filtering_without_order():
+def region_set_enrichment():
 
     request_info = request.get_json()
     regions = request_info['regions']  # [{chromosome, i, order}, ...]
