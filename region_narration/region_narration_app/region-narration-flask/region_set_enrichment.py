@@ -3,7 +3,7 @@ from common import hilbert_pos_to_order
 import numpy as np
 import h5py
 from scipy.stats import rankdata
-# import pickle
+import pickle
 # import os
 import time
 import json
@@ -55,16 +55,20 @@ def load_precalculated_factor_coverage(chrm, order, i):
 Calculates the enrichment of bp coverage for each factor within a region set. Returns 
 the log2 of the observed over expected coverage for each factor.
 """
-def get_region_set_factor_enrichments(regions, allow_precalculated=True):
+def get_region_set_factor_enrichments(regions, allow_precalculated=True, membership=False):
     start = time.time()
     # load the genome-wide coverage of each factor
     gw_factor_coverage = load_gw_coverage()
 
     # for each region in region set, determine coverage of each factor
-    region_coverage = 0
-    factor_coverage = np.zeros(len(gw_factor_coverage))
-    segment_bin_count = np.zeros(len(gw_factor_coverage), dtype=int)
-    for r in regions:
+    if membership:
+        region_membership = np.zeros((len(gw_factor_coverage), len(regions)), dtype=bool)
+    else:
+        region_coverage = 0
+        factor_coverage = np.zeros(len(gw_factor_coverage))
+        segment_bin_count = np.zeros(len(gw_factor_coverage), dtype=int)
+
+    for i, r in enumerate(regions):
         r_chrm = r['chromosome']
         r_order = r["order"]
         r_i = r["i"]
@@ -81,17 +85,21 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True):
             r_factor_coverage = load_precalculated_factor_coverage(r_chrm, r_order, r_i)
 
         # update coverage trackers
-        factor_coverage += r_factor_coverage
-        region_coverage += (r_end - r_start)
-        segment_bin_count += (r_factor_coverage != 0).astype(int)
+        if membership:
+            region_membership[:, i] = r_factor_coverage > 0
+        else:
+            factor_coverage += r_factor_coverage
+            region_coverage += (r_end - r_start)
+            segment_bin_count += (r_factor_coverage != 0).astype(int)
 
-    # calculate factor enrichment
-    with np.errstate(divide='ignore', invalid='ignore'):
-        ooe = (factor_coverage / region_coverage) / gw_factor_coverage
-        enr = np.log2(ooe)
+    if not membership:
+        # calculate factor enrichment
+        with np.errstate(divide='ignore', invalid='ignore'):
+            ooe = (factor_coverage / region_coverage) / gw_factor_coverage
+            enr = np.log2(ooe)
 
     print(f"Time to calculate factor enrichments for region set: {time.time() - start}", flush=True)
-    return enr, segment_bin_count
+    return region_membership if membership else (enr, segment_bin_count) 
 
 
 """
@@ -120,14 +128,75 @@ def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False):
 
 
 """
+Parses membership for each factor and returns factor names in which region has membership
+"""
+def parse_membership(region_membership, factor_exclusion=[]):
+
+    # load factor names
+    factors = load_all_factors()
+
+    # exclude factors
+    factor_exclusion = np.array([f"{f['dataset']}.{f['factor']}" for f in factor_exclusion])
+    exclusion_mask = ~np.isin(factors, factor_exclusion)
+    region_membership = region_membership.flatten()[exclusion_mask]
+    factors = factors[exclusion_mask]
+
+    return factors[region_membership]
+
+
+"""
+Tests overlap of factor segments with region. Returns overlapping segments.
+"""
+def find_overlapping_segments(region, factor_to_test):
+    # chromosome of interest
+    r_chrm = region['chromosome']
+
+    overlapping_segments = {}
+    with h5py.File(order_independent_filtering_path, 'r') as f:
+        for factor in factor_to_test:
+
+            # load factor data on region chromosome
+            factor_data = pickle.loads(f[f"{factor}.{r_chrm}"][()].tobytes())
+
+            # look at segments at order greater than region order
+            above = factor_data[factor_data[:, 0] > region['order']]
+
+            # test overlap
+            overlapping = above[
+                hilbert_pos_to_order(above[:, 2], above[:, 0], region['order']) == region['i']
+            ]
+
+            # track overlapping segments
+            if len(overlapping) > 0:
+                overlapping_segments[factor] = overlapping
+
+    return overlapping_segments
+
+
+"""
 Refactors factors for return
 """
-def generate_return_data(top_factors, top_enr, top_counts):
+def generate_overlap_return_data(top_factors, top_enr, top_counts):
     return json.dumps(
         [
             {
                 "dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "enrichment": float(e), "count": int(c)
             } for f, e, c in zip(top_factors, top_enr, top_counts)
+        ]
+    )
+
+
+"""
+Generates return for factor segments overlapping region
+"""
+def generate_single_region_return_data(overlapping_segments):
+    return json.dumps(
+        [
+            {
+                "dataset": f.split('.')[0], "factor": int(f.split('.')[1]), "segments": [
+                    {'order': s[0], 'chromosome': s[1], 'i': int(s[2]), 'score': float(s[3])} for s in segments
+                ]
+            } for f, segments in overlapping_segments.items()
         ]
     )
 
@@ -145,13 +214,40 @@ def region_set_enrichment():
     allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
     allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
 
-    print("FACTOR EXCLUSION", factor_exclusion, flush=True)
+    # print("FACTOR EXCLUSION", factor_exclusion, flush=True)
 
     # test factors for enrichment within region set
     enr, segment_bin_count = get_region_set_factor_enrichments(regions, allow_precalculated=allow_precalculated)
     # collect the top N factors by enrichment
     top_factors, top_enr, top_counts = get_top_factors(enr, segment_bin_count, N, factor_exclusion)
     # refactor for return
-    return_arr = generate_return_data(top_factors, top_enr, top_counts)
+    return_arr = generate_overlap_return_data(top_factors, top_enr, top_counts)
+
+    return return_arr
+
+
+"""
+Endpoint for finding single region factor information
+"""
+@region_set_enrichment_bp.route("single_region_factor_query", methods=['POST'])
+def single_region_factor_query():
+
+    request_info = request.get_json()
+    region = request_info['region']  # {chromosome, i, order}
+    # N = request_info['N'] if 'N' in request_info else 10  # number of factors to suggest
+    factor_exclusion = request_info['factorExclusion'] if 'factorExclusion' in request_info else []  # factors to exclude [{dataset, factor}, ...]
+    allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
+    allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
+
+    # test factors for membershuo within region
+    region_membership = get_region_set_factor_enrichments([region], allow_precalculated=allow_precalculated, membership=True)
+
+    # determine factors for which region has membership
+    factor_to_test = parse_membership(region_membership, factor_exclusion)
+
+    # find overlapping segments
+    overlapping_segments = find_overlapping_segments(region, factor_to_test)
+
+    return_arr = generate_single_region_return_data(overlapping_segments)
 
     return return_arr
