@@ -506,7 +506,7 @@ def collect_partial_paths_and_scores(
         regions,
         datatype='factor',
         factors_path=os.path.join(partial_csn_dir, 'paths/full_path_factors.max_order_resolution.h5'),
-        scores_path=os.path.join(partial_csn_dir, 'scores/factor_scores.order_14_resolution.h5'),
+        scores_path=os.path.join(partial_csn_dir, 'scores/factor_scores.max_order_resolution.h5'),
         max_partial_order=13
     ):
     
