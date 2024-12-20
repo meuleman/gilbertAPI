@@ -7,7 +7,7 @@ import os
 import time
 from common import fetch_indices_scores, hilbert_pos_to_order, tabix_query
 # import tabix
-from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir, full_gene_path
+from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir, full_gene_path, partial_csn_dir
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -499,6 +499,46 @@ def get_genes(regions):
 
 
 """
+Collects and returns partial path factors and scores for a list of regions. If region
+order > max partial path order, path factors/scores for max possible order are returned.
+"""
+def collect_partial_paths_and_scores(
+        regions,
+        datatype='factor',
+        factors_path=os.path.join(partial_csn_dir, 'paths/full_path_factors.max_order_resolution.h5'),
+        scores_path=os.path.join(partial_csn_dir, 'scores/factor_scores.order_14_resolution.h5'),
+        max_partial_order=13
+    ):
+    
+    file_path = factors_path if datatype == 'factor' else scores_path
+    regions_data = []
+    with h5py.File(file_path, 'r') as f:
+        for r in regions:
+            r_order = r['order']
+            r_i = r['i']
+            # check if region order is greater than max partial order
+            if r_order > max_partial_order:
+                r_i = hilbert_pos_to_order(r_i, r_order, max_partial_order)
+                r_order = max_partial_order
+
+            r_data = f[f"max_order_{r_order}.{r['chromosome']}"][r_i]
+            regions_data.append(r_data)
+
+    return regions_data
+
+"""
+Create return object for partial paths
+"""
+def generate_partial_path_return(regions, regions_factors, regions_scores):
+    for i in range(len(regions)):
+        region = regions[i]
+        region['path_factors'] = regions_factors[i].tolist()
+        region['factor_scores'] = regions_scores[i].tolist()
+
+    return json.dumps({"regions": regions})
+
+
+"""
 Endpoint for fetching the top paths based on a set of filters and regions.
 """
 @csns_bp.route("top_paths", methods=['POST'])
@@ -592,4 +632,23 @@ def native_order_resolution_regions():
     # generate the return object
     return_object = generate_region_return(regions)
     
+    return return_object
+
+
+"""
+Endpoint for collecting partial paths for a list of regions
+"""
+@csns_bp.route("partial_paths_for_regions", methods=['POST'])
+def partial_paths_for_regions():
+    request_info = request.get_json()
+    
+    regions = request_info['regions']  # [{chromosome, order, i}, ...]
+
+    # collect partial path factors and scores
+    regions_factors = collect_partial_paths_and_scores(regions, datatype='factor')
+    regions_scores = collect_partial_paths_and_scores(regions, datatype='score')
+
+    # generate the return object
+    return_object = generate_partial_path_return(regions, regions_factors, regions_scores)
+
     return return_object
