@@ -510,6 +510,9 @@ def collect_partial_paths_and_scores(
         max_partial_order=13
     ):
     
+    print(f"Collecting partial paths for {len(regions)} regions...", flush=True)
+    start = time.time()
+
     file_path = factors_path if datatype == 'factor' else scores_path
     regions_data = []
     with h5py.File(file_path, 'r') as f:
@@ -523,6 +526,8 @@ def collect_partial_paths_and_scores(
 
             r_data = f[f"max_order_{r_order}.{r['chromosome']}"][r_i]
             regions_data.append(r_data)
+
+    print(f"Time to collect partial paths for regions: {time.time() - start}", flush=True)
 
     return regions_data
 
