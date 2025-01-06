@@ -132,6 +132,8 @@ Parses membership for each factor and returns factor names in which region has m
 """
 def parse_membership(region_membership, factor_exclusion=[]):
 
+    start = time.time()
+
     # load factor names
     factors = load_all_factors()
 
@@ -141,6 +143,7 @@ def parse_membership(region_membership, factor_exclusion=[]):
     region_membership = region_membership.flatten()[exclusion_mask]
     factors = factors[exclusion_mask]
 
+    print(f"Time to parse factor membership: {time.time() - start}", flush=True)
     return factors[region_membership]
 
 
@@ -148,6 +151,9 @@ def parse_membership(region_membership, factor_exclusion=[]):
 Tests overlap of factor segments with region. Returns overlapping segments.
 """
 def find_overlapping_segments(region, factor_to_test):
+
+    start = time.time()
+
     # chromosome of interest
     r_chrm = region['chromosome']
 
@@ -170,6 +176,7 @@ def find_overlapping_segments(region, factor_to_test):
             if len(overlapping) > 0:
                 overlapping_segments[factor] = overlapping
 
+    print(f"Time to find overlapping segments for {len(factor_to_test)} factors: {time.time() - start}", flush=True)
     return overlapping_segments
 
 
