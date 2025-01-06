@@ -239,7 +239,7 @@ def single_region_factor_query():
     allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
     allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
 
-    # test factors for membershuo within region
+    # test factors for membership within region
     region_membership = get_region_set_factor_enrichments([region], allow_precalculated=allow_precalculated, membership=True)
 
     # determine factors for which region has membership
