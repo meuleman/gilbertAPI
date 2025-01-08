@@ -150,19 +150,23 @@ def parse_membership(region_membership, factor_exclusion=[]):
 """
 Tests overlap of factor segments with region. Returns overlapping segments.
 """
-def find_overlapping_segments(region, factor_to_test):
+def find_overlapping_segments(region, factors_to_test, splitorder=4):
 
     start = time.time()
 
     # chromosome of interest
     r_chrm = region['chromosome']
+    # splitorder position of region
+    r_splitorder_pos = hilbert_pos_to_order(region['i'], region['order'], splitorder)
+    h5_dataset_name = f"splitorder_{splitorder}.{r_splitorder_pos}"
 
     overlapping_segments = {}
     with h5py.File(order_independent_filtering_path, 'r') as f:
-        for factor in factor_to_test:
+        for factor in factors_to_test:
 
-            # load factor data on region chromosome
-            factor_data = pickle.loads(f[f"{factor}.{r_chrm}"][()].tobytes())
+            # load factor data from region split (chromosome and splitorder position)
+            h5_group_name = f"{factor}.{r_chrm}"
+            factor_data = pickle.loads(f[f"{h5_group_name}/{h5_dataset_name}"][()].tobytes())
 
             # look at segments at order greater than region order
             above = factor_data[factor_data[:, 0] > region['order']]
@@ -176,7 +180,7 @@ def find_overlapping_segments(region, factor_to_test):
             if len(overlapping) > 0:
                 overlapping_segments[factor] = overlapping
 
-    print(f"Time to find overlapping segments for {len(factor_to_test)} factors: {time.time() - start}", flush=True)
+    print(f"Time to find overlapping segments for {len(factors_to_test)} factors: {time.time() - start}", flush=True)
     return overlapping_segments
 
 
@@ -250,10 +254,10 @@ def single_region_factor_query():
     region_membership = get_region_set_factor_enrichments([region], allow_precalculated=allow_precalculated, membership=True)
 
     # determine factors for which region has membership
-    factor_to_test = parse_membership(region_membership, factor_exclusion)
+    factors_to_test = parse_membership(region_membership, factor_exclusion)
 
     # find overlapping segments
-    overlapping_segments = find_overlapping_segments(region, factor_to_test)
+    overlapping_segments = find_overlapping_segments(region, factors_to_test)
 
     return_arr = generate_single_region_return_data(overlapping_segments)
 
