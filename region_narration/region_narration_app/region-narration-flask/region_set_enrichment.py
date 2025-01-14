@@ -105,7 +105,7 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True, members
 """
 Collects the top N factors by enrichment value. Filters out excluded factors. 
 """
-def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False):
+def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, count=True):
     # collect all factors
     factors = load_all_factors()
     
@@ -120,6 +120,9 @@ def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False):
         enr_corank = rankdata(enr)
         count_corank = rankdata(segment_bin_count)
         top_factor_inds = np.argsort(-(enr_corank + count_corank))[:N]
+    elif count:
+        # sort by count and take the top N
+        top_factor_inds = np.argsort(-segment_bin_count)[:N]
     else:
         # sort by enrichment and take the top N
         top_factor_inds = np.argsort(-enr)[:N]
