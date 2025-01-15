@@ -121,11 +121,11 @@ def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, c
         count_corank = rankdata(segment_bin_count)
         top_factor_inds = np.argsort(-(enr_corank + count_corank))[:N]
     elif count:
-        # sort by count and take the top N
-        top_factor_inds = np.argsort(-segment_bin_count)[:N]
+        # sort primarily by count and take the top N
+        top_factor_inds = np.lexsort((-enr, -segment_bin_count))[:N]
     else:
-        # sort by enrichment and take the top N
-        top_factor_inds = np.argsort(-enr)[:N]
+        # sort primarily by enrichment and take the top N
+        top_factor_inds = np.lexsort((-segment_bin_count, -enr))[:N]
 
     return factors[top_factor_inds], enr[top_factor_inds], segment_bin_count[top_factor_inds]
 
