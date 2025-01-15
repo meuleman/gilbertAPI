@@ -105,13 +105,13 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True, members
 """
 Collects the top N factors by enrichment value. Filters out excluded factors. 
 """
-def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, count=True):
+def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, count=True, enrichment_threshold=1):
     # collect all factors
     factors = load_all_factors()
     
     # exclude factors
     factor_exclusion = np.array([f"{f['dataset']}.{f['factor']}" for f in factor_exclusion])
-    exclusion_mask = ~np.isin(factors, factor_exclusion) & (enr > 0)
+    exclusion_mask = ~np.isin(factors, factor_exclusion) & (enr >= enrichment_threshold)
     factors = factors[exclusion_mask]
     enr = enr[exclusion_mask]
     segment_bin_count = segment_bin_count[exclusion_mask]
