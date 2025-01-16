@@ -33,7 +33,7 @@ Performs hypergeometric test with provided list of genes to determine enrichment
 Returns a list of p-values for each geneset. If membership is True, returns a boolean array of 
 geneset membership for test genes.
 """
-def perform_geneset_hypergeometric_test(genes_for_test, gsXgene=gsXgene, genes=genes, genesets=genesets, membership=False):
+def perform_geneset_hypergeometric_test(genes_for_test, gsXgene=gsXgene, genes=genes, genesets=genesets, membership=False, bonferroni=False):
     start = time.time()
 
     # take the unique genes (in case neighboring regions point to the same gene)
@@ -53,8 +53,8 @@ def perform_geneset_hypergeometric_test(genes_for_test, gsXgene=gsXgene, genes=g
         # Perform the hypergeometric test
         p = hypergeom.sf(k-1, M, n, N)
 
-        # # bonferroni correction
-        # p = (p * len(genesets)).clip(max=1)
+        # bonferroni correction
+        p = (p * len(genesets)).clip(max=1) if bonferroni else p
 
     print(f"Time to calculate enrichments for each geneset: {time.time() - start}", flush=True)
     return p
