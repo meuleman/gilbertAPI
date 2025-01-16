@@ -13,21 +13,25 @@ genes_bp = Blueprint('genes_bp', __name__)
 """
 Collects genes overlapping each segment
 """
-def get_genes_for_segments(segments):
+def get_genes_for_regions(regions):
     start = time.time()
-    print(f"Collecting genes for {len(segments)} regions", flush=True)
+    print(f"Collecting genes for {len(regions)} regions", flush=True)
 
     genes = []
-    for s in segments:
-        s_order = int(s["order"])
-        s_chrm = s["chromosome"]
-        s_i = s["i"]
-        s_i_start = hilbert_pos_to_order(s_i, s_order, 14)
-        s_i_end = hilbert_pos_to_order(s_i + 1, s_order, 14)
+    for r in regions:
+        if "coordinates" in r:
+            r_coordinates = r["coordinates"]
+        else:
+            r_order = int(r["order"])
+            r_chrm = r["chromosome"]
+            r_i = r["i"]
+            r_i_start = hilbert_pos_to_order(r_i, r_order, 14)
+            r_i_end = hilbert_pos_to_order(r_i + 1, r_order, 14)
+            r_coordinates = f"{r_chrm}:{r_i_start}-{r_i_end}"
 
         # attach genes overlapping region
-        s_genes = tabix_query(f"{s_chrm}:{s_i_start}-{s_i_end}", full_gene_path)
-        s_genes_parsed = [
+        r_genes = tabix_query(r_coordinates, full_gene_path)
+        r_genes_parsed = [
             {
                 'chromosome': str(g[0]), 
                 'domain_start': int(g[1]),
@@ -40,14 +44,14 @@ def get_genes_for_segments(segments):
                 'description': str(g[10]),
                 'in_gene': bool(
                     (
-                        ((s_i_start <= int(g[6])) and (s_i_end > int(g[6]))) or 
-                        ((s_i_start < int(g[7])) and (s_i_end >= int(g[7]))) or 
-                        ((s_i_start > int(g[6])) and (s_i_end < int(g[7])))
+                        ((r_i_start <= int(g[6])) and (r_i_end > int(g[6]))) or 
+                        ((r_i_start < int(g[7])) and (r_i_end >= int(g[7]))) or 
+                        ((r_i_start > int(g[6])) and (r_i_end < int(g[7])))
                     )
                 )
-            } for g in s_genes
+            } for g in r_genes
         ]
-        genes.append(s_genes_parsed)
+        genes.append(r_genes_parsed)
 
     print(f"Time to collect genes: {time.time() - start}", flush=True)
     return json.dumps({"genes": genes})
@@ -60,9 +64,9 @@ Endpoint to collect genes for each segment
 def fetch_genes():
 
     request_info = request.get_json()
-    regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
+    regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...] or [{coordinates}, ...]
 
     # collect genes for each segment
-    genes = get_genes_for_segments(regions)
+    genes = get_genes_for_regions(regions)
 
     return genes
