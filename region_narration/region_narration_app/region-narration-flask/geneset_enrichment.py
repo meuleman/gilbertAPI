@@ -95,14 +95,15 @@ def get_geneset_genes(geneset):
 Endpoint for calculating enrichment for genesets given a list of genes
 """
 @geneset_enrichment_bp.route("geneset_enrichment", methods=['POST'])
-def geneset_enrichmenr():
+def geneset_enrichment():
     request_info = request.get_json()
-    genes_for_test = request_info['genes']  # ["gene1", "gene2", ...]
-    threshold = request_info.get('threshold', 0.05)  # default threshold is 0.05
-    membership = str(request_info.get('membership', "False")).lower() == "true"  # default membership is False, convert to boolean
+    genes_for_test = request_info["genes"]  # ["gene1", "gene2", ...]
+    threshold = request_info.get("threshold", 0.05)  # default threshold is 0.05
+    membership = str(request_info.get("membership", "False")).lower() == "true"  # default membership is False, convert to boolean
+    bonferroni = str(request_info.get("bonferroni", "False")).lower() == "true"  # default bonferroni is False, convert to boolean
 
     # test enrichment of genes (if membership, p is bool array)
-    p = perform_geneset_hypergeometric_test(genes_for_test, membership=membership)
+    p = perform_geneset_hypergeometric_test(genes_for_test, membership=membership, bonferroni=bonferroni)
 
     # generate return data
     return_list = generate_return_data(p, threshold=threshold)
