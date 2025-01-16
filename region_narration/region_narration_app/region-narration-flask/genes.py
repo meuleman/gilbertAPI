@@ -21,13 +21,15 @@ def get_genes_for_regions(regions):
     for r in regions:
         if "coordinates" in r:
             r_coordinates = r["coordinates"]
+            r_start = int(r_coordinates.split(":")[1].split("-")[0])
+            r_end = int(r_coordinates.split(":")[1].split("-")[1])
         else:
             r_order = int(r["order"])
             r_chrm = r["chromosome"]
             r_i = r["i"]
-            r_i_start = hilbert_pos_to_order(r_i, r_order, 14)
-            r_i_end = hilbert_pos_to_order(r_i + 1, r_order, 14)
-            r_coordinates = f"{r_chrm}:{r_i_start}-{r_i_end}"
+            r_start = hilbert_pos_to_order(r_i, r_order, 14)
+            r_end = hilbert_pos_to_order(r_i + 1, r_order, 14)
+            r_coordinates = f"{r_chrm}:{r_start}-{r_end}"
 
         # attach genes overlapping region
         r_genes = tabix_query(r_coordinates, full_gene_path)
@@ -44,9 +46,9 @@ def get_genes_for_regions(regions):
                 'description': str(g[10]),
                 'in_gene': bool(
                     (
-                        ((r_i_start <= int(g[6])) and (r_i_end > int(g[6]))) or 
-                        ((r_i_start < int(g[7])) and (r_i_end >= int(g[7]))) or 
-                        ((r_i_start > int(g[6])) and (r_i_end < int(g[7])))
+                        ((r_start <= int(g[6])) and (r_end > int(g[6]))) or 
+                        ((r_start < int(g[7])) and (r_end >= int(g[7]))) or 
+                        ((r_start > int(g[6])) and (r_end < int(g[7])))
                     )
                 )
             } for g in r_genes
