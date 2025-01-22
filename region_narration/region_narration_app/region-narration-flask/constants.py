@@ -79,3 +79,8 @@ precalculated_region_set_enrichment_orders = [4, 5]
 # preload all indices for filter previews
 PRELOADED_INDICES = preload_preview_indices(filtering_path)
 ############
+
+
+####PUBMED SUMMARY####
+MODEL_ID = "nomic-ai/nomic-embed-text-v1.5"
+LANCEDB_URI = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/lancedb/jcr_mini"

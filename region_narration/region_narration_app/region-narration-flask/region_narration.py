@@ -20,6 +20,7 @@ from geneset_enrichment import geneset_enrichment_bp
 from filtering_without_order import filtering_without_order_bp
 from region_set_enrichment import region_set_enrichment_bp
 from genes import genes_bp
+from pubmed_summary import pubmed_summary_bp
 
 
 app = Flask(__name__)
@@ -1086,6 +1087,8 @@ app.register_blueprint(filtering_without_order_bp, url_prefix='/api/filteringWit
 app.register_blueprint(region_set_enrichment_bp, url_prefix='/api/regionSetEnrichment') # Register the Blueprint at /api/regionSetEnrichment
 ###########Genes############
 app.register_blueprint(genes_bp, url_prefix='/api/genes') # Register the Blueprint at /api/genes
+####Pubmed Summary Model####
+app.register_blueprint(pubmed_summary_bp, url_prefix='/api/pubmedSummary') # Register the Blueprint at /api/pubmedSummary
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
