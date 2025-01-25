@@ -134,7 +134,10 @@ def rag_generate():
     print("🔍🗣️ query", query, flush=True)
 
     start = time.time()
-    print("MODEL DEBUG", model_components["model"], sys.getsizeof(model_components["model"]), model_components, flush=True)
+    print("MODEL DEBUG", flush=True)
+    print(model_components["model"], flush=True)
+    print("MODEL DEBUG END", flush=True)
+    
     embeddings = model_components["model"].encode(query, normalize_embeddings=True)
     print(f"Embeddings time: {time.time() - start}", flush=True)
 
