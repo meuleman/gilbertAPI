@@ -9,6 +9,7 @@ import lancedb
 import outlines
 from outlines import models, generate
 import torch
+import sys
 # import pyarrow as pa
 # from logger import ParquetRequestLogger
 import uuid
@@ -133,6 +134,7 @@ def rag_generate():
     print("🔍🗣️ query", query, flush=True)
 
     start = time.time()
+    print("MODEL DEBUG", model_components["model"], sys.getsizeof(model_components["model"]), model_components, flush=True)
     embeddings = model_components["model"].encode(query, normalize_embeddings=True)
     print(f"Embeddings time: {time.time() - start}", flush=True)
 
