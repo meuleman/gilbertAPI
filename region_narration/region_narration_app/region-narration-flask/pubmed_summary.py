@@ -121,7 +121,7 @@ def start_engine():
 
 # initialize the model and its components on startup
 model_components = start_engine()
-
+print(f"🤖 model initialized", flush=True)
 
 
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
