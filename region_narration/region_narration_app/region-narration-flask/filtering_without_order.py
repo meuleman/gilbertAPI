@@ -254,6 +254,118 @@ def load_precalculated_segments(factor, dataset):
     print(f"Time to load precalculated segments: {time.time() - start}")
     return segments
 
+"""
+Creates and adds filter segments to overlap tacker, returns tracker and segments (including
+start and end bp positions as well as dataset indicator). 
+"""
+def fill_tracker_with_segments(segments):
+    # add start and end positions and factor inidcator to each segment
+    segments_full = [
+        np.hstack((
+            s, 
+            hilbert_pos_to_order(s[:, 2], s[:, 0], 14).reshape(-1, 1), 
+            hilbert_pos_to_order(s[:, 2] + 1, s[:, 0], 14).reshape(-1, 1),
+            np.ones(len(s), dtype=int).reshape(-1, 1) * i)
+        ) for i, s in enumerate(segments)
+    ]
+
+    # initialize overlap tracker
+    factor_tracker = {
+        chrm: np.zeros((len(segments_full), CHR_SIZES_UCSC[chrm]), dtype=bool) for chrm in CHR_SIZES_UCSC
+    }
+
+    # fill tracker with segments
+    for i, factor_segments in enumerate(segments_full):
+        for s in factor_segments:
+            factor_tracker[s[1]][i, s[4]:s[5]] = 1
+    
+    return factor_tracker, segments_full
+
+
+"""
+Uses tracker to find regions from set that contain overlap with all filters of interest. 
+Stops searching after N regions are found. Returns chosen regions (with bp range where
+filter segments can be found).
+"""
+def determine_regions_with_factor_overlap(regions, N, factor_tracker):
+    collected_regions = []
+    i = 0
+    while ((len(collected_regions) < N) and (i < len(regions))):
+
+        r = regions[i]
+        r_start = hilbert_pos_to_order(r['i'], r['order'], 14)
+        r_end = hilbert_pos_to_order(r['i'] + 1, r['order'], 14)
+
+        r_all_factor_overlap = np.all(factor_tracker[r['chromosome']][:, r_start:r_end], axis=0)
+        if np.any(r_all_factor_overlap):
+            # determine subregions where overlap is found
+            where_overlap = np.where(r_all_factor_overlap)[0] + r_start
+            pos_diffs = np.diff(where_overlap)
+            r_subranges = np.sort(
+                np.concatenate(
+                    [
+                        where_overlap[np.where(pos_diffs > 1)[0]] + 1,
+                        where_overlap[np.where(pos_diffs > 1)[0] + 1], 
+                        [where_overlap[0], where_overlap[-1] + 1]
+                    ]
+                )
+            ).reshape(-1, 2)
+            # add to region information
+            r['ranges'] = r_subranges.tolist()
+            collected_regions.append(r)
+        i += 1
+    return collected_regions
+
+
+"""
+For each chosen region, identifies a single high resolution gilbert segment subregion that
+contains datapoints from each applied filter.
+"""
+def refine_subregion(collected_regions, segments_full):
+    # join segments across datasets
+    segment_stack = np.vstack(segments_full)
+    # split by chromosome for faster filtering
+    segment_stack_split = {chrm: segment_stack[segment_stack[:, 1] == chrm] for chrm in CHR_SIZES_UCSC}
+
+    for r in collected_regions:
+        # for now, just choose one of the subranges
+        r_range = r['ranges'][0]
+
+        # there can be multiple possible endpoints within these regions, but any would work
+        # start with highest scoring segments
+        chrm_segments = segment_stack_split[r['chromosome']]
+        overlap_stack = chrm_segments[
+            (((chrm_segments[:, 4] <= r_range[0]) & (chrm_segments[:, 5] > r_range[0])) |
+            ((chrm_segments[:, 4] < r_range[1]) & (chrm_segments[:, 5] >= r_range[1])) |
+            ((chrm_segments[:, 4] >= r_range[0]) & (chrm_segments[:, 5] <= r_range[1])))
+        ]
+        # sort primarily by score (descending), then order (ascending)
+        overlap_stack = overlap_stack[np.lexsort((overlap_stack[:, 0], -overlap_stack[:, 3]))]
+
+        # choose one segment per factor to add to subpath and refine scope
+        reduced_stack = []
+        while len(overlap_stack) > 0:
+            # add best available segment
+            chosen_segment = overlap_stack[0]
+            reduced_stack.append(chosen_segment)
+            # remove all segments from factor from segment list
+            overlap_stack = overlap_stack[overlap_stack[:, 6] != chosen_segment[6]]
+            # refine scope to ensure all remaining segments fall within latest segment addition
+            r_range = [max(r_range[0], chosen_segment[4]), min(r_range[1], chosen_segment[5])]
+            overlap_stack = overlap_stack[(
+                ((overlap_stack[:, 4] <= r_range[0]) & (overlap_stack[:, 5] > r_range[0])) |
+                ((overlap_stack[:, 4] < r_range[1]) & (overlap_stack[:, 5] >= r_range[1])) |
+                ((overlap_stack[:, 4] >= r_range[0]) & (overlap_stack[:, 5] <= r_range[1]))
+            )]
+
+        reduced_stack = np.array(reduced_stack)
+
+        # choose highest resolution segment
+        hr_segment = reduced_stack[np.argmax(reduced_stack[:, 0])]
+        hr_segment[2] = int(hr_segment[2])
+        r['subregion'] = hr_segment[:3].tolist()
+    return
+
 
 """
 Endpoint for filtering on a factor without a specified order
@@ -324,3 +436,48 @@ def filtering_without_order():
 
     except Exception as e:
         return jsonify({"error": "ServerError", "message": "An unexpected error occurred"}), 500
+    
+
+
+"""
+Endpoint for backfill region filtering
+"""
+@filtering_without_order_bp.route("backfill_region_filtering", methods=['POST'])
+def filtering_without_order():
+
+    request_info = request.get_json()
+    filters = request_info['filters']  # [{dataset, factor}, ...]
+    regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
+    N = request_info['N'] if 'N' in request_info else 100
+    force_recalculation = request_info['force_recalculation'] if 'force_recalculation' in request_info else False
+    force_recalculation = force_recalculation.lower() == "true" if type(force_recalculation) == str else force_recalculation
+
+    total_t = time.time()
+    # collect segments across filters
+    t = time.time()
+    segments = [
+        load_precalculated_segments(
+            f['factor'], f['dataset']
+        )  if '_occ' in f['dataset'] else get_segments(
+            f['factor'], f['dataset']
+        ) for f in filters
+    ]
+    print(f"Total time to collect filter segments: {time.time() - t}", flush=True)
+
+    # track segment overlap
+    t = time.time()
+    factor_tracker, segments_full = fill_tracker_with_segments(segments)
+    print(f"Total time to determine bp overlap of filter data: {time.time() - t}", flush=True)
+
+    # determine subregion ranges with overlap
+    t = time.time()
+    collected_regions = determine_regions_with_factor_overlap(regions, N, factor_tracker)
+    print(f"Total time to determine regions with overlap: {time.time() - t}", flush=True)
+
+    # for confirmed regions, find exact subregion gilbert segment adhering to filters
+    t = time.time()
+    refine_subregion(collected_regions, segments_full)
+    print(f"Total time to find subregions: {time.time() - t}", flush=True)
+    print(f"\tTotal time to perform backfill filtering: {time.time() - total_t}", flush=True)
+
+    return json.dumps({"regions": collected_regions})
