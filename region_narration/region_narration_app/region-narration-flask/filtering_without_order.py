@@ -458,7 +458,13 @@ def filtering_without_order():
     segments = [
         load_precalculated_segments(
             f['factor'], f['dataset']
-        )  if '_occ' in f['dataset'] else get_segments(
+        ) if (
+                (
+                    ('occ' in f['dataset']) or ('variants' in f['dataset']) or ('ukbb' in f['dataset'])
+                ) and (
+                    not force_recalculation
+                )
+        ) else get_segments(
             f['factor'], f['dataset']
         ) for f in filters
     ]
