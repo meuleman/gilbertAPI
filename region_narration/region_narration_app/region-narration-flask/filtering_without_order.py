@@ -443,7 +443,7 @@ def filtering_without_order():
 Endpoint for backfill region filtering
 """
 @filtering_without_order_bp.route("backfill_region_filtering", methods=['POST'])
-def filtering_without_order():
+def backfill_region_filtering():
 
     request_info = request.get_json()
     filters = request_info['filters']  # [{dataset, factor}, ...]
