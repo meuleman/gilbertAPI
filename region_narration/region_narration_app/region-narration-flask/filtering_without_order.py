@@ -362,8 +362,11 @@ def refine_subregion(collected_regions, segments_full):
 
         # choose highest resolution segment
         hr_segment = reduced_stack[np.argmax(reduced_stack[:, 0])]
-        hr_segment[2] = int(hr_segment[2])
-        r['subregion'] = {"order": hr_segment[0], "chromosome": hr_segment[1], "i": int(hr_segment[2])}
+        # subregion should be highest resolution segment (either region or segment from filtering)
+        if hr_segment[0] > r['order']:
+            r['subregion'] = {"order": hr_segment[0], "chromosome": hr_segment[1], "i": int(hr_segment[2])}
+        else:
+            r['subregion'] = {"order": r['order'], "chromosome": r['chromosome'], "i": r['i']}
     return
 
 
