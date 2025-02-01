@@ -126,7 +126,7 @@ print(f"🤖 model initialized", flush=True)
 
 
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
-def rag_generate():
+def pubmed_summary():
     request_info = request.get_json()
     query = request_info["query"]
     # narration = request_info.get("narration", None)
