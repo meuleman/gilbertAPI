@@ -30,6 +30,11 @@ def start_engine():
     start = time.monotonic_ns()
     model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
     model.eval()
+
+    print("🔥 test embedding capabilities of model", flush=True)
+    startup_embeddings = model.encode(["hello world"], normalize_embeddings=True)
+    print(("🔥 model was able to encode Hello World", startup_embeddings), flush=True)
+
     # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
     duration_s = (time.monotonic_ns() - start) / 1e9
     print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
