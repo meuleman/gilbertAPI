@@ -145,7 +145,7 @@ def start_engine():
 
 
 def get_summary(query, model, table, rag_prompt, examples, api_key):
-    print("MODEL INFO:", query, model, table, rag_prompt, examples, flush=True)
+    print("MODEL INFO:", query, type(model), type(table), type(rag_prompt), type(examples), flush=True)
     start = time.time()
     embeddings = model.encode(query, normalize_embeddings=True)
     print(f"\tEmbeddings time: {time.time() - start}", flush=True)
