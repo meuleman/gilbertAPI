@@ -257,7 +257,7 @@ def get_summary(query, model, table, rag_prompt, examples, api_key):
     start = time.time()
     embeddings = model.encode(query, normalize_embeddings=True)
     print(f"\tEmbeddings time: {time.time() - start}", flush=True)
-    print(f"\tEmbeddings: {embeddings}", flush=True)
+    # print(f"\tEmbeddings: {embeddings}", flush=True)
     
     start = time.time()
     results = table.search(embeddings).metric("cosine").limit(10).to_list()
