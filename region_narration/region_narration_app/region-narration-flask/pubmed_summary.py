@@ -8,10 +8,14 @@ import os
 os.environ["HF_HOME"]="~/.cache/huggingface/datasets"
 
 import time
+import logging
 from sentence_transformers import SentenceTransformer
 import transformers
 transformers.logging.set_verbosity_info()
 import lancedb
+
+logging.basicConfig(level=logging.DEBUG)
+
 import outlines
 from outlines import models, generate
 import torch
