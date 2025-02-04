@@ -8,13 +8,13 @@ import os
 os.environ["HF_HOME"]="~/.cache/huggingface/datasets"
 
 import time
-import logging
+# import logging
 from sentence_transformers import SentenceTransformer
 import transformers
 transformers.logging.set_verbosity_info()
 import lancedb
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 import outlines
 from outlines import models, generate
@@ -40,6 +40,15 @@ pubmed_summary_bp = Blueprint('pubmed_summary_bp', __name__)
 # print(f"table opened {_table.schema}", flush=True)
 # print(f"{_table.search().limit(10).to_list()}")
 
+
+_db_connection = None
+def get_db_connection():
+    global _db_connection
+    if _db_connection is None:
+        print("Initializing new DB connection", flush=True)
+        _db_connection = lancedb.connect(LANCEDB_URI)
+    return _db_connection
+
 _model_components = None
 def get_model_components():
     global _model_components
@@ -54,11 +63,12 @@ def get_model_components():
         duration_s = (time.monotonic_ns() - start) / 1e9
         print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
 
-        # print(f"db loading from {LANCEDB_URI}", flush=True)
+        print(f"db loading from {LANCEDB_URI}", flush=True)
         # db = lancedb.connect(LANCEDB_URI)
-        # print("db loaded", flush=True)
-        # table = db.open_table("jcr-mini")
-        # print("table opened", flush=True)
+        db = get_db_connection() 
+        print("db loaded", flush=True)
+        table = db.open_table("jcr-mini")
+        print("table opened", flush=True)
 
         default_instructions = """"""
         examples = [
@@ -131,7 +141,7 @@ def get_model_components():
 
         _model_components = {
             "model": model,
-            # "table": _table,
+            "table": table,
             "summary_prompt": summary_prompt,
             "rag_prompt": rag_prompt,
             "examples": examples,
@@ -374,7 +384,7 @@ def pubmed_summary_test():
     table = db.open_table("jcr-mini")
     print("table opened", flush=True)
 
-    summary = get_summary(query, model_components["model"], table, model_components["rag_prompt"], model_components["examples"], api_key)
+    summary = get_summary(query, model_components["model"], model_components["table"], model_components["rag_prompt"], model_components["examples"], api_key)
     print(f"Query summary: {summary}", flush=True)
 
     # embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
