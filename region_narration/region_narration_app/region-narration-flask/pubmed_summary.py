@@ -22,6 +22,7 @@ import uuid
 # import datetime
 from constants import MODEL_ID, LANCEDB_URI
 
+api_key = os.environ["OPENAI_API_KEY"]
 
 # Create a Blueprint
 pubmed_summary_bp = Blueprint('pubmed_summary_bp', __name__)
@@ -137,6 +138,8 @@ def start_engine():
 model_components = start_engine()
 print(f"🤖 model initialized", flush=True)
 print(f"🤖 model ready: {model_components['model_ready']}", flush=True)
+print(f"API KEY: {api_key}", flush=True)
+
 
 
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
@@ -206,28 +209,28 @@ def pubmed_summary_test():
     request_info = request.get_json()
     query = request_info["query"]
 
-    # print("TESTING...", flush=True)
-    # print("🔍🗣️ query", query, flush=True)
-    # print(f"MODEL READY?:", model_components["model_ready"], flush=True)
+    print("TESTING...", flush=True)
+    print("🔍🗣️ query", query, flush=True)
+    print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
-    # embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
-    # print("DONE WITH EMBEDDINGS", flush=True)
-    print("STARTING FROM SCRATCH", flush=True)
-    device = torch.device("cpu")
-    print("device loaded...", flush=True)
+    embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
+    print("DONE WITH EMBEDDINGS", flush=True)
+    # print("STARTING FROM SCRATCH", flush=True)
+    # device = torch.device("cpu")
+    # print("device loaded...", flush=True)
 
-    start = time.monotonic_ns()
-    model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
-    print("model loaded...", flush=True)
-    model.eval()
-    print("model evaled...", flush=True)
+    # start = time.monotonic_ns()
+    # model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
+    # print("model loaded...", flush=True)
+    # model.eval()
+    # print("model evaled...", flush=True)
 
-    # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
-    duration_s = (time.monotonic_ns() - start) / 1e9
-    print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
-    db = lancedb.connect(LANCEDB_URI)
-    print("db connected...", flush=True)
-    table = db.open_table("jcr-mini")
-    print("table opened...", flush=True)
+    # # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
+    # duration_s = (time.monotonic_ns() - start) / 1e9
+    # print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
+    # db = lancedb.connect(LANCEDB_URI)
+    # print("db connected...", flush=True)
+    # table = db.open_table("jcr-mini")
+    # print("table opened...", flush=True)
 
     return json.dumps({"test": "test"})
