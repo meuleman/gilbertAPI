@@ -26,20 +26,15 @@ Loads model
 """
 def start_engine():
     device = torch.device("cpu")
-
     print("🥶 cold starting inference", flush=True)
     start = time.monotonic_ns()
-
     model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
     model.eval()
-
     # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
     duration_s = (time.monotonic_ns() - start) / 1e9
     print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
-
     db = lancedb.connect(LANCEDB_URI)
     table = db.open_table("jcr-mini")
-
     default_instructions = """"""
     examples = [
         {
@@ -76,8 +71,6 @@ def start_engine():
         Query: {{ query }}
         Summary:
         """
-
-
     @outlines.prompt
     def rag_prompt(query, examples, abstracts):
         """You are a genomics researcher who is an expert in the field of genomics, tasked with narrating genomic regions such that a short sentence captures most of the standout information.							
@@ -110,7 +103,6 @@ def start_engine():
         Query: {{ query}}
         Summary:
         """
-
     return {
         "model": model,
         "table": table,
@@ -136,8 +128,12 @@ def pubmed_summary():
     start = time.time()
     print("MODEL DEBUG", model_components["model"], flush=True)
 
-    embeddings = model_components["model"].encode(query, normalize_embeddings=True)
-    print(f"Embeddings time: {time.time() - start}", flush=True)
+    try:
+        embeddings = model_components["model"].encode(query, normalize_embeddings=True)
+        print(f"Embeddings time: {time.time() - start}", flush=True)
+    except Exception as e:
+        print(f"Error during encoding: {str(e)}", flush=True)
+        return json.dumps({"error": f"Error during encoding: {e}"})
 
     start = time.time()
     results = model_components["table"].search(embeddings).metric("cosine").limit(10).to_list()
