@@ -145,6 +145,7 @@ def start_engine():
 
 
 def get_summary(query, model, table, rag_prompt, examples, api_key):
+    print("MODEL INFO:", query, model, table, rag_prompt, examples, flush=True)
     start = time.time()
     embeddings = model.encode(query, normalize_embeddings=True)
     print(f"\tEmbeddings time: {time.time() - start}", flush=True)
@@ -253,8 +254,14 @@ def pubmed_summary_test():
     print("🔍🗣️ query", query, flush=True)
     print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
-    embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
-    print("DONE WITH EMBEDDINGS", flush=True)
+    summary = get_summary(query, model_components["model"], model_components["table"], model_components["rag_prompt"], model_components["examples"], api_key)
+    print(f"Query summary: {summary}", flush=True)
+
+    # embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
+    # print("DONE WITH EMBEDDINGS", flush=True)
+
+
+
     # print("STARTING FROM SCRATCH", flush=True)
     # device = torch.device("cpu")
     # print("device loaded...", flush=True)
