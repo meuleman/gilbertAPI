@@ -187,7 +187,7 @@ def pubmed_summary_test():
     print("TESTING...", flush=True)
     print("🔍🗣️ query", query, flush=True)
 
-    embeddings = model_components["model"].encode(query, normalize_embeddings=True)
+    embeddings = model_components["model"].encode("Cancer / epithelial DHS enrichment @ 64kbp", normalize_embeddings=True)
     print("DONE WITH EMBEDDINGS", flush=True)
 
     return json.dumps({"embeddings": embeddings})
