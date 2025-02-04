@@ -363,7 +363,7 @@ def pubmed_summary_test():
     print("🔍🗣️ query", query, flush=True)
     print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
-    summary = get_summary(query, model_components["model"], model_components["table"], model_components["rag_prompt"], model_components["examples"], api_key)
+    summary = get_summary(query, model_components["model"], _table, model_components["rag_prompt"], model_components["examples"], api_key)
     print(f"Query summary: {summary}", flush=True)
 
     # embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
