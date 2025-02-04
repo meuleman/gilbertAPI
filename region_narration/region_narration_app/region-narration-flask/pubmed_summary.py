@@ -33,18 +33,27 @@ def start_engine():
     device = torch.device("cpu")
     print("🥶 cold starting inference", flush=True)
     start = time.monotonic_ns()
-    model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
-    model.eval()
 
-    print("🔥 test embedding capabilities of model", flush=True)
-    startup_embeddings = model.encode(["hello world"], normalize_embeddings=True)
-    print(("🔥 model was able to encode Hello World", startup_embeddings), flush=True)
+    try:
+        model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
+        model.eval()
 
-    # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
-    duration_s = (time.monotonic_ns() - start) / 1e9
-    print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
-    db = lancedb.connect(LANCEDB_URI)
-    table = db.open_table("jcr-mini")
+        print("🔥 test embedding capabilities of model", flush=True)
+        startup_embeddings = model.encode(["hello world"], normalize_embeddings=True)
+        print(("🔥 model was able to encode Hello World", startup_embeddings), flush=True)
+
+        # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
+        duration_s = (time.monotonic_ns() - start) / 1e9
+        print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
+        db = lancedb.connect(LANCEDB_URI)
+        table = db.open_table("jcr-mini")
+
+        model_ready = True
+
+    except Exception as e:
+        print(f"Error loading the model: {e}", flush=True)
+        model_ready = False
+
     default_instructions = """"""
     examples = [
         {
@@ -119,12 +128,14 @@ def start_engine():
         "summary_prompt": summary_prompt,
         "rag_prompt": rag_prompt,
         "examples": examples,
-        "default_instructions": default_instructions
+        "default_instructions": default_instructions,
+        "model_ready": model_ready
     }
 
 # initialize the model and its components on startup
 model_components = start_engine()
 print(f"🤖 model initialized", flush=True)
+print(f"🤖 model ready: {model_components['model_ready']}", flush=True)
 
 
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
