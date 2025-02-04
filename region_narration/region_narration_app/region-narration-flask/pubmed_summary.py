@@ -34,7 +34,7 @@ db = lancedb.connect(LANCEDB_URI)
 print("db loaded", flush=True)
 _table = db.open_table("jcr-mini")
 print(f"table opened {_table.schema}", flush=True)
-print(f"{_table.search().limit(10).to_list()}")
+# print(f"{_table.search().limit(10).to_list()}")
 
 _model_components = None
 def get_model_components():
