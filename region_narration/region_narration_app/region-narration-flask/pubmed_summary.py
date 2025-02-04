@@ -3,6 +3,9 @@ from flask import Blueprint, request
 import json
 # import h5py
 import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import time
 from sentence_transformers import SentenceTransformer
 import lancedb
