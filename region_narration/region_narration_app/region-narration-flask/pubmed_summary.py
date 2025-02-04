@@ -8,6 +8,8 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import time
 from sentence_transformers import SentenceTransformer
+import transformers
+transformers.logging.set_verbosity_debug()
 import lancedb
 import outlines
 from outlines import models, generate
