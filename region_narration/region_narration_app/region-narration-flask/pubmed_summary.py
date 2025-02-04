@@ -41,7 +41,9 @@ def get_model_components():
         print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
 
         db = lancedb.connect(LANCEDB_URI)
+        print("db loaded", flush=True)
         table = db.open_table("jcr-mini")
+        print("table opened", flush=True)
 
         default_instructions = """"""
         examples = [
