@@ -29,11 +29,11 @@ pubmed_summary_bp = Blueprint('pubmed_summary_bp', __name__)
 
 
 
-print(f"db loading from {LANCEDB_URI}", flush=True)
-db = lancedb.connect(LANCEDB_URI)
-print("db loaded", flush=True)
-_table = db.open_table("jcr-mini")
-print(f"table opened {_table.schema}", flush=True)
+# print(f"db loading from {LANCEDB_URI}", flush=True)
+# db = lancedb.connect(LANCEDB_URI)
+# print("db loaded", flush=True)
+# _table = db.open_table("jcr-mini")
+# print(f"table opened {_table.schema}", flush=True)
 # print(f"{_table.search().limit(10).to_list()}")
 
 _model_components = None
@@ -364,7 +364,13 @@ def pubmed_summary_test():
     print("🔍🗣️ query", query, flush=True)
     print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
-    summary = get_summary(query, model_components["model"], _table, model_components["rag_prompt"], model_components["examples"], api_key)
+    print("loading db", flush=True)
+    db = lancedb.connect(LANCEDB_URI)
+    print("db loaded", flush=True)
+    table = db.open_table("jcr-mini")
+    print("table opened", flush=True)
+
+    summary = get_summary(query, model_components["model"], table, model_components["rag_prompt"], model_components["examples"], api_key)
     print(f"Query summary: {summary}", flush=True)
 
     # embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
