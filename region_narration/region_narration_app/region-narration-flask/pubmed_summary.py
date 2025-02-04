@@ -176,3 +176,18 @@ def pubmed_summary():
     # self.logger.flush()
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
+
+
+@pubmed_summary_bp.route("pubmed_summary_test", methods=["POST"])
+def pubmed_summary_test():
+
+    request_info = request.get_json()
+    query = request_info["query"]
+
+    print("TESTING...", flush=True)
+    print("🔍🗣️ query", query, flush=True)
+
+    embeddings = model_components["model"].encode(query, normalize_embeddings=True)
+    print("DONE WITH EMBEDDINGS", flush=True)
+
+    return json.dumps({"embeddings": embeddings})
