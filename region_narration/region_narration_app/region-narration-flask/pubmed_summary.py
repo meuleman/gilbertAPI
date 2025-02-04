@@ -10,7 +10,7 @@ os.environ["HF_HOME"]="~/.cache/huggingface/datasets"
 import time
 from sentence_transformers import SentenceTransformer
 import transformers
-transformers.logging.set_verbosity_debug()
+transformers.logging.set_verbosity_info()
 import lancedb
 import outlines
 from outlines import models, generate
@@ -124,6 +124,15 @@ def start_engine():
         Query: {{ query}}
         Summary:
         """
+
+
+    test_query = "Cancer / epithelial DHS enrichment @ 64kbp"
+    print("", flush=True)
+    print(f"👟 Running a test query on startup: {test_query}", flush=True)
+    summary = get_summary(test_query, model, table, rag_prompt, examples, api_key)
+    print(f"📝 Test query summary: {summary}", flush=True)
+    print("", flush=True)
+
     return {
         "model": model,
         "table": table,
@@ -134,12 +143,43 @@ def start_engine():
         "model_ready": model_ready
     }
 
+
+def get_summary(query, model, table, rag_prompt, examples, api_key):
+    start = time.time()
+    embeddings = model.encode(query, normalize_embeddings=True)
+    print(f"\tEmbeddings time: {time.time() - start}", flush=True)
+    
+    start = time.time()
+    results = table.search(embeddings).metric("cosine").limit(10).to_list()
+    print(f"\tResults time: {time.time() - start}", flush=True)
+
+    start = time.time()
+    prompt =  rag_prompt(query, examples, results)
+    print(f"\tPrompt time: {time.time() - start}", flush=True)
+
+    start = time.time()
+    model = models.openai("gpt-4o-mini", api_key=api_key)
+    print(f"\tModel time: {time.time() - start}", flush=True)
+
+    start = time.time()
+    generator = generate.text(model)
+    print(f"\tGenerator time: {time.time() - start}", flush=True)
+
+    # Remove vector field from results before returning
+    for result in results:
+        del result["vector"]
+
+    start = time.time()
+    summary = generator(prompt)
+    print(f"\tSummary time: {time.time() - start}", flush=True)
+
+    return summary
+
+
 # initialize the model and its components on startup
 model_components = start_engine()
 print(f"🤖 model initialized", flush=True)
 print(f"🤖 model ready: {model_components['model_ready']}", flush=True)
-print(f"API KEY: {api_key}", flush=True)
-
 
 
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
