@@ -214,15 +214,20 @@ def pubmed_summary_test():
     # print("DONE WITH EMBEDDINGS", flush=True)
     print("STARTING FROM SCRATCH", flush=True)
     device = torch.device("cpu")
+    print("device loaded...", flush=True)
 
     start = time.monotonic_ns()
     model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
+    print("model loaded...", flush=True)
     model.eval()
+    print("model evaled...", flush=True)
 
     # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
     duration_s = (time.monotonic_ns() - start) / 1e9
     print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
     db = lancedb.connect(LANCEDB_URI)
+    print("db connected...", flush=True)
     table = db.open_table("jcr-mini")
+    print("table opened...", flush=True)
 
     return json.dumps({"test": "test"})
