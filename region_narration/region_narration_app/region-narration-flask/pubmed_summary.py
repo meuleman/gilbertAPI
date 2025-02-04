@@ -12,7 +12,6 @@ import time
 from sentence_transformers import SentenceTransformer
 import transformers
 transformers.logging.set_verbosity_info()
-import lancedb
 
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -43,6 +42,7 @@ pubmed_summary_bp = Blueprint('pubmed_summary_bp', __name__)
 
 _db_connection = None
 def get_db_connection():
+    import lancedb
     global _db_connection
     if _db_connection is None:
         print("Initializing new DB connection", flush=True)
