@@ -29,6 +29,7 @@ pubmed_summary_bp = Blueprint('pubmed_summary_bp', __name__)
 
 
 def get_model_components():
+    print(f"Worker working directory: {os.getcwd()}", flush=True)
     if not hasattr(g, "model_components"):
         device = torch.device("cpu")
         print("🥶 cold starting inference", flush=True)
