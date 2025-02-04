@@ -207,6 +207,7 @@ def pubmed_summary_test():
 
     print("TESTING...", flush=True)
     print("🔍🗣️ query", query, flush=True)
+    print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
     embeddings = model_components["model"].encode(["hello world"], normalize_embeddings=True)
     print("DONE WITH EMBEDDINGS", flush=True)
