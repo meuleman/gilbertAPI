@@ -206,11 +206,23 @@ def pubmed_summary_test():
     request_info = request.get_json()
     query = request_info["query"]
 
-    print("TESTING...", flush=True)
-    print("🔍🗣️ query", query, flush=True)
-    print(f"MODEL READY?:", model_components["model_ready"], flush=True)
+    # print("TESTING...", flush=True)
+    # print("🔍🗣️ query", query, flush=True)
+    # print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
-    embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
-    print("DONE WITH EMBEDDINGS", flush=True)
+    # embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
+    # print("DONE WITH EMBEDDINGS", flush=True)
+    print("STARTING FROM SCRATCH", flush=True)
+    device = torch.device("cpu")
 
-    return json.dumps({"embeddings": embeddings})
+    start = time.monotonic_ns()
+    model = SentenceTransformer(MODEL_ID, trust_remote_code=True, device=device)
+    model.eval()
+
+    # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
+    duration_s = (time.monotonic_ns() - start) / 1e9
+    print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
+    db = lancedb.connect(LANCEDB_URI)
+    table = db.open_table("jcr-mini")
+
+    return json.dumps({"test": "test"})
