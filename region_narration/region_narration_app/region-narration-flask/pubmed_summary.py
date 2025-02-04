@@ -127,7 +127,7 @@ def get_model_components():
 
         _model_components = {
             "model": model,
-            "table": _table,
+            # "table": _table,
             "summary_prompt": summary_prompt,
             "rag_prompt": rag_prompt,
             "examples": examples,
