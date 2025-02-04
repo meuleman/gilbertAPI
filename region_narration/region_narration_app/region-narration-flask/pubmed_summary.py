@@ -27,10 +27,10 @@ api_key = os.environ["OPENAI_API_KEY"]
 # Create a Blueprint
 pubmed_summary_bp = Blueprint('pubmed_summary_bp', __name__)
 
-
+_model_components = None
 def get_model_components():
-    print(f"Worker working directory: {os.getcwd()}", flush=True)
-    if not hasattr(g, "model_components"):
+    global _model_components
+    if _model_components is None:
         device = torch.device("cpu")
         print("🥶 cold starting inference", flush=True)
         start = time.monotonic_ns()
@@ -115,7 +115,7 @@ def get_model_components():
             Summary:
             """
 
-        model_components = {
+        _model_components = {
             "model": model,
             "table": None,
             "summary_prompt": summary_prompt,
@@ -124,10 +124,7 @@ def get_model_components():
             "default_instructions": default_instructions,
             "model_ready": True
         }
-        g.model_components = model_components
-    else:
-        print("🤖 model already initialized on worker", flush=True)
-    return g.model_components
+    return _model_components
 
 """
 Loads model
