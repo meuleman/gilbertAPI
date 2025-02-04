@@ -4,7 +4,7 @@ import json
 # import h5py
 import os
 
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HOME"]="~/.cache/huggingface/datasets"
 
 import time
