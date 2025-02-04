@@ -5,6 +5,7 @@ import json
 import os
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["HF_HOME"]="~/.cache/huggingface/datasets"
 
 import time
 from sentence_transformers import SentenceTransformer
@@ -39,7 +40,7 @@ def start_engine():
         model.eval()
 
         print("🔥 test embedding capabilities of model", flush=True)
-        startup_embeddings = model.encode(["hello world"], normalize_embeddings=True)
+        startup_embeddings = model.encode("hello world", normalize_embeddings=True)
         print(("🔥 model was able to encode Hello World", startup_embeddings), flush=True)
 
         # print(f"CUDA memory allocated: {torch.cuda.memory_allocated() / 1e6} MB")
@@ -209,7 +210,7 @@ def pubmed_summary_test():
     print("🔍🗣️ query", query, flush=True)
     print(f"MODEL READY?:", model_components["model_ready"], flush=True)
 
-    embeddings = model_components["model"].encode(["hello world"], normalize_embeddings=True)
+    embeddings = model_components["model"].encode("hello world", normalize_embeddings=True)
     print("DONE WITH EMBEDDINGS", flush=True)
 
     return json.dumps({"embeddings": embeddings})
