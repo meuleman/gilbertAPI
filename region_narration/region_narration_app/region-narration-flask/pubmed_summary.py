@@ -41,6 +41,7 @@ def get_model_components():
         duration_s = (time.monotonic_ns() - start) / 1e9
         print(f"🏎️ engine started in {duration_s:.0f}s", flush=True)
 
+        print(f"db loading from {LANCEDB_URI}", flush=True)
         db = lancedb.connect(LANCEDB_URI)
         print("db loaded", flush=True)
         table = db.open_table("jcr-mini")
