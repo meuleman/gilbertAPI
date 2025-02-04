@@ -33,7 +33,7 @@ print(f"db loading from {LANCEDB_URI}", flush=True)
 db = lancedb.connect(LANCEDB_URI)
 print("db loaded", flush=True)
 _table = db.open_table("jcr-mini")
-print("table opened", flush=True)
+print(f"table opened {_table.schema}", flush=True)
 
 _model_components = None
 def get_model_components():
@@ -258,31 +258,31 @@ def get_summary(query, model, table, rag_prompt, examples, api_key):
     print(f"\tEmbeddings time: {time.time() - start}", flush=True)
     print(f"\tEmbeddings: {embeddings}", flush=True)
     
-    # start = time.time()
-    # results = table.search(embeddings).metric("cosine").limit(10).to_list()
-    # print(f"\tResults time: {time.time() - start}", flush=True)
+    start = time.time()
+    results = table.search(embeddings).metric("cosine").limit(10).to_list()
+    print(f"\tResults time: {time.time() - start}", flush=True)
 
-    # start = time.time()
-    # prompt =  rag_prompt(query, examples, results)
-    # print(f"\tPrompt time: {time.time() - start}", flush=True)
+    start = time.time()
+    prompt =  rag_prompt(query, examples, results)
+    print(f"\tPrompt time: {time.time() - start}", flush=True)
 
-    # start = time.time()
-    # model = models.openai("gpt-4o-mini", api_key=api_key)
-    # print(f"\tModel time: {time.time() - start}", flush=True)
+    start = time.time()
+    model = models.openai("gpt-4o-mini", api_key=api_key)
+    print(f"\tModel time: {time.time() - start}", flush=True)
 
-    # start = time.time()
-    # generator = generate.text(model)
-    # print(f"\tGenerator time: {time.time() - start}", flush=True)
+    start = time.time()
+    generator = generate.text(model)
+    print(f"\tGenerator time: {time.time() - start}", flush=True)
 
-    # # Remove vector field from results before returning
-    # for result in results:
-    #     del result["vector"]
+    # Remove vector field from results before returning
+    for result in results:
+        del result["vector"]
 
-    # start = time.time()
-    # summary = generator(prompt)
-    # print(f"\tSummary time: {time.time() - start}", flush=True)
+    start = time.time()
+    summary = generator(prompt)
+    print(f"\tSummary time: {time.time() - start}", flush=True)
 
-    return "summary"
+    return summary
 
 
 # # initialize the model and its components on startup
