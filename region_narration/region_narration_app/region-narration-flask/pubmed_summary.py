@@ -184,6 +184,16 @@ def get_summary(query, st_model, table, rag_prompt, examples, api_key):
     return summary, results
 
 
+def create_custom_prompt(prompt_template):
+        """
+        Defines a custom prompt function for the summary generation task using a user-provided prompt template.
+        """
+        @outlines.prompt
+        def custom_prompt(query, examples, abstracts):
+            return prompt_template
+        return custom_prompt
+
+
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
 def pubmed_summary():
     """
@@ -198,8 +208,10 @@ def pubmed_summary():
     # collects model components for the current worker
     model_components = get_model_components()
 
+    rag_prompt = model_components["rag_prompt"] if prompt is None else create_custom_prompt(prompt)
+
     # generates summary and results
-    summary, results = get_summary(query, model_components["model"], model_components["table"], model_components["rag_prompt"] if prompt is None else prompt, model_components["examples"], api_key)
+    summary, results = get_summary(query, model_components["model"], model_components["table"], rag_prompt, model_components["examples"], api_key)
     request_id = str(uuid.uuid4())
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
