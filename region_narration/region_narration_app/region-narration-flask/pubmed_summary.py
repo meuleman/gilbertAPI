@@ -192,7 +192,7 @@ def create_custom_prompt(prompt_template):
         def custom_prompt(query, examples, abstracts):
             return ""
         custom_prompt.__doc__ = prompt_template
-        return custom_prompt
+        return outlines.prompt(custom_prompt)
 
 
 @pubmed_summary_bp.route("pubmed_summary", methods=["POST"])
