@@ -238,7 +238,7 @@ def region_set_enrichment():
     # test factors for enrichment within region set
     enr, segment_bin_count = get_region_set_factor_enrichments(regions, allow_precalculated=allow_precalculated)
     # collect the top N factors by enrichment
-    top_factors, top_enr, top_counts = get_top_factors(enr, segment_bin_count, N, factor_exclusion)
+    top_factors, top_enr, top_counts = get_top_factors(enr, segment_bin_count, N, factor_exclusion, exclude_occ=False)
     # refactor for return
     return_arr = generate_overlap_return_data(top_factors, top_enr, top_counts)
 
