@@ -188,7 +188,6 @@ def create_custom_prompt(prompt_template):
         """
         Defines a custom prompt function for the summary generation task using a user-provided prompt template.
         """
-        @outlines.prompt
         def custom_prompt(query, examples, abstracts):
             return ""
         custom_prompt.__doc__ = prompt_template
