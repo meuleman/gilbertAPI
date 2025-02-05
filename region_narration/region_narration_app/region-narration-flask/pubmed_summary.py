@@ -190,7 +190,8 @@ def create_custom_prompt(prompt_template):
         """
         @outlines.prompt
         def custom_prompt(query, examples, abstracts):
-            return prompt_template
+            return ""
+        custom_prompt.__doc__ = prompt_template
         return custom_prompt
 
 
