@@ -192,13 +192,14 @@ def pubmed_summary():
 
     request_info = request.get_json()
     query = request_info["query"]  # 'Cancer / epithelial DHS enrichment @ 64kbp'
+    prompt = request_info.get("prompt", None)
     print("🔍🗣️ query", query, flush=True)
     
     # collects model components for the current worker
     model_components = get_model_components()
 
     # generates summary and results
-    summary, results = get_summary(query, model_components["model"], model_components["table"], model_components["rag_prompt"], model_components["examples"], api_key)
+    summary, results = get_summary(query, model_components["model"], model_components["table"], model_components["rag_prompt"] if prompt is None else prompt, model_components["examples"], api_key)
     request_id = str(uuid.uuid4())
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
