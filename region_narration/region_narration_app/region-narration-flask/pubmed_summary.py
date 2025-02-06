@@ -216,7 +216,7 @@ def get_summary(query, st_model, table, rag_prompt, examples, api_key):
     summary = generator(prompt)
     print(f"\tSummary time: {time.time() - start}", flush=True)
 
-    return summary, results
+    return summary, results, prompt
 
 
 def create_custom_prompt(prompt_template):
@@ -247,7 +247,7 @@ def pubmed_summary():
     rag_prompt = model_components["rag_prompt"] if prompt is None else create_custom_prompt(prompt)
 
     # generates summary and results
-    summary, results = get_summary(query, model_components["model"], model_components["table"], rag_prompt, model_components["examples"], api_key)
+    summary, results, used_prompt = get_summary(query, model_components["model"], model_components["table"], rag_prompt, model_components["examples"], api_key)
     request_id = str(uuid.uuid4())
 
     # log request
@@ -256,7 +256,7 @@ def pubmed_summary():
         "request_id": request_id,
         "type": "rag_generate",
         "query": query,
-        "prompt": str(rag_prompt.__doc__),
+        "prompt": used_prompt,
         "summary": summary,
         "results": json.dumps(results),
         "narration": json.dumps(narration)
