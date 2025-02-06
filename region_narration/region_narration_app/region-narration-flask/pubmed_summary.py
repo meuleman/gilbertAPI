@@ -175,6 +175,19 @@ def initialize_request_logger():
 request_logger = initialize_request_logger()
 
 
+def initialize_feedback_logger():
+    # Create logger with custom schema (optional) shared by all workers
+    feedback_schema = pa.schema([
+        ('timestamp', pa.timestamp('us')),
+        ('request_id', pa.string()),
+        ('feedback', pa.string())
+    ])
+    feedback_logger = ParquetRequestLogger(log_dir=os.path.join(LOGGING_DIR, "feedback"), schema=feedback_schema)
+    return feedback_logger
+# logger shared by all workers
+feedback_logger = initialize_feedback_logger()
+
+
 
 def get_summary(query, st_model, table, rag_prompt, examples, api_key):
     """
@@ -266,3 +279,22 @@ def pubmed_summary():
     request_logger.flush()
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
+
+
+@pubmed_summary_bp.route("feedback", methods=["POST"])
+def feedback():
+    """
+    Endpoint for providing feedback on the model
+    """
+
+    request_info = request.get_json()
+
+    feedback_logger.log_request({
+        "timestamp": datetime.datetime.now(),
+        "request_id": request_info["request_id"],
+        "feedback": request_info["feedback"],
+    })
+    # Force flush to disk (normally happens automatically at buffer limit)
+    feedback_logger.flush()
+
+    return json.dumps({"status": "success"})
