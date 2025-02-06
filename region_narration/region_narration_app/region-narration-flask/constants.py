@@ -84,3 +84,4 @@ PRELOADED_INDICES = preload_preview_indices(filtering_path)
 ####PUBMED SUMMARY####
 MODEL_ID = "nomic-ai/nomic-embed-text-v1.5"
 LANCEDB_URI = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/lancedb"
+LOGGING_DIR = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/logs/"

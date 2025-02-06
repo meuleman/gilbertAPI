@@ -1,18 +1,20 @@
 from flask import Blueprint, request, g
 import json
 import os
+import datetime
+import time
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HOME"]="~/.cache/huggingface/datasets"
 
-import time
-# import logging
 from sentence_transformers import SentenceTransformer
 import outlines
 from outlines import models, generate
 import torch
 import uuid
-from constants import MODEL_ID, LANCEDB_URI
+import pyarrow as pa
+from logger import ParquetRequestLogger
+from constants import MODEL_ID, LANCEDB_URI, LOGGING_DIR
 
 api_key = os.environ["OPENAI_API_KEY"]
 
@@ -130,6 +132,19 @@ def get_model_components():
             Summary:
             """
 
+        # # Create logger with custom schema (optional)
+        # request_schema = pa.schema([
+        #     ('timestamp', pa.timestamp('us')),
+        #     ('request_id', pa.string()),
+        #     ('type', pa.string()),
+        #     ('query', pa.string()),
+        #     ('prompt', pa.string()),
+        #     ('summary', pa.string()),
+        #     ('results', pa.string()),
+        #     ('narration', pa.string())
+        # ])
+        # request_logger = ParquetRequestLogger(log_dir=os.path.join(LOGGING_DIR, "requests"), schema=request_schema)
+
         _model_components = {
             "model": model,
             "table": table,
@@ -137,8 +152,28 @@ def get_model_components():
             "rag_prompt": rag_prompt,
             "examples": examples,
             "default_instructions": default_instructions,
+            # "request_logger": request_logger
         }
     return _model_components
+
+
+def initialize_request_logger():
+    # Create logger with custom schema (optional) shared by all workers
+    request_schema = pa.schema([
+        ('timestamp', pa.timestamp('us')),
+        ('request_id', pa.string()),
+        ('type', pa.string()),
+        ('query', pa.string()),
+        ('prompt', pa.string()),
+        ('summary', pa.string()),
+        ('results', pa.string()),
+        ('narration', pa.string())
+    ])
+    request_logger = ParquetRequestLogger(log_dir=os.path.join(LOGGING_DIR, "requests"), schema=request_schema)
+    return request_logger
+# logger shared by all workers
+request_logger = initialize_request_logger()
+
 
 
 def get_summary(query, st_model, table, rag_prompt, examples, api_key):
@@ -202,6 +237,7 @@ def pubmed_summary():
 
     request_info = request.get_json()
     query = request_info["query"]  # 'Cancer / epithelial DHS enrichment @ 64kbp'
+    narration = request_info.get("narration", None)
     prompt = request_info.get("prompt", None)
     print("🔍🗣️ query", query, flush=True)
     
@@ -213,5 +249,20 @@ def pubmed_summary():
     # generates summary and results
     summary, results = get_summary(query, model_components["model"], model_components["table"], rag_prompt, model_components["examples"], api_key)
     request_id = str(uuid.uuid4())
+
+    # log request
+    request_data = {
+        "timestamp": datetime.datetime.now(),
+        "request_id": request_id,
+        "type": "rag_generate",
+        "query": query,
+        "prompt": str(rag_prompt.__doc__),
+        "summary": summary,
+        "results": json.dumps(results),
+        "narration": json.dumps(narration)
+    }
+    request_logger.log_request(request_data)
+    # Force flush to disk (normally happens automatically at buffer limit)
+    request_logger.flush()
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
