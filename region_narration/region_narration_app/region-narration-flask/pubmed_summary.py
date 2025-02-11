@@ -146,7 +146,7 @@ def get_model_components():
         ]
         @outlines.prompt
         def region_set_prompt(query, examples, abstracts):
-            """You are an expert genomics researcher, tasked with narrating a set of genomic regions such that a single short sentence captures the most important information.
+            """You are an expert genomics researcher, tasked with narrating a set of genomic regions such that a single short sentence captures the most important information about them.
             You are given a query consisting of a term-wise description of a set of regions across the human genome.
 
             These terms may include things like chromatin state calls (CS), DNase I Hypersensitive Site annotations (DHS), transcription factor motif hits (MOTIF), interspersed repeats and low complexity DNA sequences (REPEAT), and Genome-Wide Association Study traits (GWAS).
