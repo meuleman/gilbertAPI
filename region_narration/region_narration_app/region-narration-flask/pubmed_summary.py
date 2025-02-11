@@ -140,24 +140,22 @@ def get_model_components():
             """
         region_set_examples = [
             {
-                "query": "Active Enhancer 1 CS domain @ 1kbp; Lymphoid DHS occurrence @ 256bp; Eosinophil count GWAS  @ 1bp; Tissue invariant DHS domain @ 64kbp; TBX/2 MOTIF domain @ 1Mbp; GENE_OVL SMAD3; GENE_ADJ IQCH. | Active Enhancer 1 CS domain @ 1kbp; Lymphoid DHS occurrence @ 256bp; Eosinophil count GWAS  @ 1bp; Tissue invariant DHS domain @ 64kbp; TBX/2 MOTIF domain @ 1Mbp; GENE_OVL SMAD3; GENE_ADJ IQCH; GO ACTIN FILAMENT BASED PROCESS; GO ACTIN FILAMENT BUNDLE ORGANIZATION; GO ACTIN FILAMENT ORGANIZATION",
-                "summary": "The region set contains multiple likely eosinophil count GWAS variants located within active enhancer 1 chromatin state domains additionally enriched for TBX/2 transcription factor motifs, indicating potential roles in actin filament organization."
+                "query": "Cardiac DHS domain @ 16kbp: 81%; Cardiac DHS domain @ 64kbp: 19%; HD/18 MOTIF domain @ 1Mbp: 11%; HD/18 MOTIF domain @ 256kbp: 10%",
+                "summary": "A set of cardiac DHS domains most commonly at the 16kbp scale, featuring significant motif enrichment for HD/18 transcription factors."
             }
         ]
         @outlines.prompt
         def region_set_prompt(query, examples, abstracts):
             """You are an expert genomics researcher, tasked with narrating a set of genomic regions such that a single short sentence captures the most important information.
-            You are given a list of region-specific term-wise descriptions of a region set of interest in the human genome as a single query.
-            Regional term-wise description statements are separated in the query by "|", where each region has it's own separate list of terms. 
-            Descriptions for the regions are listed in descending order of importance. This means the first set of terms should be more heavily weighed than the last set of descriptions, so make sure to take that into account in prioritizing the information to use in your narration for the region set.
+            You are given a query consisting of a term-wise description of a set of regions across the human genome.
 
             These terms may include things like chromatin state calls (CS), DNase I Hypersensitive Site annotations (DHS), transcription factor motif hits (MOTIF), interspersed repeats and low complexity DNA sequences (REPEAT), and Genome-Wide Association Study traits (GWAS).
             All such terms are observed at a certain genomic scale, ranging from a single basepair (1bp) to a million basepair (1Mbp).
-            Within each regional term-wise description, terms are also listed in descending order of prominence, so make sure to take that into account in prioritizing the information to use in your narration for each region.
+            They are listed in the query in descending order of prominence, with the percent of regions in the set containing each term also listed, so make sure to take that into account in prioritizing the information to use in your narration.
             Furthermore, the genomic regions of interest may directly overlap an observed term ('occurrence'), or may overlap a larger region with an abundance of that term ('domain') in which there is not necessarily a direct overlap with a single instance of the term. This is an important distinction.
 
-            Additionally, you are provided information on any genes that directly overlap (GENE_OVL) or are adjacent to (GENE_ADJ) each region.
-            To aid in functional narration, you are also provided with Gene Ontology genesets (GO) associated with each region, which may constitute important information in combination with all of the above.
+            Additionally, you are provided information on any genes that directly overlap (GENE_OVL) or are adjacent to (GENE_ADJ) the regions in the set.
+            To aid in functional narration, you are also provided with Gene Ontology genesets (GO) associated with the regions, which may constitute important information in combination with all of the above.
 
             You also have access to titles and abstracts of research articles that may be relevant to the query, so make sure to use these for additional context and writing style.							
 
