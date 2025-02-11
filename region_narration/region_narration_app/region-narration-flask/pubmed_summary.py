@@ -138,6 +138,53 @@ def get_model_components():
             Query: {{ query}}
             Summary:
             """
+        region_set_examples = [
+            {
+                "query": "Active Enhancer 1 CS domain @ 1kbp; Lymphoid DHS occurrence @ 256bp; Eosinophil count GWAS  @ 1bp; Tissue invariant DHS domain @ 64kbp; TBX/2 MOTIF domain @ 1Mbp; GENE_OVL SMAD3; GENE_ADJ IQCH. | Active Enhancer 1 CS domain @ 1kbp; Lymphoid DHS occurrence @ 256bp; Eosinophil count GWAS  @ 1bp; Tissue invariant DHS domain @ 64kbp; TBX/2 MOTIF domain @ 1Mbp; GENE_OVL SMAD3; GENE_ADJ IQCH; GO ACTIN FILAMENT BASED PROCESS; GO ACTIN FILAMENT BUNDLE ORGANIZATION; GO ACTIN FILAMENT ORGANIZATION",
+                "summary": "The region set contains multiple likely eosinophil count GWAS variants located within active enhancer 1 chromatin state domains additionally enriched for TBX/2 transcription factor motifs, indicating potential roles in actin filament organization."
+            }
+        ]
+        @outlines.prompt
+        def region_set_prompt(query, examples, abstracts):
+            """You are an expert genomics researcher, tasked with narrating a set of genomic regions such that a single short sentence captures the most important information.
+            You are given a list of region-specific term-wise descriptions of a region set of interest in the human genome as a single query.
+            Regional term-wise description statements are separated in the query by "|", where each region has it's own separate list of terms. 
+            Descriptions for the regions are listed in descending order of importance. This means the first set of terms should be more heavily weighed than the last set of descriptions, so make sure to take that into account in prioritizing the information to use in your narration for the region set.
+
+            These terms may include things like chromatin state calls (CS), DNase I Hypersensitive Site annotations (DHS), transcription factor motif hits (MOTIF), interspersed repeats and low complexity DNA sequences (REPEAT), and Genome-Wide Association Study traits (GWAS).
+            All such terms are observed at a certain genomic scale, ranging from a single basepair (1bp) to a million basepair (1Mbp).
+            Within each regional term-wise description, terms are also listed in descending order of prominence, so make sure to take that into account in prioritizing the information to use in your narration for each region.
+            Furthermore, the genomic regions of interest may directly overlap an observed term ('occurrence'), or may overlap a larger region with an abundance of that term ('domain') in which there is not necessarily a direct overlap with a single instance of the term. This is an important distinction.
+
+            Additionally, you are provided information on any genes that directly overlap (GENE_OVL) or are adjacent to (GENE_ADJ) each region.
+            To aid in functional narration, you are also provided with Gene Ontology genesets (GO) associated with each region, which may constitute important information in combination with all of the above.
+
+            You also have access to titles and abstracts of research articles that may be relevant to the query, so make sure to use these for additional context and writing style.							
+
+            Your task is to generate a helpful one-sentence summary of the query, providing a useful narrative of the genomic regions.
+            If any of the provided terms do not seem relevant according to literature or otherwise, feel free to skip them in the narrative.
+
+            Examples
+            --------
+            {% for example in examples %}
+            Query: {{ example.query }}
+            Summary: {{ example.summary }}
+            {% endfor %}
+
+            Abstracts
+            --------
+
+            {% for abstract in abstracts %}
+            Title: {{ abstract.full_title }}
+            Abstract: {{ abstract.abstract }}
+
+            {% endfor %}
+            Task
+            --------
+
+            Query: {{ query}}
+            Summary:
+            """
 
         # # Create logger with custom schema (optional)
         # request_schema = pa.schema([
@@ -159,6 +206,8 @@ def get_model_components():
             "rag_prompt": rag_prompt,
             "examples": examples,
             "default_instructions": default_instructions,
+            "region_set_prompt": region_set_prompt,
+            "region_set_examples": region_set_examples,
             # "request_logger": request_logger
         }
     return _model_components
@@ -214,7 +263,7 @@ def get_summary(query, st_model, table, rag_prompt, examples, api_key):
 
     start = time.time()
     # generate prompt
-    prompt =  rag_prompt(query, examples, results)
+    prompt = rag_prompt(query, examples, results)
     print(f"\tPrompt time: {time.time() - start}", flush=True)
 
     start = time.time()
@@ -284,6 +333,44 @@ def pubmed_summary():
     request_logger.log_request(request_data)
     # Force flush to disk (normally happens automatically at buffer limit)
     request_logger.flush()
+
+    return json.dumps({"summary": summary, "results": results, "request_id": request_id})
+
+
+@pubmed_summary_bp.route("pubmed_region_set_summary", methods=["POST"])
+def pubmed_region_set_summary():
+    """
+    Endpoint for generating a summary for a set of regions
+    """
+
+    request_info = request.get_json()
+    query = request_info["query"]  # 'Cancer / epithelial DHS enrichment @ 64kbp | ...'
+    # narration = request_info.get("narration", None)
+    print("🔍🗣️ query", query, flush=True)
+    
+    # collects model components for the current worker
+    model_components = get_model_components()
+
+    region_set_prompt = model_components["region_set_prompt"]
+
+    # generates summary and results
+    summary, results, used_prompt = get_summary(query, model_components["model"], model_components["table"], region_set_prompt, model_components["region_set_examples"], api_key)
+    request_id = str(uuid.uuid4())
+
+    # # log request
+    # request_data = {
+    #     "timestamp": datetime.datetime.now(),
+    #     "request_id": request_id,
+    #     "type": "rag_generate",
+    #     "query": query,
+    #     "prompt": used_prompt,
+    #     "summary": summary,
+    #     "results": json.dumps(results),
+    #     "narration": json.dumps(narration)
+    # }
+    # request_logger.log_request(request_data)
+    # # Force flush to disk (normally happens automatically at buffer limit)
+    # request_logger.flush()
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
 
