@@ -63,7 +63,7 @@ def perform_geneset_hypergeometric_test(genes_for_test, gsXgene=gsXgene, genes=g
 """
 Sorts the p-values and genesets and returns a list of genesets with p-values less than threshold
 """
-def generate_return_data(p, genesets=genesets, threshold=0.05):
+def generate_return_data(p, genesets=genesets, gsXgene=gsXgene, genes=genes, threshold=0.05):
     start = time.time()
 
     if p.dtype == bool:
@@ -76,7 +76,13 @@ def generate_return_data(p, genesets=genesets, threshold=0.05):
         p_sorted = p[sort_order]
         genesets_sorted = genesets[sort_order]
 
-        return_list = [{"geneset": gs, "p": float(p)} for gs, p in zip(genesets_sorted, p_sorted) if p < threshold]
+        return_list = [
+            {
+                "geneset": gs, 
+                "p": float(p), 
+                "genes": genes[gsXgene[i]].tolist()
+            } for gs, p, i in zip(genesets_sorted, p_sorted, sort_order) if p < threshold
+        ]
 
     print(f"Time to generate return data: {time.time() - start}", flush=True)
     return json.dumps(return_list)
