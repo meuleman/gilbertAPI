@@ -7,7 +7,7 @@ import os
 import time
 from common import fetch_indices_scores, hilbert_pos_to_order, tabix_query
 # import tabix
-from constants import CHR_SIZES_UCSC, chromosomes, csn_dir as datadir, full_gene_path, partial_csn_dir
+from constants import CHR_SIZES_UCSC, chromosomes, csn_dir, full_gene_path, partial_csn_dir
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -85,7 +85,7 @@ def get_filtered_indices_and_scores(filters, region):
                 chromosome, 
                 index, 
                 dataset_name, 
-                os.path.join(datadir, 'indices/indices.scores.order_14_resolution.h5')
+                os.path.join(csn_dir, 'indices/indices.scores.order_14_resolution.h5')
             )
             if len(indices_scores) > 0:
                 filter_indices.append({
@@ -219,7 +219,7 @@ def get_dehydrated_paths(
     top_indices=[],
     top_chromosomes=[],
     regions=[],
-    file_path=os.path.join(datadir, 'paths/full_path_factors.order_14_resolution.h5')
+    file_path=os.path.join(csn_dir, 'paths/full_path_factors.order_14_resolution.h5')
 ):
     start = time.time()
 
@@ -257,8 +257,8 @@ def get_scores(
     chromosomes,
     score_type,
     filter_orders,
-    full_file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
-    factor_file_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
+    full_file_path=os.path.join(csn_dir, 'scores/path_scores.order_14_resolution.h5'),
+    factor_file_path=os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5')
 ):
     start = time.time()
     # Preallocate scores array
@@ -304,7 +304,7 @@ def get_single_region_scores(
     chromosome,
     start,
     end,
-    file_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+    file_path=os.path.join(csn_dir, 'scores/path_scores.order_14_resolution.h5'),
 ):
     score_t = time.time()
     print(f"scores for {(end - start)} indices")
@@ -325,7 +325,7 @@ def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_s
     start = time.time()
     return_list = []
     # TODO: make this faster?
-    file_path = os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5')
+    file_path = os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5')
     with h5py.File(file_path, 'r') as f:
         for index, chrom, score, path, seen_count in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
             scores = f[chrom][index]
@@ -421,8 +421,8 @@ Collects path scores for each region set.
 def get_scores_for_regions(
     regions,
     score_type,
-    factor_score_path=os.path.join(datadir, 'scores/factor_scores.order_14_resolution.h5'),
-    path_score_path=os.path.join(datadir, 'scores/path_scores.order_14_resolution.h5'),
+    factor_score_path=os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5'),
+    path_score_path=os.path.join(csn_dir, 'scores/path_scores.order_14_resolution.h5'),
     by_position=False
 ):
     start_time = time.time()
@@ -530,6 +530,39 @@ def collect_partial_paths_and_scores(
     print(f"Time to collect partial paths for regions: {time.time() - start}", flush=True)
 
     return regions_data
+
+
+"""
+Collects and returns full path factors and scores for a list of regions. If region
+order < 14, None is returned.
+"""
+def collect_full_paths_and_scores(
+        regions,
+        datatype='factor',
+        factors_path=os.path.join(csn_dir, 'paths/full_path_factors.order_14_resolution.h5'),
+        scores_path=os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5'),
+    ):
+    
+    print(f"Collecting full paths for {len(regions)} regions...", flush=True)
+    start = time.time()
+
+    file_path = factors_path if datatype == 'factor' else scores_path
+    regions_data = []
+    with h5py.File(file_path, 'r') as f:
+        for r in regions:
+            r_order = r['order']
+            r_i = r['i']
+
+            if r_order == 14:
+                r_data = f[f"{r['chromosome']}"][r_i]
+                regions_data.append(r_data)
+            else:
+                regions_data.append(None)
+
+    print(f"Time to collect full paths for regions: {time.time() - start}", flush=True)
+
+    return regions_data
+
 
 """
 Create return object for partial paths
@@ -643,15 +676,33 @@ def native_order_resolution_regions():
 """
 Endpoint for collecting partial paths for a list of regions
 """
-@csns_bp.route("partial_paths_for_regions", methods=['POST'])
-def partial_paths_for_regions():
+@csns_bp.route("paths_by_order", methods=['POST'])  # was partial_paths_for_regions
+def paths_by_order():
     request_info = request.get_json()
     
     regions = request_info['regions']  # [{chromosome, order, i}, ...]
+    use_full_paths = request_info.get("use_full_paths", True)
+    use_full_paths = str(use_full_paths).lower() == "true"
 
     # collect partial path factors and scores
-    regions_factors = collect_partial_paths_and_scores(regions, datatype='factor')
-    regions_scores = collect_partial_paths_and_scores(regions, datatype='score')
+    regions_partial_factors = collect_partial_paths_and_scores(regions, datatype='factor')
+    regions_partial_scores = collect_partial_paths_and_scores(regions, datatype='score')
+    if use_full_paths:
+        # collect full path factors and scores for order 14 regions
+        regions_full_factors = collect_full_paths_and_scores(regions, datatype='factor')
+        regions_full_scores = collect_full_paths_and_scores(regions, datatype='score')
+
+        # merge
+        regions_factors = [
+            regions_partial_factors[i] if r["order"] < 14 else regions_full_factors[i] for i, r in enumerate(regions)
+        ]
+        regions_scores = [
+            regions_partial_scores[i] if r["order"] < 14 else regions_full_scores[i] for i, r in enumerate(regions)
+        ]
+
+    else:
+        regions_factors = regions_partial_factors
+        regions_scores = regions_partial_scores
 
     # generate the return object
     return_object = generate_partial_path_return(regions, regions_factors, regions_scores)
