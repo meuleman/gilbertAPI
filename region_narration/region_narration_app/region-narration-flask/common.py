@@ -159,4 +159,4 @@ def generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=0.05):
         ]
 
     print(f"Time to generate geneset return data: {time.time() - start}", flush=True)
-    return json.dumps(return_list)
+    return return_list

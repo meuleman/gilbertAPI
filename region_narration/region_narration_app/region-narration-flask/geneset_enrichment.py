@@ -37,7 +37,7 @@ def geneset_enrichment():
     # generate return data
     return_list = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
 
-    return return_list
+    return json.dumps(return_list)
 
 
 @geneset_enrichment_bp.route("geneset_to_genes", methods=['POST'])
