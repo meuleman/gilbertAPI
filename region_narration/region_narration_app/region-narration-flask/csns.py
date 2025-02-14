@@ -600,7 +600,12 @@ def generate_partial_path_return(regions, regions_factors, regions_scores, genes
         region['path_factors'] = regions_factors[i].tolist()
         region['factor_scores'] = regions_scores[i].tolist()
 
-    return json.dumps({"regions": regions, "genesets": geneset_data})
+    # add geneset object if present (not membership)
+    return_object = {"regions": regions}
+    if geneset_data is not None:
+        return_object["genesets"] = geneset_data
+
+    return json.dumps(return_object)
 
 
 @csns_bp.route("top_paths", methods=['POST'])
@@ -739,12 +744,20 @@ def paths_by_order():
     # get genes for each region
     regions = collect_genes_for_regions(regions)
 
-    # collect geneset enrichments for regions
-    genes_for_test = [g["name"] for region in regions for g in region["genes"]]
-    p = perform_geneset_hypergeometric_test(genes_for_test, gsXgene, genes, genesets, membership=membership, bonferroni=bonferroni)
-    geneset_data = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
+    if membership:
+        # collect geneset membership for each region independently
+        for region in regions:
+            region_genes = [g["name"] for g in region["genes"]]
+            p = perform_geneset_hypergeometric_test(region_genes, gsXgene, genes, genesets, membership=membership, bonferroni=bonferroni)
+            geneset_data = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
+            region["genesets"] = geneset_data
+    else:
+        # collect geneset enrichments for region set as a whole
+        genes_for_test = [g["name"] for region in regions for g in region["genes"]]
+        p = perform_geneset_hypergeometric_test(genes_for_test, gsXgene, genes, genesets, membership=membership, bonferroni=bonferroni)
+        geneset_data = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
 
     # generate the return object
-    return_object = generate_partial_path_return(regions, regions_factors, regions_scores, geneset_data)
+    return_object = generate_partial_path_return(regions, regions_factors, regions_scores, geneset_data if not membership else None)
 
     return return_object
