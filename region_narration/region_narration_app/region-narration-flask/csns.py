@@ -5,9 +5,12 @@ import json
 import h5py
 import os
 import time
-from common import fetch_indices_scores, hilbert_pos_to_order, tabix_query
+from common import (
+    fetch_indices_scores, hilbert_pos_to_order, tabix_query, 
+    perform_geneset_hypergeometric_test, generate_geneset_return_data
+)
 # import tabix
-from constants import CHR_SIZES_UCSC, chromosomes, csn_dir, full_gene_path, partial_csn_dir
+from constants import CHR_SIZES_UCSC, chromosomes, csn_dir, full_gene_path, partial_csn_dir, gsXgene, genes, genesets
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -588,7 +591,7 @@ def collect_full_paths_and_scores(
     return regions_data
 
 
-def generate_partial_path_return(regions, regions_factors, regions_scores):
+def generate_partial_path_return(regions, regions_factors, regions_scores, geneset_data):
     """
     Create return object for partial paths
     """
@@ -597,7 +600,7 @@ def generate_partial_path_return(regions, regions_factors, regions_scores):
         region['path_factors'] = regions_factors[i].tolist()
         region['factor_scores'] = regions_scores[i].tolist()
 
-    return json.dumps({"regions": regions})
+    return json.dumps({"regions": regions, "genesets": geneset_data})
 
 
 @csns_bp.route("top_paths", methods=['POST'])
@@ -707,6 +710,9 @@ def paths_by_order():
     regions = request_info['regions']  # [{chromosome, order, i}, ...]
     use_full_paths = request_info.get("use_full_paths", True)
     use_full_paths = str(use_full_paths).lower() == "true"
+    threshold = request_info.get("threshold", 0.05)  # default geneset p-value threshold is 0.05
+    membership = str(request_info.get("membership", "False")).lower() == "true"  # default geneset membership is False, convert to boolean
+    bonferroni = str(request_info.get("bonferroni", "False")).lower() == "true"  # default geneset bonferroni correction is False, convert to boolean
 
     # collect partial path factors and scores
     regions_partial_factors = collect_partial_paths_and_scores(regions, datatype='factor')
@@ -733,7 +739,12 @@ def paths_by_order():
     # get genes for each region
     regions = collect_genes_for_regions(regions)
 
+    # collect geneset enrichments for regions
+    genes_for_test = [g["name"] for region in regions for g in region["genes"]]
+    p = perform_geneset_hypergeometric_test(genes_for_test, gsXgene, genes, genesets, membership=membership, bonferroni=bonferroni)
+    geneset_data = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
+
     # generate the return object
-    return_object = generate_partial_path_return(regions, regions_factors, regions_scores)
+    return_object = generate_partial_path_return(regions, regions_factors, regions_scores, geneset_data)
 
     return return_object

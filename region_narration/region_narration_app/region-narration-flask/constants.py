@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from common import preload_preview_indices
+from common import preload_preview_indices, load_geneset_data
 
 ### DATA DIRECTORIES ###
 filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241101/indices.scores.native_resolution.h5"
@@ -78,6 +78,9 @@ precalculated_region_set_enrichment_orders = [4, 5]
 
 # preload all indices for filter previews
 PRELOADED_INDICES = preload_preview_indices(filtering_path)
+
+# preload the genesetXgene binary matrix data
+gsXgene, genes, genesets = load_geneset_data(geneset_bin_path)
 ############
 
 
