@@ -13,10 +13,10 @@ from constants import chromosomes, PRELOADED_INDICES, orders, filtering_path, or
 filtering_without_order_bp = Blueprint('filtering_without_order_bp', __name__)
 
 
-"""
-Function to load all filters for a single factor
-"""
 def load_filters(factor, dataset, force_h5=False):
+    """
+    Function to load all filters for a single factor
+    """
     start = time.time()
     
     segments = {}
@@ -43,10 +43,10 @@ def load_filters(factor, dataset, force_h5=False):
     return segments
 
 
-"""
-Collects all segments for a factor and returns them in an array
-"""
 def get_segments(factor, dataset):
+    """
+    Collects all segments for a factor and returns them in an array
+    """
     start = time.time()
 
     # collect segments
@@ -73,11 +73,11 @@ def get_segments(factor, dataset):
     return all_segments
 
 
-"""
-A more efficient test_overlap function that uses a bp tracker to keep track of overlapping regions.
-Cannot update a segment that overlaps with higher resolution region(s).
-"""
 def test_overlap(chrm, start, end, tracker, keep_overlapping=False):
+    """
+    A more efficient test_overlap function that uses a bp tracker to keep track of overlapping regions.
+    Cannot update a segment that overlaps with higher resolution region(s).
+    """
     if np.count_nonzero(tracker[chrm][start:end]) == 0:
         return False if keep_overlapping else True
     else:
@@ -85,10 +85,10 @@ def test_overlap(chrm, start, end, tracker, keep_overlapping=False):
     
 
 
-"""
-Reduces segments to those non-overlapping. Also tests for overlap with background regions if provided.
-"""
 def test_segments_for_overlap(segments, regions=None):
+    """
+    Reduces segments to those non-overlapping. Also tests for overlap with background regions if provided.
+    """
     start = time.time()
 
     # find set of non-overlapping segments
@@ -136,10 +136,10 @@ def test_segments_for_overlap(segments, regions=None):
     return no_segments
 
 
-"""
-Refactors segments for return. If more segments than max_regions, raises an error.
-"""
 def generate_return(segments, max_regions=None, bg_regions=False):
+    """
+    Refactors segments for return. If more segments than max_regions, raises an error.
+    """
     if ((max_regions is not None) and (len(segments) > max_regions)):
         raise ValueError(f"Number of segments ({len(segments)}) exceeds the maximum allowed for return ({max_regions}).")
     start = time.time()
@@ -165,11 +165,11 @@ def generate_return(segments, max_regions=None, bg_regions=False):
     return json.dumps({"regions": return_array})
 
 
-"""
-Looks at segments and background region set and updates segments within an orderXchrm split
-to a higher resolution region if overlapping one.
-"""
 def convert_segment_split(split, against):
+    """
+    Looks at segments and background region set and updates segments within an orderXchrm split
+    to a higher resolution region if overlapping one.
+    """
 
     # get the order of split
     order = split[0, 0]
@@ -199,11 +199,11 @@ def convert_segment_split(split, against):
     return segments_updated
 
 
-"""
-Splits segments into groups by order and chromosome, then within each group updates segments 
-to higher resolution regions if any overlap. Returns the sorted updated segments.
-"""
 def convert_segments(segments, regions):
+    """
+    Splits segments into groups by order and chromosome, then within each group updates segments 
+    to higher resolution regions if any overlap. Returns the sorted updated segments.
+    """
     start = time.time()
 
     # collect the unique orders and chromosomes for segments
@@ -241,10 +241,10 @@ def convert_segments(segments, regions):
     return segments_updated
 
 
-"""
-Loads precalculated, non-overlapping segments for factor and dataset
-"""
 def load_precalculated_segments(factor, dataset):
+    """
+    Loads precalculated, non-overlapping segments for factor and dataset
+    """
     start = time.time()
 
     # load precalculated segments for factor and dataset
@@ -254,11 +254,12 @@ def load_precalculated_segments(factor, dataset):
     print(f"Time to load precalculated segments: {time.time() - start}")
     return segments
 
-"""
-Creates and adds filter segments to overlap tacker, returns tracker and segments (including
-start and end bp positions as well as dataset indicator). 
-"""
+
 def fill_tracker_with_segments(segments):
+    """
+    Creates and adds filter segments to overlap tacker, returns tracker and segments (including
+    start and end bp positions as well as dataset indicator). 
+    """
     # add start and end positions and factor inidcator to each segment
     segments_full = [
         np.hstack((
@@ -282,12 +283,12 @@ def fill_tracker_with_segments(segments):
     return factor_tracker, segments_full
 
 
-"""
-Uses tracker to find regions from set that contain overlap with all filters of interest. 
-Stops searching after N regions are found. Returns chosen regions (with bp range where
-filter segments can be found).
-"""
 def determine_regions_with_factor_overlap(regions, N, factor_tracker):
+    """
+    Uses tracker to find regions from set that contain overlap with all filters of interest. 
+    Stops searching after N regions are found. Returns chosen regions (with bp range where
+    filter segments can be found).
+    """
     collected_regions = []
     i = 0
     while ((len(collected_regions) < N) and (i < len(regions))):
@@ -317,11 +318,11 @@ def determine_regions_with_factor_overlap(regions, N, factor_tracker):
     return collected_regions
 
 
-"""
-For each chosen region, identifies a single high resolution gilbert segment subregion that
-contains datapoints from each applied filter.
-"""
 def refine_subregion(collected_regions, segments_full):
+    """
+    For each chosen region, identifies a single high resolution gilbert segment subregion that
+    contains datapoints from each applied filter.
+    """
     # join segments across datasets
     segment_stack = np.vstack(segments_full)
     # split by chromosome for faster filtering
@@ -370,11 +371,37 @@ def refine_subregion(collected_regions, segments_full):
     return
 
 
-"""
-Endpoint for filtering on a factor without a specified order
-"""
+def region_set_return(segments, max_regions=None):
+    """
+    Refactors segments for return. Only top max_regions segments are returned.
+    """
+
+    start = time.time()
+    return_array = []
+    for s in segments[:max_regions]:
+        s_order = int(s[0])
+        s_chrm = s[1]
+        s_i = int(s[2])
+        s_score = float(s[3])
+
+        s_return = {
+            "chromosome": s_chrm,
+            "i": s_i,
+            "order": s_order,
+            "score": s_score,
+        }
+        return_array.append(s_return)
+
+    print(f"Generating region set of length {len(return_array)}", flush=True)
+    print(f"Time to generate return array: {time.time() - start}", flush=True)
+    return json.dumps({"regions": return_array})
+
+
 @filtering_without_order_bp.route("filtering_without_order", methods=['POST'])
 def filtering_without_order():
+    """
+    Endpoint for filtering on a factor without a specified order
+    """
 
     request_info = request.get_json()
     filters = request_info['filters']  # [{dataset, factor}, ...]
@@ -439,15 +466,31 @@ def filtering_without_order():
 
     except Exception as e:
         return jsonify({"error": "ServerError", "message": "An unexpected error occurred"}), 500
-    
 
 
-"""
-Endpoint for backfill region filtering
-"""
+@filtering_without_order_bp.route("generate_region_set_from_factor", methods=['POST'])
+def generate_region_set_from_factor():
+    """
+    Endpoint for generating a region set from a factor of interest
+    """
+
+    request_info = request.get_json()
+    factor = request_info['factor']  # {dataset, factor}
+    max_regions = request_info['max_regions'] if 'max_regions' in request_info else 20000
+
+    # load precalculated, non-overlapping segments
+    no_segments = load_precalculated_segments(factor['factor'], factor['dataset'])
+
+    # refactor for return
+    return_array = region_set_return(no_segments, max_regions)
+    return return_array
+
+
 @filtering_without_order_bp.route("backfill_region_filtering", methods=['POST'])
 def backfill_region_filtering():
-
+    """
+    Endpoint for backfill region filtering
+    """
     request_info = request.get_json()
     filters = request_info['filters']  # [{dataset, factor}, ...]
     regions = request_info['regions'] if 'regions' in request_info else None # [{chromosome, order, i}, ...]
