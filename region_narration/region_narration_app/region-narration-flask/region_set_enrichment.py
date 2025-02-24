@@ -115,7 +115,9 @@ def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, c
     # OCC exclusion
     # could perhaps filter on coverage test for speed increase
     occ_exclusion = np.char.find(factors, '_occ') == -1 if exclude_occ else np.ones(len(factors), dtype=bool)
+    print("TESTING ENRICHMENT EXCLUSION", enr, enr.shape, flush=True)
     threshold_exclusion = enr >= enrichment_threshold if enrichment_threshold is not None else ~np.isinf(enr)
+    print(f"{np.sum(threshold_exclusion)} factors left", flush=True)
 
     exclusion_mask = ~np.isin(factors, factor_exclusion) & threshold_exclusion & occ_exclusion
     factors = factors[exclusion_mask]
