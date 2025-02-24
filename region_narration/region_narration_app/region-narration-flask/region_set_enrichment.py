@@ -102,7 +102,7 @@ def get_region_set_factor_enrichments(regions, allow_precalculated=True, members
     return region_membership if membership else (enr, segment_bin_count) 
 
 
-def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, count=True, enrichment_threshold=1, exclude_occ=True):
+def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, count=True, enrichment_threshold=None, exclude_occ=True):
     """
     Collects the top N factors by enrichment value. Filters out excluded factors. 
     """
@@ -115,8 +115,9 @@ def get_top_factors(enr, segment_bin_count, N, factor_exclusion, corank=False, c
     # OCC exclusion
     # could perhaps filter on coverage test for speed increase
     occ_exclusion = np.char.find(factors, '_occ') == -1 if exclude_occ else np.ones(len(factors), dtype=bool)
+    threshold_exclusion = enr >= enrichment_threshold if enrichment_threshold is not None else np.ones(len(factors), dtype=bool)
 
-    exclusion_mask = ~np.isin(factors, factor_exclusion) & (enr >= enrichment_threshold) & occ_exclusion
+    exclusion_mask = ~np.isin(factors, factor_exclusion) & threshold_exclusion & occ_exclusion
     factors = factors[exclusion_mask]
     enr = enr[exclusion_mask]
     segment_bin_count = segment_bin_count[exclusion_mask]
@@ -228,7 +229,7 @@ def region_set_enrichment():
     request_info = request.get_json()
     regions = request_info['regions']  # [{chromosome, i, order}, ...]
     N = request_info['N'] if 'N' in request_info else None  # number of factors to suggest, default is all
-    enrichment_threshold = request_info['enrichment_threshold'] if 'enrichment_threshold' in request_info else 1  # threshold for enrichment
+    enrichment_threshold = request_info['enrichment_threshold'] if 'enrichment_threshold' in request_info else None  # threshold for enrichment
     factor_exclusion = request_info['factor_exclusion'] if 'factor_exclusion' in request_info else []  # factors to exclude [{dataset, factor}, ...]
     allow_precalculated = request_info['allow_precalculated'] if 'allow_precalculated' in request_info else True
     allow_precalculated = allow_precalculated.lower() == "true" if type(allow_precalculated) == str else allow_precalculated
