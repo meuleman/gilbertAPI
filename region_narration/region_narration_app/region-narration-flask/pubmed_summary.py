@@ -167,7 +167,7 @@ def get_model_components():
             Furthermore, the genomic regions of interest may directly overlap an observed term ('occurrence'), or may overlap a larger region with an abundance of that term ('domain') in which there is not necessarily a direct overlap with a single instance of the term. This is an important distinction.
 
             Additionally, you are provided information on any genes that directly overlap (GENE_OVL) or are adjacent to (GENE_ADJ) the regions in the set.
-            To aid in functional narration, you are also provided with Gene Ontology genesets (GO) associated with the regions, which may constitute important information in combination with all of the above.
+            To aid in the functional narration, you are also provided with Gene Ontology genesets (GO) associated with the regions, including corresponding p-values that quantify the strength of the association, which may constitute important information in combination with all of the above.
 
             You also have access to titles and abstracts of research articles that may be relevant to the query, so make sure to use these for additional context and writing style.							
 
