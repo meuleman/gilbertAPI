@@ -402,3 +402,27 @@ def feedback():
     feedback_logger.flush()
 
     return json.dumps({"status": "success"})
+
+
+@pubmed_summary_bp.route("get_single_region_prompt", methods=["POST"])
+def get_single_region_prompt():
+    """
+    Endpoint for generating a summary for a set of regions
+    """
+
+    # collects model components for the current worker
+    model_components = get_model_components()
+
+    return json.dumps({"prompt": model_components["rag_prompt"].__doc__})
+
+
+@pubmed_summary_bp.route("get_region_set_prompt", methods=["POST"])
+def get_region_set_prompt():
+    """
+    Endpoint for generating a summary for a set of regions
+    """
+
+    # collects model components for the current worker
+    model_components = get_model_components()
+
+    return json.dumps({"prompt": model_components["region_set_prompt"].__doc__})
