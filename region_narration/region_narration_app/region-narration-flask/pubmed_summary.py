@@ -413,7 +413,7 @@ def get_single_region_prompt():
     # collects model components for the current worker
     model_components = get_model_components()
 
-    return json.dumps({"prompt": getattr(model_components["rag_prompt"].__doc__, "template", None)})
+    return json.dumps({"prompt": getattr(model_components["rag_prompt"], "template", None)})
 
 
 
@@ -426,4 +426,4 @@ def get_region_set_prompt():
     # collects model components for the current worker
     model_components = get_model_components()
 
-    return json.dumps({"prompt": getattr(model_components["region_set_prompt"].__doc__, "template", None)})
+    return json.dumps({"prompt": getattr(model_components["region_set_prompt"], "template", None)})
