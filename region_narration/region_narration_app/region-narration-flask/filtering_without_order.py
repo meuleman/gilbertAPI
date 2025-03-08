@@ -324,7 +324,6 @@ def refine_subregion(collected_regions, segments_full):
     contains datapoints from each applied filter.
     """
 
-    print(f"NUMBER OF REGEIONS: {len(collected_regions)}, {collected_regions}", flush=True)
     # join segments across datasets
     segment_stack = np.vstack(segments_full)
     # split by chromosome for faster filtering
