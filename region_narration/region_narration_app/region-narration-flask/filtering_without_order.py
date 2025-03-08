@@ -323,6 +323,8 @@ def refine_subregion(collected_regions, segments_full):
     For each chosen region, identifies a single high resolution gilbert segment subregion that
     contains datapoints from each applied filter.
     """
+
+    print(f"NUMBER OF REGEIONS: {len(collected_regions)}, {collected_regions}", flush=True)
     # join segments across datasets
     segment_stack = np.vstack(segments_full)
     # split by chromosome for faster filtering
@@ -505,11 +507,11 @@ def backfill_region_filtering():
         load_precalculated_segments(
             f['factor'], f['dataset']
         ) if (
-                (
-                    ('occ' in f['dataset']) or ('variants' in f['dataset']) or ('ukbb' in f['dataset'])
-                ) and (
-                    not force_recalculation
-                )
+            (
+                ('occ' in f['dataset']) or ('variants' in f['dataset']) or ('ukbb' in f['dataset'])
+            ) and (
+                not force_recalculation
+            )
         ) else get_segments(
             f['factor'], f['dataset']
         ) for f in filters
