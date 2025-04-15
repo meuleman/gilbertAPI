@@ -720,26 +720,26 @@ def paths_by_order():
     bonferroni = str(request_info.get("bonferroni", "False")).lower() == "true"  # default geneset bonferroni correction is False, convert to boolean
 
     # collect partial path factors and scores
-    regions_partial_factors = collect_partial_paths_and_scores(regions, datatype='factor')
-    regions_partial_scores = collect_partial_paths_and_scores(regions, datatype='score')
+    regions_factors = collect_partial_paths_and_scores(regions, datatype='factor')  # regions_partial_factors
+    regions_scores = collect_partial_paths_and_scores(regions, datatype='score')  # regions_partial_scores
     
-    # full and partial paths are stored in separate files
-    if use_full_paths:
-        # collect full path factors and scores for order 14 regions
-        regions_full_factors = collect_full_paths_and_scores(regions, datatype='factor')
-        regions_full_scores = collect_full_paths_and_scores(regions, datatype='score')
+    # # full and partial paths are stored in separate files
+    # if use_full_paths:
+    #     # collect full path factors and scores for order 14 regions
+    #     regions_full_factors = collect_full_paths_and_scores(regions, datatype='factor')
+    #     regions_full_scores = collect_full_paths_and_scores(regions, datatype='score')
 
-        # merge
-        regions_factors = [
-            regions_partial_factors[i] if r["order"] < 14 else regions_full_factors[i] for i, r in enumerate(regions)
-        ]
-        regions_scores = [
-            regions_partial_scores[i] if r["order"] < 14 else regions_full_scores[i] for i, r in enumerate(regions)
-        ]
+    #     # merge
+    #     regions_factors = [
+    #         regions_partial_factors[i] if r["order"] < 14 else regions_full_factors[i] for i, r in enumerate(regions)
+    #     ]
+    #     regions_scores = [
+    #         regions_partial_scores[i] if r["order"] < 14 else regions_full_scores[i] for i, r in enumerate(regions)
+    #     ]
 
-    else:
-        regions_factors = regions_partial_factors
-        regions_scores = regions_partial_scores
+    # else:
+    # regions_factors = regions_partial_factors
+    # regions_scores = regions_partial_scores
 
     # get genes for each region
     regions = collect_genes_for_regions(regions)
