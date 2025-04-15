@@ -12,8 +12,8 @@ gwas_bp = Blueprint('gwas_bp', __name__)
 
 # preload gwas data for faster access
 with h5py.File(os.path.join(datadir, "ukbb.94_traits.0.5_pip.h5"), 'r') as f:
-    datasets = list(f.keys())
-    gwas_dict = {f[key][:] for key in datasets}
+    positions = list(f.keys())
+    gwas_dict = {key: f[key][:] for key in positions}
 
 """
 Fetches the traits associated with any genomic position
