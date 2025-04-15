@@ -46,6 +46,7 @@ def gwas_for_positions():
     request_info = request.get_json()
     positions = request_info['positions']  # [{chromosome, index}, ...]
 
+    t = time.time()
     return_object = []
     for position in positions:
         # collect GWAS associations for positions one at a time
@@ -59,5 +60,6 @@ def gwas_for_positions():
             }
         )
     print(return_object)
-
+    print(f"Time taken to fetch gwas data for {len(positions)} positions: ", time.time() - t)
+    
     return json.dumps(return_object)
