@@ -10,26 +10,31 @@ from constants import gwas_dir as datadir
 # Create a Blueprint
 gwas_bp = Blueprint('gwas_bp', __name__)
 
+# preload gwas data for faster access
+with h5py.File(os.path.join(datadir, "ukbb.94_traits.0.5_pip.h5"), 'r') as f:
+    datasets = list(f.keys())
+    gwas_dict = {f[key][:] for key in datasets}
+
 """
 Fetches the traits associated with any genomic position
 """
 def fetch_gwas(chromosome, position):
     dataset_name = f"{chromosome}:{position}"
-    with h5py.File(os.path.join(datadir, "ukbb.94_traits.0.5_pip.h5"), 'r') as f:
-        try:
-            data = f[dataset_name][:]
-            # scores
-            scores = data[1].tolist()
-            # traits
-            trait_indices = data[0].astype(int)
-            unique_trait_indices = np.unique(trait_indices)
-            # collect trait names
-            unique_trait_names = f['traits'][unique_trait_indices].astype(str)
-            index2trait = {i: t for i, t in zip(unique_trait_indices, unique_trait_names)}
-            trait_names = list(map(index2trait.get, trait_indices))
-        except:
-            trait_names = []
-            scores = []
+    # with h5py.File(os.path.join(datadir, "ukbb.94_traits.0.5_pip.h5"), 'r') as f:
+    try:
+        data = gwas_dict[dataset_name][:]
+        # scores
+        scores = data[1].tolist()
+        # traits
+        trait_indices = data[0].astype(int)
+        unique_trait_indices = np.unique(trait_indices)
+        # collect trait names
+        unique_trait_names = gwas_dict['traits'][unique_trait_indices].astype(str)
+        index2trait = {i: t for i, t in zip(unique_trait_indices, unique_trait_names)}
+        trait_names = list(map(index2trait.get, trait_indices))
+    except:
+        trait_names = []
+        scores = []
     return trait_names, scores
 
 
