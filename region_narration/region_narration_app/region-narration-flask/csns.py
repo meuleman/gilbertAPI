@@ -1,6 +1,5 @@
 from flask import Blueprint, request
 import numpy as np
-# import requests
 import json
 import h5py
 import os
@@ -10,7 +9,7 @@ from common import (
     perform_geneset_hypergeometric_test, generate_geneset_return_data
 )
 # import tabix
-from constants import CHR_SIZES_UCSC, chromosomes, csn_dir, full_gene_path, partial_csn_dir, gsXgene, genes, genesets
+from constants import full_gene_path, partial_csn_dir, gsXgene, genes, genesets
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
@@ -49,79 +48,6 @@ def find_intersection(group):
     combined_factor_scores = combined_factor_scores / len(group)
     return {"indices": indices, "factor_scores": combined_factor_scores, "path_scores": path_scores}
 
-
-def get_filtered_indices_and_scores(filters, region):
-    """
-    Collects positional indices for each filter, groups them by chromosome, and finds the
-    intersection between filters within each chromosome.
-    """
-    filter_indices = []
-    start = time.time()
-
-    # if we have no filters but we do have a region
-    # we want to use the range(start, end) in order 14 of the given region
-    if len(filters) == 0 and region is not None:
-        print("filtering a region with no filters", region)
-        chromosome = region["chromosome"]
-        start = hilbert_pos_to_order(region["i"], region["order"], 14)
-        end = hilbert_pos_to_order(region["i"] + 1, region["order"], 14)
-        end = min(end, CHR_SIZES_UCSC[chromosome])
-        indices = np.arange(start, end)
-        scores = get_single_region_scores(chromosome, start, end)
-        print("len indices", len(indices), "len scores", len(scores))
-        # no need to deal with other chromosomes
-        return {
-            chromosome: {"indices": indices, "path_scores": scores}
-        }
-
-    # parse each filter and collect indices
-    for f in filters:
-        order = f['order']
-        index = f['index']
-        dataset_name = f['dataset_name']
-        # fetch indices from each chromosome
-        for chromosome in chromosomes:
-            if region is not None and chromosome != region["chromosome"]:
-                continue
-            indices_scores = fetch_indices_scores(
-                order, 
-                chromosome, 
-                index, 
-                dataset_name, 
-                os.path.join(csn_dir, 'indices/indices.scores.order_14_resolution.h5')
-            )
-            if len(indices_scores) > 0:
-                filter_indices.append({
-                    "chromosome": chromosome, 
-                    "order": order, 
-                    "index": index, 
-                    "dataset_name": dataset_name, 
-                    "indices": indices_scores[:, 0].astype(int),
-                    "path_scores": indices_scores[:, 1],
-                    "factor_scores": indices_scores[:, 2]
-                })
-
-    print(f"Time to fetch indices: {time.time() - start}", flush=True)
-
-    start = time.time()
-    # group by chromosome
-    chromosome_groups = {}
-    for chromosome in chromosomes:
-        chromosome_group = [f for f in filter_indices if f['chromosome'] == chromosome]
-        # only keep if each filter has indices for this chromosome
-        if len(chromosome_group) == len(filters):
-            chromosome_groups[chromosome] = chromosome_group
-
-    # reduce chromosome groups to common indices
-    reduced_chromosome_groups = {}
-    # print(("CHROMOSOME GROUPS:", chromosome_groups), flush=True)
-    for chromosome, group in chromosome_groups.items():
-        group_intersection = find_intersection(group)
-        if len(group_intersection["indices"]) > 0:
-            reduced_chromosome_groups[chromosome] = group_intersection
-    
-    print(f"Time to find intersection: {time.time() - start}", flush=True)
-    return reduced_chromosome_groups
 
 def filter_region(chromosome_indices, region):
     """
@@ -215,190 +141,6 @@ def sort_by_score(chromosome_indices, score_type, N, order_diversity=-1):
     return top_indices, top_chromosomes, top_scores, top_seen_counts
 
 
-def get_dehydrated_paths(
-    top_indices=[],
-    top_chromosomes=[],
-    regions=[],
-    file_path=os.path.join(csn_dir, 'paths/full_path_factors.order_14_resolution.h5')
-):
-    """
-    Collects and returns the factor indices for each of the top paths.
-    """
-    start = time.time()
-
-    if len(regions) > 0:
-        # load in h5 file and read in the exact dehydrated paths we need for each region
-        with h5py.File(file_path, 'r') as f:
-            for region in regions:
-                paths = []
-                for pos in region['top_positions']:
-                    paths.append(f[region['chromosome']][pos].tolist())
-                region['dehydrated_paths'] = paths
-
-        print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
-        return regions
-    
-    elif (len(top_indices) > 0) and (len(top_chromosomes) > 0):
-        dehydrated_paths = []
-        # load in h5 file and read in the exact dehydrated paths we need
-        with h5py.File(file_path, 'r') as f:
-            for chromosome, index in zip(top_chromosomes, top_indices):
-                dehydrated_paths.append(f[chromosome][index])
-        
-        print(f"Time to get dehydrated paths: {time.time() - start}", flush=True)
-        return dehydrated_paths
-    
-    else:
-        raise ValueError("No indices or chromosomes provided for dehydrated paths")
-
-
-def get_scores(
-    indices,
-    chromosomes,
-    score_type,
-    filter_orders,
-    full_file_path=os.path.join(csn_dir, 'scores/path_scores.order_14_resolution.h5'),
-    factor_file_path=os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5')
-):
-    """
-    Collects path scores for index positions on each chromosome.
-    """
-    start = time.time()
-    # Preallocate scores array
-    scores = np.zeros(len(indices), dtype=np.float32)
-    print(f"scores for {len(indices)} indices")
-    # load in h5 file and read in the scores for each position
-    file_path = full_file_path if score_type == "full" else factor_file_path
-    with h5py.File(file_path, 'r') as f:
-        unique_chromosomes = np.unique(chromosomes)
-        for chromosome in unique_chromosomes:
-            csstart = time.time()
-            # chromosome_indices = indices[chromosomes == chromosome]
-            mask = chromosomes == chromosome
-            chromosome_indices = indices[mask]
-            print("chr indices", chromosome, len(indices[mask]))
-            sort_order = np.argsort(chromosome_indices)
-            unsort_order = np.argsort(sort_order)
-            print(f"Time to sort chromosome: {time.time() - csstart}", flush=True)
-
-            sstart = time.time()
-            # scores for each segment
-            chromosome_scores = f[chromosome][chromosome_indices[sort_order]][unsort_order]
-            print(f"Time to get chromosome scores: {time.time() - sstart}", flush=True)
-            
-            # average scores for factors at each order filtered upon if not path scores
-            if score_type == "factor" and len(filter_orders) > 0:
-                astart = time.time()
-                orders_adjusted = np.array(filter_orders) - 4
-                chromosome_scores = np.mean(chromosome_scores[:, orders_adjusted], axis=1)
-                print(f"Time to average chromosome scores: {time.time() - astart}", flush=True)
-
-            # scores.extend(chromosome_scores)
-            scores[mask] = chromosome_scores
-
-    print(f"Time to get scores: {time.time() - start}", flush=True)
-    return np.array(scores)
-
-
-def get_single_region_scores(
-    chromosome,
-    start,
-    end,
-    file_path=os.path.join(csn_dir, 'scores/path_scores.order_14_resolution.h5'),
-):
-    """
-    Collects path scores for a single region on a chromosome.
-    """
-    score_t = time.time()
-    print(f"scores for {(end - start)} indices")
-    # load in h5 file and read in the scores for each position
-    with h5py.File(file_path, 'r') as f:
-        # scores for each segment
-        scores = f[chromosome][start:end]
-
-    print(f"Time to get scores: {time.time() - score_t}", flush=True)
-    return scores
-
-
-def generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
-    """
-    Refactors our top paths into a JSON object for return.
-    """
-    # return the top csns
-    start = time.time()
-    return_list = []
-    # TODO: make this faster?
-    file_path = os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5')
-    with h5py.File(file_path, 'r') as f:
-        for index, chrom, score, path, seen_count in zip(top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts):
-            scores = f[chrom][index]
-            return_list.append({
-                "i": int(index),
-                "chromosome": str(chrom),
-                "score": float(score),
-                "path": path.tolist(),
-                "factors": scores.tolist(),
-                "representedPaths": int(seen_count)
-            })
-
-    # return the filtered indices
-    # return_indices = []
-    # for chr in chromosome_indices.keys():
-    #     return_indices.append({
-    #         "chromosome": chr,
-    #         "indices": chromosome_indices[chr]["indices"][0:1000000].tolist()
-    #     })
-
-    print(f"Time to generate return data: {time.time() - start}", flush=True)
-    return json.dumps({
-        # "filtered_indices": return_indices,
-        "csns": return_list
-    })
-
-def get_factor_filter_previews(filters, new_filter, region, orders=range(4, 15)):
-    """
-    Finds the regional index overlap between established and proposed filters and returns fractional overlap value at each order
-    """
-    # get the indices for the filters we have established for each chromosome
-    # if we have regions, only get the indices for chromomsomes present in the regions
-    if len(filters) > 0:  # if no filters in place, skip
-        set_chromosome_indices = get_filtered_indices_and_scores(filters, region)
-        # find the chromosomes set filters have regions for
-        set_chromosomes = np.array(list(set_chromosome_indices.keys()))
-        # count the total number of regions for set filters
-        set_index_count = sum(len(set_chromosome_indices[chromosome]['indices']) for chromosome in set_chromosomes)
-
-    # loop through each order and find the overlap between set filters and new filter
-    previews = {}
-    for order in orders:
-        new_filter_at_order = new_filter.copy()
-        new_filter_at_order['order'] = order
-        # get the regional indices for the new filter
-        preview_chromosome_indices = get_filtered_indices_and_scores([new_filter_at_order], region)
-        # find the chromosomes new filter has regions for
-        preview_chromosomes = np.array(list(preview_chromosome_indices.keys()))
-
-        # for order, find the common chromosomes for set and new filters
-        commom_chromosomes = set_chromosomes[np.isin(set_chromosomes, preview_chromosomes)] if len(filters) > 0 else preview_chromosomes
-
-        # group indices between filters by chromosome and find intersection counts
-        common_index_count = 0
-        for chromosome in commom_chromosomes:
-            if len(filters) > 0:  # find intersection if there are set filters
-                chromosome_group = [set_chromosome_indices[chromosome], preview_chromosome_indices[chromosome]]
-                chromosome_intersection = find_intersection(chromosome_group)
-                common_index_count += len(chromosome_intersection['indices'])
-            else:
-                common_index_count += len(preview_chromosome_indices[chromosome]['indices'])
-
-        # if no set filters, use full genome size as background, otherwise use regions found through filters
-        bg_count = set_index_count if len(filters) > 0 else sum(CHR_SIZES_UCSC.values())
-        print("ORDER", order, "COUNT", common_index_count, "BG", bg_count)
-        previews[order] = common_index_count / bg_count
-
-    return previews
-
-
 def get_top_scores_for_regions(regions, N):
     """
     Collect the top N scores and positions for each region
@@ -414,39 +156,6 @@ def get_top_scores_for_regions(regions, N):
         region['top_positions'] = top_positions
 
     print(f"Time to find top scores: {time.time() - start_time}", flush=True)
-
-    return regions
-
-
-def get_scores_for_regions(
-    regions,
-    score_type,
-    factor_score_path=os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5'),
-    path_score_path=os.path.join(csn_dir, 'scores/path_scores.order_14_resolution.h5'),
-    by_position=False
-):
-    """
-    Collects path scores for each region set. 
-    """
-    start_time = time.time()
-    print(f"Collecting scores for {len(regions)} regions")
-
-    # load in h5 file and read in the scores for each position
-    file_path, region_key = (path_score_path, "path_scores") if score_type == "path" else (factor_score_path, "factor_scores")
-    with h5py.File(file_path, 'r') as f:
-        for region in regions:
-            # if collecting scores for top positions in region
-            if by_position:
-                region_key = "top_path_scores" if score_type == "path" else "top_factor_scores"
-                pos_scores = []
-                for pos in region['top_positions']:
-                    pos_scores.append(f[region['chromosome']][pos])
-                region[region_key] = np.array(pos_scores)
-            # if collecting scores for the entire region
-            else:
-                region[region_key] = f[region['chromosome']][region['start']:region['end']]
-
-    print(f"Time to collect scores: {time.time() - start_time}", flush=True)
 
     return regions
 
@@ -559,38 +268,6 @@ def collect_partial_paths_and_scores(
     return regions_data
 
 
-def collect_full_paths_and_scores(
-        regions,
-        datatype='factor',
-        factors_path=os.path.join(csn_dir, 'paths/full_path_factors.order_14_resolution.h5'),
-        scores_path=os.path.join(csn_dir, 'scores/factor_scores.order_14_resolution.h5'),
-    ):
-    """
-    Collects and returns full path factors and scores for a list of regions. If region
-    order < 14, None is returned.
-    """
-    
-    print(f"Collecting full paths for {len(regions)} regions...", flush=True)
-    start = time.time()
-
-    file_path = factors_path if datatype == 'factor' else scores_path
-    regions_data = []
-    with h5py.File(file_path, 'r') as f:
-        for r in regions:
-            r_order = r['order']
-            r_i = r['i']
-
-            if r_order == 14:
-                r_data = f[f"{r['chromosome']}"][r_i]
-                regions_data.append(r_data)
-            else:
-                regions_data.append(None)
-
-    print(f"Time to collect full paths for regions: {time.time() - start}", flush=True)
-
-    return regions_data
-
-
 def generate_partial_path_return(regions, regions_factors, regions_scores, geneset_data):
     """
     Create return object for partial paths
@@ -608,103 +285,6 @@ def generate_partial_path_return(regions, regions_factors, regions_scores, genes
     return json.dumps(return_object)
 
 
-@csns_bp.route("top_paths", methods=['POST'])
-def top_paths():
-    """
-    Endpoint for fetching the top paths based on a set of filters and regions.
-    """
-    request_info = request.get_json()
-    
-    filters = request_info['filters']  # [{order, index, dataset_name}, ...]
-    region = request_info['region']  # {order, chromosome, index}
-    score_type = request_info['scoreType']  # "full", "factor"
-    diversity = request_info['diversity']  # true | false
-    N = request_info['N']  # number of paths to return
-
-    # get the indices for the filters of each chromosome
-    # if we have regions, only get the indices for chromomsomes present in the regions
-    chromosome_indices = get_filtered_indices_and_scores(filters, region)
-    # filter down the indices to the regions, converts indices to order of regions and checks
-    if region is not None and len(filters) > 0:
-        chromosome_indices = filter_region(chromosome_indices, region)
-
-    filter_orders = [f['order'] for f in filters]
-    max_order = max(filter_orders) if (diversity and len(filter_orders) > 0) else -1
-    
-    # find the top paths based on full or factor score
-    # print("sorting by score", flush=True)
-    top_indices, top_chromosomes, top_scores, top_seen_counts = sort_by_score(chromosome_indices, score_type, N, order_diversity=max_order)      
-    
-    # get the dehydrated paths for each index 
-    # print("getting dehydrated paths", flush=True)
-    dehydrated_paths = get_dehydrated_paths(top_indices, top_chromosomes)
-
-    # generate the return list
-    # print("generating return list", flush=True)
-    return_list = generate_return_data(chromosome_indices, top_indices, top_chromosomes, top_scores, dehydrated_paths, top_seen_counts)
-
-    return return_list
-
-
-@csns_bp.route("preview_filter", methods=['POST'])
-def preview_filter():
-    """
-    Endpoint for previewing the number of regions a filter would provide at each order if selected
-    """
-    request_info = request.get_json()
-    
-    filters = request_info['filters']  # [{order, index, dataset_name}, ...]
-    new_filter = request_info['newFilter']  # [{order, index}, ...]
-    region = request_info['region']  # {order, chromosome, index}
-
-    print(filters, new_filter)
-
-    previews = get_factor_filter_previews(filters, new_filter, region)
-
-    return_object = json.dumps({"preview_fractions": previews})
-    return return_object
-
-
-@csns_bp.route("top_paths_for_regions", methods=['POST'])
-def native_order_resolution_regions():
-    """
-    Endpoint for fetching the top paths for a number of regions. The top N paths for each region are returned.
-    """
-    request_info = request.get_json()
-    
-    region_coordinates = request_info['regions']  # ['chr:start-end', ...] or [{chromosome, start, end}, ...]
-    N = request_info['N'] if 'N' in request_info else 1 # number of paths to return per region (default 1)
-
-    # convert region coordinates to regions object
-    regions = [
-        r if isinstance(r, dict) else {
-            'chromosome': r.split(':')[0],
-            'start': int(r.split(':')[1].split('-')[0]),
-            'end': int(r.split(':')[1].split('-')[1])
-        } for r in region_coordinates
-    ]
-
-    # get the scores for each region
-    regions = get_scores_for_regions(regions, "path")
-
-    # find the top N positions based on path score
-    regions = get_top_scores_for_regions(regions, N)
-
-    # collect factor scores for top positions
-    regions = get_scores_for_regions(regions, "factor", by_position=True)
-
-    # get the genes for each position in each region
-    regions = collect_genes_for_regions(regions)
-
-    # get the dehydrated paths for each position in each region
-    regions = get_dehydrated_paths(regions=regions)
-
-    # generate the return object
-    return_object = generate_region_return(regions)
-    
-    return return_object
-
-
 @csns_bp.route("paths_by_order", methods=['POST'])  # was partial_paths_for_regions
 def paths_by_order():
     """
@@ -713,33 +293,13 @@ def paths_by_order():
     request_info = request.get_json()
     
     regions = request_info['regions']  # [{chromosome, order, i}, ...]
-    use_full_paths = request_info.get("use_full_paths", True)
-    use_full_paths = str(use_full_paths).lower() == "true"
     threshold = request_info.get("threshold", 0.05)  # default geneset p-value threshold is 0.05
     membership = str(request_info.get("membership", "False")).lower() == "true"  # default geneset membership is False, convert to boolean
     bonferroni = str(request_info.get("bonferroni", "False")).lower() == "true"  # default geneset bonferroni correction is False, convert to boolean
 
     # collect partial path factors and scores
-    regions_factors = collect_partial_paths_and_scores(regions, datatype='factor')  # regions_partial_factors
-    regions_scores = collect_partial_paths_and_scores(regions, datatype='score')  # regions_partial_scores
-    
-    # # full and partial paths are stored in separate files
-    # if use_full_paths:
-    #     # collect full path factors and scores for order 14 regions
-    #     regions_full_factors = collect_full_paths_and_scores(regions, datatype='factor')
-    #     regions_full_scores = collect_full_paths_and_scores(regions, datatype='score')
-
-    #     # merge
-    #     regions_factors = [
-    #         regions_partial_factors[i] if r["order"] < 14 else regions_full_factors[i] for i, r in enumerate(regions)
-    #     ]
-    #     regions_scores = [
-    #         regions_partial_scores[i] if r["order"] < 14 else regions_full_scores[i] for i, r in enumerate(regions)
-    #     ]
-
-    # else:
-    # regions_factors = regions_partial_factors
-    # regions_scores = regions_partial_scores
+    regions_factors = collect_partial_paths_and_scores(regions, datatype='factor')
+    regions_scores = collect_partial_paths_and_scores(regions, datatype='score')
 
     # get genes for each region
     regions = collect_genes_for_regions(regions)
