@@ -3,7 +3,7 @@ import os
 from common import preload_preview_indices, load_geneset_data
 
 ### DATA DIRECTORIES ###
-filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20241101/indices.scores.native_resolution.h5"
+filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20250416/indices.scores.native_resolution.h5"
 order_independent_filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/order_independent_filtering/20250416/overlap_merged.h5"
 partial_csn_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_partial_csn/20241219"
 gwas_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20241021"
