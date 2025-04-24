@@ -356,12 +356,13 @@ def pubmed_region_set_summary():
     request_info = request.get_json()
     query = request_info["query"]  # 'Cancer / epithelial DHS enrichment @ 64kbp | ...'
     # narration = request_info.get("narration", None)
+    prompt = request_info.get("prompt", None)
     print("🔍🗣️ query", query, flush=True)
     
     # collects model components for the current worker
     model_components = get_model_components()
 
-    region_set_prompt = model_components["region_set_prompt"]
+    region_set_prompt = model_components["region_set_prompt"] if prompt is None else create_custom_prompt(prompt)
 
     # generates summary and results
     summary, results, used_prompt = get_summary(query, model_components["model"], model_components["table"], region_set_prompt, model_components["region_set_examples"], api_key)
