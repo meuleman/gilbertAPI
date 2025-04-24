@@ -367,20 +367,20 @@ def pubmed_region_set_summary():
     summary, results, used_prompt = get_summary(query, model_components["model"], model_components["table"], region_set_prompt, model_components["region_set_examples"], api_key)
     request_id = str(uuid.uuid4())
 
-    # # log request
-    # request_data = {
-    #     "timestamp": datetime.datetime.now(),
-    #     "request_id": request_id,
-    #     "type": "rag_generate",
-    #     "query": query,
-    #     "prompt": used_prompt,
-    #     "summary": summary,
-    #     "results": json.dumps(results),
-    #     "narration": json.dumps(narration)
-    # }
-    # request_logger.log_request(request_data)
-    # # Force flush to disk (normally happens automatically at buffer limit)
-    # request_logger.flush()
+    # log request
+    request_data = {
+        "timestamp": datetime.datetime.now(),
+        "request_id": request_id,
+        "type": "region_set",
+        "query": query,
+        "prompt": used_prompt,
+        "summary": summary,
+        "results": json.dumps(results),
+        "narration": "",  # json.dumps(narration)
+    }
+    request_logger.log_request(request_data)
+    # Force flush to disk (normally happens automatically at buffer limit)
+    request_logger.flush()
 
     return json.dumps({"summary": summary, "results": results, "request_id": request_id})
 
