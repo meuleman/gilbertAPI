@@ -140,16 +140,21 @@ def generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=0.05):
     """
     start = time.time()
 
+    # sort by p-value (or membership)
+    sort_order = np.argsort(p)
+    p_sorted = p[sort_order]
+    genesets_sorted = genesets[sort_order]
+
     if p.dtype == bool:
         # return genesets in which there is membership
-        return_list = [{"geneset": gs} for gs, p in zip(genesets, p) if p]
+        return_list = [
+            {
+                "geneset": gs,
+                "genes": genes[gsXgene[i]].tolist()
+            } for gs, p, i in zip(genesets_sorted, p_sorted, sort_order) if p
+        ]
 
     else:
-        # sort by p-value
-        sort_order = np.argsort(p)
-        p_sorted = p[sort_order]
-        genesets_sorted = genesets[sort_order]
-
         return_list = [
             {
                 "geneset": gs, 
