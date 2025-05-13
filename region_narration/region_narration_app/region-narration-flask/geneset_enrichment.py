@@ -1,34 +1,11 @@
 import json
 from flask import Blueprint, request
 import numpy as np
-from constants import gsXgene, genes, genesets
-from common import perform_geneset_hypergeometric_test, generate_geneset_return_data
+from constants import geneset_enrichment
 
 
 # Create a Blueprint
 geneset_enrichment_bp = Blueprint('geneset_enrichment_bp', __name__)
-
-
-# Helper functions
-def get_geneset_genes(geneset):
-    """
-    Collects the genes in a geneset
-    
-    Args:
-        geneset (str): The name of the geneset
-        
-    Returns:
-        list: List of genes in the geneset
-        
-    Raises:
-        ValueError: If geneset is not found
-    """
-    try:
-        geneset_genes = genes[gsXgene[genesets == geneset][0]]
-        return geneset_genes.tolist()
-
-    except IndexError:
-        raise ValueError(f"Geneset '{geneset}' not found")
 
 
 # Route handlers
@@ -57,16 +34,16 @@ def geneset_enrichment():
         bonferroni = str(request_info.get("bonferroni", "False")).lower() == "true"
 
         # test enrichment of genes (if membership, p is bool array)
-        p = perform_geneset_hypergeometric_test(
-            genes_for_test, gsXgene, genes, 
-            genesets, membership=membership, 
+        p = geneset_enrichment.perform_geneset_hypergeometric_test(
+            genes_for_test,
+            membership=membership, 
             bonferroni=bonferroni
         )
 
         # generate return data
-        return_list = generate_geneset_return_data(
-            p, genesets, gsXgene, 
-            genes, threshold=threshold
+        return_list = geneset_enrichment.generate_geneset_return_data(
+            p, 
+            threshold=threshold
         )
         return json.dumps(return_list)
 
@@ -92,7 +69,7 @@ def geneset_to_genes():
         
         # get genes in geneset
         geneset = request_info['geneset']
-        geneset_genes = get_geneset_genes(geneset)
+        geneset_genes = geneset_enrichment.get_geneset_genes(geneset)
         return json.dumps(geneset_genes)
     
     except ValueError as e:

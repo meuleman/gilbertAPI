@@ -1,12 +1,13 @@
 import h5py
 import numpy as np
 import time
-import os
 from scipy.stats import hypergeom
 from subprocess import Popen, PIPE
-import json
 
+DEFAULT_THRESHOLD = 0.05
+NUM_ORDERS = 11
 
+# index functions
 def fetch_indices_scores(
     order, 
     chromosome, 
@@ -27,7 +28,7 @@ def fetch_indices_scores(
     return indices_scores
 
 
-def preload_preview_indices(index_path, max_order=11):
+def preload_preview_indices(index_path, max_order=NUM_ORDERS):
     """
     Function to preload all indices to be used for filter previews up through the max order
     """
@@ -68,6 +69,7 @@ def preload_preview_indices(index_path, max_order=11):
     return preloaded_indices
 
 
+# hilbert order conversion
 def hilbert_pos_to_order(pos, frm, to):
     """
     Converts an array of hilbert positions from one order to another
@@ -75,6 +77,7 @@ def hilbert_pos_to_order(pos, frm, to):
     return np.floor(pos / pow(4.0, frm - to)).astype(int)
 
 
+# query tabix files
 def tabix_query(query, path):
     """
     Queries a tabix file for provided genomic coordinates (chr:start-end)
@@ -89,79 +92,101 @@ def tabix_query(query, path):
     return hits
 
 
-def load_geneset_data(bin_path):
-    """
-    Loads the binary matrix data from h5 file
-    """
-    # load binary matrix, gene names, and geneset names
-    with h5py.File(bin_path, 'r') as f:
-        gsXgene = f['bin'][:]
-        genes = np.char.decode(f['genes'][:])
-        genesets = np.char.decode(f['genesets'][:])
+class GenesetEnrichment:
+    def __init__(self, geneset_file_path):
+        self.gsXgene, self.genes, self.genesets = self._load_data(geneset_file_path)
+        
+    def _load_data(self, file_path):
+        """
+        Loads the binary matrix data from h5 file
+        """
+        # load binary matrix, gene names, and geneset names
+        with h5py.File(file_path, 'r') as f:
+            gsXgene = f['bin'][:]
+            genes = np.char.decode(f['genes'][:])
+            genesets = np.char.decode(f['genesets'][:])
 
-    return gsXgene, genes, genesets
+        return gsXgene, genes, genesets
+            
+    def perform_geneset_hypergeometric_test(self, genes_for_test, membership=False, bonferroni=False):
+        """
+        Performs hypergeometric test with provided list of genes to determine enrichment for each geneset.
+        Returns a list of p-values for each geneset. If membership is True, returns a boolean array of 
+        geneset membership for test genes.
+        """
+        start = time.time()
 
+        # take the unique genes (in case neighboring regions point to the same gene)
+        genes_for_test = np.unique(genes_for_test)
 
-def perform_geneset_hypergeometric_test(genes_for_test, gsXgene, genes, genesets, membership=False, bonferroni=False):
-    """
-    Performs hypergeometric test with provided list of genes to determine enrichment for each geneset.
-    Returns a list of p-values for each geneset. If membership is True, returns a boolean array of 
-    geneset membership for test genes.
-    """
-    start = time.time()
+        # perform hypergeometric test for each geneset
+        M = len(self.genes)  # total number of genes
+        N = len(genes_for_test)  # number of provided genes to test geneset enrichment with
+        n = np.count_nonzero(self.gsXgene, axis=1)  # number of genes in each geneset
+        k = np.count_nonzero(self.gsXgene[:, np.isin(self.genes, genes_for_test)], axis=1)  # number of the provided genes in each geneset
 
-    # take the unique genes (in case neighboring regions point to the same gene)
-    genes_for_test = np.unique(genes_for_test)
+        
+        if membership:
+            # find the genesets in which genes have membership
+            p = k > 0
+        else:
+            # Perform the hypergeometric test
+            p = hypergeom.sf(k-1, M, n, N)
 
-    # perform hypergeometric test for each geneset
-    M = len(genes)  # total number of genes
-    N = len(genes_for_test)  # number of provided genes to test geneset enrichment with
-    n = np.count_nonzero(gsXgene, axis=1)  # number of genes in each geneset
-    k = np.count_nonzero(gsXgene[:, np.isin(genes, genes_for_test)], axis=1)  # number of the provided genes in each geneset
+            # bonferroni correction
+            p = (p * len(self.genesets)).clip(max=1) if bonferroni else p
 
+        print(f"Time to calculate enrichments for each geneset: {time.time() - start}", flush=True)
+        return p
+            
+    def generate_geneset_return_data(self, p, threshold=DEFAULT_THRESHOLD):
+        """
+        Sorts the p-values and genesets and returns a list of genesets with p-values less than threshold
+        """
+        start = time.time()
+
+        # sort by p-value (or membership)
+        sort_order = np.argsort(p)
+        p_sorted = p[sort_order]
+        genesets_sorted = self.genesets[sort_order]
+
+        if p.dtype == bool:
+            # return genesets in which there is membership
+            return_list = [
+                {
+                    "geneset": gs,
+                    "genes": self.genes[self.gsXgene[i]].tolist()
+                } for gs, p, i in zip(genesets_sorted, p_sorted, sort_order) if p
+            ]
+
+        else:
+            return_list = [
+                {
+                    "geneset": gs, 
+                    "p": float(p), 
+                    "genes": self.genes[self.gsXgene[i]].tolist()
+                } for gs, p, i in zip(genesets_sorted, p_sorted, sort_order) if p < threshold
+            ]
+
+        print(f"Time to generate geneset return data: {time.time() - start}", flush=True)
+        return return_list
     
-    if membership:
-        # find the genesets in which genes have membership
-        p = k > 0
-    else:
-        # Perform the hypergeometric test
-        p = hypergeom.sf(k-1, M, n, N)
+    def get_geneset_genes(self, geneset):
+        """
+        Collects the genes in a geneset
+        
+        Args:
+            geneset (str): The name of the geneset
+            
+        Returns:
+            list: List of genes in the geneset
+            
+        Raises:
+            ValueError: If geneset is not found
+        """
+        try:
+            geneset_genes = self.genes[self.gsXgene[self.genesets == geneset][0]]
+            return geneset_genes.tolist()
 
-        # bonferroni correction
-        p = (p * len(genesets)).clip(max=1) if bonferroni else p
-
-    print(f"Time to calculate enrichments for each geneset: {time.time() - start}", flush=True)
-    return p
-
-
-def generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=0.05):
-    """
-    Sorts the p-values and genesets and returns a list of genesets with p-values less than threshold
-    """
-    start = time.time()
-
-    # sort by p-value (or membership)
-    sort_order = np.argsort(p)
-    p_sorted = p[sort_order]
-    genesets_sorted = genesets[sort_order]
-
-    if p.dtype == bool:
-        # return genesets in which there is membership
-        return_list = [
-            {
-                "geneset": gs,
-                "genes": genes[gsXgene[i]].tolist()
-            } for gs, p, i in zip(genesets_sorted, p_sorted, sort_order) if p
-        ]
-
-    else:
-        return_list = [
-            {
-                "geneset": gs, 
-                "p": float(p), 
-                "genes": genes[gsXgene[i]].tolist()
-            } for gs, p, i in zip(genesets_sorted, p_sorted, sort_order) if p < threshold
-        ]
-
-    print(f"Time to generate geneset return data: {time.time() - start}", flush=True)
-    return return_list
+        except IndexError:
+            raise ValueError(f"Geneset '{geneset}' not found")

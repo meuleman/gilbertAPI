@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from common import preload_preview_indices, load_geneset_data
+from common import preload_preview_indices, GenesetEnrichment
 
 ### DATA DIRECTORIES ###
 filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20250416/indices.scores.native_resolution.h5"
@@ -78,10 +78,14 @@ precalculated_region_set_enrichment_orders = [4, 5]
 # preload all indices for filter previews
 PRELOADED_INDICES = preload_preview_indices(filtering_path)
 
-# preload the genesetXgene binary matrix data
-gsXgene, genes, genesets = load_geneset_data(geneset_bin_path)
 ############
 
+### CLASSES ###
+
+# Geneset Enrichment Class
+geneset_enrichment = GenesetEnrichment(geneset_bin_path)
+
+###############
 
 ####PUBMED SUMMARY####
 MODEL_ID = "nomic-ai/nomic-embed-text-v1.5"

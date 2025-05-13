@@ -4,17 +4,11 @@ import json
 import h5py
 import os
 import time
-from common import (
-    fetch_indices_scores, hilbert_pos_to_order, tabix_query, 
-    perform_geneset_hypergeometric_test, generate_geneset_return_data
-)
-# import tabix
-from constants import full_gene_path, partial_csn_dir, gsXgene, genes, genesets
+from common import hilbert_pos_to_order, tabix_query
+from constants import full_gene_path, partial_csn_dir, geneset_enrichment
 
 # Create a Blueprint
 csns_bp = Blueprint('csns_bp', __name__)
-
-# baseS3URLPrefix = "https://altius-gilbert.s3.us-west-2.amazonaws.com/20240703/csn_index_files"  # dataset removed from s3
 
 
 def find_intersection(group):
@@ -308,14 +302,14 @@ def paths_by_order():
         # collect geneset membership for each region independently
         for region in regions:
             region_genes = [g["name"] for g in region["genes"]]
-            p = perform_geneset_hypergeometric_test(region_genes, gsXgene, genes, genesets, membership=membership, bonferroni=bonferroni)
-            geneset_data = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
+            p = geneset_enrichment.perform_geneset_hypergeometric_test(region_genes, membership=membership, bonferroni=bonferroni)
+            geneset_data = geneset_enrichment.generate_geneset_return_data(p, threshold=threshold)
             region["genesets"] = geneset_data
     else:
         # collect geneset enrichments for region set as a whole
         genes_for_test = [g["name"] for region in regions for g in region["genes"]]
-        p = perform_geneset_hypergeometric_test(genes_for_test, gsXgene, genes, genesets, membership=membership, bonferroni=bonferroni)
-        geneset_data = generate_geneset_return_data(p, genesets, gsXgene, genes, threshold=threshold)
+        p = geneset_enrichment.perform_geneset_hypergeometric_test(genes_for_test, membership=membership, bonferroni=bonferroni)
+        geneset_data = geneset_enrichment.generate_geneset_return_data(p, threshold=threshold)
 
     # generate the return object
     return_object = generate_partial_path_return(regions, regions_factors, regions_scores, geneset_data if not membership else None)
