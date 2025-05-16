@@ -1,9 +1,0 @@
-ModuleCmd_Load.c(208):ERROR:105: Unable to locate a modulefile for 'click'
-Traceback (most recent call last):
-  File "/home/lwu/ARCHS4/Tests/alex_code/query_archs4_container.py", line 5, in <module>
-    import click
-ModuleNotFoundError: No module named 'click'
-Traceback (most recent call last):
-  File "/home/lwu/ARCHS4/Tests/alex_code/query_archs4_container.py", line 5, in <module>
-    import click
-ModuleNotFoundError: No module named 'click'
