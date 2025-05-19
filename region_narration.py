@@ -13,7 +13,7 @@ from filtering_without_order import filtering_without_order_bp
 from region_set_enrichment import region_set_enrichment_bp
 from genes import genes_bp
 from pubmed_summary import pubmed_summary_bp
-from umap import umap_bp
+# from umap import umap_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -55,8 +55,8 @@ app.register_blueprint(region_set_enrichment_bp, url_prefix='/api/regionSetEnric
 app.register_blueprint(genes_bp, url_prefix='/api/genes') # Register the Blueprint at /api/genes
 ####Pubmed Summary Model####
 app.register_blueprint(pubmed_summary_bp, url_prefix='/api/pubmedSummary') # Register the Blueprint at /api/pubmedSummary
-############UMAP############
-app.register_blueprint(umap_bp, url_prefix='/api/umap') # Register the Blueprint at /api/umap
+# ############UMAP############
+# app.register_blueprint(umap_bp, url_prefix='/api/umap') # Register the Blueprint at /api/umap
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
