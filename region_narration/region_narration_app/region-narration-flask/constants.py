@@ -91,3 +91,13 @@ geneset_enrichment = GenesetEnrichment(geneset_bin_path)
 MODEL_ID = "nomic-ai/nomic-embed-text-v1.5"
 LANCEDB_URI = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/lancedb"
 LOGGING_DIR = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/logs/"
+
+######################
+
+####UMAP####
+
+# GilbertSFCH5_DIR = '/home/ychoi/projects/hilbert-genome/data/20240328_GilbertDataInH5'
+GilbertSFCH5_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5/20240328_GilbertDataInH5'
+COMP_MODEL_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5'
+
+############
