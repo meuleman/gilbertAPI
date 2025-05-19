@@ -2,12 +2,14 @@ import numpy as np
 import os
 from common import preload_preview_indices, GenesetEnrichment
 
+DATA_PATH = os.getenv('DATA_PATH', '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/')
+
 ### DATA DIRECTORIES ###
-filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/data_filtering/20250416/indices.scores.native_resolution.h5"
-order_independent_filtering_path="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/order_independent_filtering/20250416/overlap_merged.h5"
-partial_csn_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/precomputed_partial_csn/20241219"
-gwas_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/gwas/20241021"
-genedir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/genes/20240906/"
+filtering_path=os.path.join(DATA_PATH, "data_filtering/indices.scores.native_resolution.h5")
+order_independent_filtering_path=os.path.join(DATA_PATH, "order_independent_filtering/overlap_merged.h5")
+partial_csn_dir=os.path.join(DATA_PATH, "precomputed_partial_csn")
+gwas_dir=os.path.join(DATA_PATH, "gwas")
+genedir=os.path.join(DATA_PATH, "genes")
 full_gene_path = os.path.join(
     genedir, 
     "mart_export.protein_coding.basal_plus_extension.5kb_upstream.1kb_downstream.1000kb_distal.CT20240906.bed.bgz"
@@ -19,8 +21,12 @@ full_gene_path = os.path.join(
 # 'Basal upstream', 'Basal downstream', 'Gene description'
 # ]
 
+# umap 
+GilbertSFCH5_DIR = os.path.join(DATA_PATH, "hilbert_sfc_h5/20240328_GilbertDataInH5")
+COMP_MODEL_DIR = os.path.join(DATA_PATH, "hilbert_sfc_h5")
+
 # Path to binary matrix file
-geneset_dir="/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/geneset_enrichment/20240918"
+geneset_dir=os.path.join(DATA_PATH, "geneset_enrichment")
 geneset_bin_path = os.path.join(geneset_dir, "c5.go.bp.v2024.1.bin.h5")
 ########################
 
@@ -89,15 +95,7 @@ geneset_enrichment = GenesetEnrichment(geneset_bin_path)
 
 ####PUBMED SUMMARY####
 MODEL_ID = "nomic-ai/nomic-embed-text-v1.5"
-LANCEDB_URI = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/lancedb"
-LOGGING_DIR = "/data/narrativeGenomics/NarrativeGenomics/region_narration/data/gilbert/pubmed_summary/20250122/logs/"
+LANCEDB_URI = os.path.join(DATA_PATH, "pubmed_summary/lancedb")
+LOGGING_DIR = os.path.join(DATA_PATH, "pubmed_summary/logs/")
 
 ######################
-
-####UMAP####
-
-# GilbertSFCH5_DIR = '/home/ychoi/projects/hilbert-genome/data/20240328_GilbertDataInH5'
-GilbertSFCH5_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5/20240328_GilbertDataInH5'
-COMP_MODEL_DIR = '/data/narrativeGenomics/NarrativeGenomics/region_narration/data/hilbert_sfc_h5'
-
-############
