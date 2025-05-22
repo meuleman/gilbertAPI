@@ -255,7 +255,7 @@ feedback_logger = initialize_feedback_logger()
 
 
 
-def get_summary(query, st_model, table, rag_prompt, examples, api_key):
+def get_summary(query, st_model, table, rag_prompt, examples, api_key, exclude_GO=False):
     """
     Generates a text summary for a given query using the provided sentence transformers model, 
     lancedb table, rag_prompt, and examples. Returns sentence summary and search results.
@@ -263,7 +263,11 @@ def get_summary(query, st_model, table, rag_prompt, examples, api_key):
 
     start = time.time()
     # collect embeddings for the query
-    embeddings = st_model.encode(query, normalize_embeddings=True)
+    if exclude_GO:
+        encode_query = "; ".join([term.strip() if term.strip()[:3] != "GO " else "" for term in query.split(";")]).strip("; ")
+    else:
+        encode_query = query
+    embeddings = st_model.encode(encode_query, normalize_embeddings=True)
     print(f"\tEmbeddings time: {time.time() - start}", flush=True)
     
     start = time.time()
@@ -318,6 +322,7 @@ def pubmed_summary():
     query = request_info["query"]  # 'Cancer / epithelial DHS enrichment @ 64kbp'
     narration = request_info.get("narration", None)
     prompt = request_info.get("prompt", None)
+    exclude_GO = str(request_info.get("exclude_GO", "True")).lower() == "true"
     print("🔍🗣️ query", query, flush=True)
     
     # collects model components for the current worker
@@ -326,7 +331,15 @@ def pubmed_summary():
     rag_prompt = model_components["rag_prompt"] if prompt is None else create_custom_prompt(prompt)
 
     # generates summary and results
-    summary, results, used_prompt = get_summary(query, model_components["model"], model_components["table"], rag_prompt, model_components["examples"], api_key)
+    summary, results, used_prompt = get_summary(
+        query, 
+        model_components["model"], 
+        model_components["table"], 
+        rag_prompt, 
+        model_components["examples"], 
+        api_key,
+        exclude_GO=exclude_GO
+    )
     request_id = str(uuid.uuid4())
 
     # log request
@@ -365,7 +378,14 @@ def pubmed_region_set_summary():
     region_set_prompt = model_components["region_set_prompt"] if prompt is None else create_custom_prompt(prompt)
 
     # generates summary and results
-    summary, results, used_prompt = get_summary(query, model_components["model"], model_components["table"], region_set_prompt, model_components["region_set_examples"], api_key)
+    summary, results, used_prompt = get_summary(
+        query, 
+        model_components["model"],
+        model_components["table"], 
+        region_set_prompt, 
+        model_components["region_set_examples"], 
+        api_key
+    )
     request_id = str(uuid.uuid4())
 
     # log request
