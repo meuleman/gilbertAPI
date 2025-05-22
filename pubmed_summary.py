@@ -263,7 +263,7 @@ def get_summary(query, st_model, table, rag_prompt, examples, api_key, exclude_G
 
     start = time.time()
     # collect embeddings for the query
-    if exclude_GO:
+    if exclude_GO:  # exclude GO terms for encode step only to save time
         encode_query = "; ".join([term.strip() if term.strip()[:3] != "GO " else "" for term in query.split(";")]).strip("; ")
     else:
         encode_query = query
@@ -322,6 +322,7 @@ def pubmed_summary():
     query = request_info["query"]  # 'Cancer / epithelial DHS enrichment @ 64kbp'
     narration = request_info.get("narration", None)
     prompt = request_info.get("prompt", None)
+    # exclude GO terms from the encode query step for finding relevant abstracts
     exclude_GO = str(request_info.get("exclude_GO", "True")).lower() == "true"
     print("🔍🗣️ query", query, flush=True)
     
