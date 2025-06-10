@@ -40,23 +40,23 @@ def about():
 
 
 #############CSN############
-app.register_blueprint(csns_bp, url_prefix='/api/csns') # Register the Blueprint at /api/csns
+app.register_blueprint(csns_bp, url_prefix='/csns') # Register the Blueprint at /csns
 ##########Filtering#########
-app.register_blueprint(data_filtering_bp, url_prefix='/api/dataFiltering') # Register the Blueprint at /api/dataFiltering
+app.register_blueprint(data_filtering_bp, url_prefix='/dataFiltering') # Register the Blueprint at /dataFiltering
 ############GWAS############
-app.register_blueprint(gwas_bp, url_prefix='/api/gwas') # Register the Blueprint at /api/gwas
+app.register_blueprint(gwas_bp, url_prefix='/gwas') # Register the Blueprint at /gwas
 #####Geneset Enrichment#####
-app.register_blueprint(geneset_enrichment_bp, url_prefix='/api/genesetEnrichment') # Register the Blueprint at /api/genesetEnrichment
+app.register_blueprint(geneset_enrichment_bp, url_prefix='/genesetEnrichment') # Register the Blueprint at /genesetEnrichment
 ##Filtering Without Order###
-app.register_blueprint(filtering_without_order_bp, url_prefix='/api/filteringWithoutOrder') # Register the Blueprint at /api/filteringWithoutOrder
+app.register_blueprint(filtering_without_order_bp, url_prefix='/filteringWithoutOrder') # Register the Blueprint at /filteringWithoutOrder
 ###Region Set Enrichment####
-app.register_blueprint(region_set_enrichment_bp, url_prefix='/api/regionSetEnrichment') # Register the Blueprint at /api/regionSetEnrichment
+app.register_blueprint(region_set_enrichment_bp, url_prefix='/regionSetEnrichment') # Register the Blueprint at /regionSetEnrichment
 ###########Genes############
-app.register_blueprint(genes_bp, url_prefix='/api/genes') # Register the Blueprint at /api/genes
+app.register_blueprint(genes_bp, url_prefix='/genes') # Register the Blueprint at /genes
 ####Pubmed Summary Model####
-app.register_blueprint(pubmed_summary_bp, url_prefix='/api/pubmedSummary') # Register the Blueprint at /api/pubmedSummary
+app.register_blueprint(pubmed_summary_bp, url_prefix='/pubmedSummary') # Register the Blueprint at /pubmedSummary
 # ############UMAP############
-# app.register_blueprint(umap_bp, url_prefix='/api/umap') # Register the Blueprint at /api/umap
+# app.register_blueprint(umap_bp, url_prefix='/umap') # Register the Blueprint at /umap
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

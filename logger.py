@@ -153,7 +153,7 @@ class ParquetRequestLogger:
 #     # Log a sample request
 #     request_data = {
 #         "method": "GET",
-#         "path": "/api/users",
+#         "path": "/users",
 #         "status_code": 200,
 #         "response_time_ms": 45.5,
 #         "client_ip": "192.168.1.100",
