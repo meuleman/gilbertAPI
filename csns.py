@@ -291,19 +291,16 @@ def paths_by_order():
     membership = str(request_info.get("membership", "False")).lower() == "true"  # default geneset membership is False, convert to boolean
     bonferroni = str(request_info.get("bonferroni", "False")).lower() == "true"  # default geneset bonferroni correction is False, convert to boolean
 
-    print(f"Collecting partial paths for {len(regions)} regions with threshold {threshold}, membership {membership}, bonferroni {bonferroni}", flush=True)
     # collect partial path factors and scores
     regions_factors = collect_partial_paths_and_scores(regions, datatype='factor')
     regions_scores = collect_partial_paths_and_scores(regions, datatype='score')
 
     # get genes for each region
     regions = collect_genes_for_regions(regions)
-    print(f"Regions is now length {len(regions)}", flush=True)
 
     if membership:
         # collect geneset membership for each region independently
         for region in regions:
-            print("Collecting geneset membership for region:", region, flush=True)
             region_genes = [g["name"] for g in region["genes"]]
             p = geneset_enrichment.perform_geneset_hypergeometric_test(region_genes, membership=membership, bonferroni=bonferroni)
             geneset_data = geneset_enrichment.generate_geneset_return_data(p, threshold=threshold)
