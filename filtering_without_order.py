@@ -469,14 +469,11 @@ def filtering_without_order():
         return jsonify({"error": "ServerError", "message": "An unexpected error occurred"}), 500
 
 
-@filtering_without_order_bp.route("generate_region_set_from_factor", methods=['POST', 'OPTIONS'])
+@filtering_without_order_bp.route("generate_region_set_from_factor", methods=['POST'])
 def generate_region_set_from_factor():
     """
     Endpoint for generating a region set from a factor of interest
     """
-
-    if request.method == 'OPTIONS':
-        return '', 200
 
     request_info = request.get_json()
     factor = request_info['factor']  # {dataset, factor}
