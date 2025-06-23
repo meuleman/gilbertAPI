@@ -16,7 +16,7 @@ from pubmed_summary import pubmed_summary_bp
 # from umap import umap_bp
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16 MB
 
 
