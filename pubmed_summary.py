@@ -282,7 +282,7 @@ def get_summary(query, st_model, table, rag_prompt, examples, api_key, exclude_G
 
     start = time.time()
     # load openAI model
-    model = models.openai("gpt-4o-mini", api_key=api_key)
+    model = models.openai("gpt-6-luna", api_key=api_key)
     print(f"\tModel time: {time.time() - start}", flush=True)
 
     start = time.time()
